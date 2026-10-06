@@ -127,6 +127,7 @@ DATABASE_URL_MIGRATIONS=
 # Seguridad
 SESSION_SECRET=
 FIELD_ENCRYPTION_KEY=
+FIELD_ENCRYPTION_KEYS_PREVIOUS=        # opcional: solo durante una rotación
 CSRF_SECRET=
 ADMIN_EMAILS=                    # emails separados por coma que reciben el rol admin al ingresar
 SESSION_TTL_HOURS=

@@ -24,6 +24,7 @@ COMPOSE_ONLY = {
 }
 
 OPTIONAL = {
+    "FIELD_ENCRYPTION_KEYS_PREVIOUS",
     "LLM_EXTRACTION_FALLBACK_MODEL",
     "VALIDATION_THRESHOLD_PCT",
     "MERCADOPAGO_ACCESS_TOKEN",
@@ -133,3 +134,19 @@ def test_env_example_documenta_exactamente_las_variables() -> None:
 
     assert documented == declared | COMPOSE_ONLY
     assert declared == set(VALID_ENV) | OPTIONAL
+
+
+def test_claves_anteriores_de_cifrado(env: pytest.MonkeyPatch) -> None:
+    old = base64.urlsafe_b64encode(b"\x01" * 32).decode()
+    env.setenv("FIELD_ENCRYPTION_KEYS_PREVIOUS", f" {old} , {old}")
+
+    settings = load_settings(env_file=None)
+
+    keys = settings.field_encryption_keys_previous or []
+    assert [key.get_secret_value() for key in keys] == [old, old]
+
+
+def test_clave_anterior_invalida_se_rechaza(env: pytest.MonkeyPatch) -> None:
+    message = _error_for(env, "FIELD_ENCRYPTION_KEYS_PREVIOUS", "no-es-una-clave")
+    assert "FIELD_ENCRYPTION_KEYS_PREVIOUS" in message
+    assert "no-es-una-clave" not in message
