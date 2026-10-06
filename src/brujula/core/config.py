@@ -157,10 +157,15 @@ class Settings(BaseSettings):
     csrf_secret: StrongSecret
     admin_emails: EmailList
 
+    # Sesiones y límites de pedidos
+    session_ttl_hours: Annotated[int, Field(gt=0, le=24 * 30)]
+    rate_limit_auth_per_minute: Annotated[int, Field(gt=0)]
+
     # OAuth (Google)
     google_client_id: NonEmptyStr
     google_client_secret: SecretStr
     google_redirect_uri: HttpUrl
+    google_discovery_url: HttpUrl
 
     # LLMs
     llm_extraction_model: NonEmptyStr
