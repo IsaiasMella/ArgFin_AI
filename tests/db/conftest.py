@@ -71,9 +71,12 @@ def _wait_for_tcp(conninfo: str, timeout_s: float = 60) -> None:
 
 
 @pytest.fixture(scope="session")
-def database() -> Iterator[Database]:
+def database(request: pytest.FixtureRequest) -> Iterator[Database]:
     if not _docker_available():
-        pytest.skip("Docker no está disponible: se omiten los tests de base de datos")
+        message = "Docker no está disponible para los tests de base de datos"
+        if request.config.getoption("--requiere-db"):
+            pytest.fail(message)
+        pytest.skip(message)
     superuser, super_password = CREDENTIALS["superuser"]
     container = (
         DockerContainer(IMAGE)
