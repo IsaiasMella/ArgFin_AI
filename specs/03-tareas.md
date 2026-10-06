@@ -61,7 +61,7 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 
 **T3.5 Extractor de PDFs.** PyMuPDF más ruteo a modelo multimodal por página, validaciones contables y estado `revision_manual`.
 
-**T3.6 Dataset de referencia y evals de extracción.** 10 empresas × 4 trimestres, cargado a mano; runner de evals con exactitud por campo, costo y latencia; comparación de al menos dos modelos.
+**T3.6 Dataset de referencia y evals de extracción.** 10 empresas × 4 trimestres, cargado a mano; runner de evals con exactitud por campo, costo y latencia; comparación de al menos dos modelos, uno de ellos de bajo costo de otro proveedor (plan técnico, sección 9).
 - **GATE:** no se amplía a las 40 empresas ni se pasa a la fase 5 sin cumplir los umbrales de la sección 9 del plan técnico.
 
 ## Fase 4 — Noticias y exposición
@@ -75,7 +75,7 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 
 **T4.4 Deduplicación** por embeddings con pgvector.
 
-**T4.5 Clasificación y ruteo** (empresas, importancia, factores) y sus evals.
+**T4.5 Clasificación y ruteo** (empresas, importancia, factores) y sus evals, comparando al menos un modelo de bajo costo de otro proveedor (plan técnico, sección 9).
 - **GATE:** umbrales de la sección 9 del plan técnico.
 
 ## Fase 5 — Señales e informes
