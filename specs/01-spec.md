@@ -66,7 +66,7 @@ Como inversor, quiero un email semanal con lo importante de mi portafolio.
 ### HU-04 Recibir el informe trimestral
 Como inversor, quiero un informe cuando una de mis empresas presenta resultados.
 - CUANDO se ingiere y valida un nuevo estado contable de una empresa del universo ENTONCES el sistema genera **un** informe para esa empresa y lo envía a todos los usuarios que la tienen.
-- El informe contiene: encabezado con datos de mercado, resumen del trimestre, tabla de métricas (trimestre actual contra el anterior y contra el mismo trimestre del año anterior), secciones por tema, señales activadas, exposición a factores, fuentes y disclaimer.
+- El informe contiene: encabezado con datos de mercado, resumen del trimestre, tabla de métricas (trimestre actual contra el anterior y contra el mismo trimestre del año anterior), secciones por tema, **puntos fuertes y puntos débiles** (siempre ambas secciones, derivadas de las señales activadas), exposición a factores, fuentes y disclaimer.
 - No contiene recomendación ni precio objetivo.
 
 ### HU-05 Ver un informe de ejemplo
@@ -76,7 +76,8 @@ Como visitante, quiero ver un informe real antes de registrarme.
 ### HU-06 Mostrar intención de pago
 Como visitante, quiero ver precios claros.
 - La página de precios muestra plan gratuito y plan pago.
-- CUANDO el visitante elige el plan pago ENTONCES el sistema registra el evento de intención y lo suma a la lista de espera (fake door), explicándole con honestidad que el plan pago abre pronto.
+- CUANDO el visitante elige el plan pago ENTONCES el sistema registra el evento de intención (fake door) y le explica con honestidad que el plan pago abre pronto.
+- CUANDO el visitante no tiene cuenta ENTONCES el clic se registra de forma anónima (sin datos personales) y se lo invita a registrarse para entrar en la lista de espera; si se registra, la intención se vincula a su usuario.
 
 ### HU-07 Administrar el mapa de exposición (administrador)
 Como administrador, quiero revisar y aprobar los factores de exposición propuestos por IA.
