@@ -55,3 +55,19 @@ def test_ready_sin_base_responde_503(settings: Settings) -> None:
 
     assert response.status_code == 503
     assert response.json() == {"status": "not_ready", "database": False, "queue": False}
+
+
+def test_genera_request_id_si_no_viene(settings: Settings) -> None:
+    response = TestClient(create_app(settings)).get("/health")
+
+    assert len(response.headers["X-Request-ID"]) == 32
+
+
+def test_respeta_un_request_id_valido_y_reemplaza_uno_peligroso(settings: Settings) -> None:
+    client = TestClient(create_app(settings))
+
+    kept = client.get("/health", headers={"X-Request-ID": "caddy-1234-abcd"})
+    replaced = client.get("/health", headers={"X-Request-ID": "x\ninyectado=1"})
+
+    assert kept.headers["X-Request-ID"] == "caddy-1234-abcd"
+    assert replaced.headers["X-Request-ID"] != "x\ninyectado=1"

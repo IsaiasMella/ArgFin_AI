@@ -5,26 +5,28 @@ termina las tareas en curso y sale.
 """
 
 import asyncio
-import logging
 import sys
 
+import structlog
+
 from brujula.core.config import Settings, get_settings
+from brujula.core.logging import configure_logging
 from brujula.core.queue import create_queue_app
 
-logger = logging.getLogger("brujula.worker")
+logger = structlog.get_logger(__name__)
 
 
 async def run(settings: Settings) -> None:
     app = create_queue_app(settings)
     async with app.open_async():
-        logger.info("worker iniciado (entorno: %s)", settings.app_env)
+        logger.info("worker_iniciado", entorno=settings.app_env)
         await app.run_worker_async()
-    logger.info("worker detenido")
+    logger.info("worker_detenido")
 
 
 def main() -> None:
     settings = get_settings()
-    logging.basicConfig(level=settings.log_level)
+    configure_logging(settings)
     # psycopg asíncrono no funciona con el event loop por defecto de Windows (Proactor).
     loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
     asyncio.run(run(settings), loop_factory=loop_factory)

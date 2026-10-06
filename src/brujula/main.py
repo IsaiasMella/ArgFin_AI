@@ -4,11 +4,14 @@ Se ejecuta con `uvicorn brujula.main:create_app --factory`. La configuración se
 crear la app: si falta una variable obligatoria, el proceso no arranca.
 """
 
-from collections.abc import AsyncIterator
+import re
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from typing import Literal
+from uuid import uuid4
 
-from fastapi import FastAPI, Request
+import structlog
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import text
@@ -17,9 +20,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from brujula.core.config import Settings, get_settings
 from brujula.core.db import create_engine
+from brujula.core.logging import configure_logging
 
 # La cola vive en la misma base: está disponible si su esquema existe.
 QUEUE_READY_QUERY = text("SELECT to_regclass('procrastinate_jobs') IS NOT NULL")
+
+REQUEST_ID_HEADER = "X-Request-ID"
+# Solo se acepta un request id entrante con formato seguro (evita inyección en los logs).
+VALID_REQUEST_ID = re.compile(r"^[A-Za-z0-9-]{8,64}$")
 
 
 class HealthResponse(BaseModel):
@@ -34,6 +42,7 @@ class ReadyResponse(BaseModel):
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
+    configure_logging(settings)
     is_production = settings.app_env == "production"
 
     @asynccontextmanager
@@ -51,6 +60,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url=None if is_production else "/openapi.json",
     )
     app.state.settings = settings
+
+    @app.middleware("http")
+    async def request_context(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        incoming = request.headers.get(REQUEST_ID_HEADER, "")
+        request_id = incoming if VALID_REQUEST_ID.match(incoming) else uuid4().hex
+        structlog.contextvars.clear_contextvars()
+        structlog.contextvars.bind_contextvars(request_id=request_id)
+        response = await call_next(request)
+        response.headers[REQUEST_ID_HEADER] = request_id
+        return response
 
     @app.get("/health", tags=["operación"])
     async def health() -> HealthResponse:

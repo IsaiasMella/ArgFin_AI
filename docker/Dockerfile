@@ -36,6 +36,7 @@ COPY --from=builder --chown=app:app /app/.venv /app/.venv
 # Migraciones: las ejecuta el servicio `migrate` con `alembic upgrade head`.
 COPY --chown=app:app alembic.ini ./
 COPY --chown=app:app migrations ./migrations
+COPY --chown=app:app prompts ./prompts
 USER app
 
 EXPOSE 8000
