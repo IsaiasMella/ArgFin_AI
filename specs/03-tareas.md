@@ -13,7 +13,7 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 **T0.3 Docker.** Dockerfile multi-stage, `compose.yml` con `api`, `worker`, `postgres` (con pgvector) y `caddy`.
 - Criterio: `docker compose up` levanta todo y `/health` responde.
 
-**T0.4 Base de datos, roles y RLS.** Alembic, rol de aplicación sin `BYPASSRLS` y rol de migraciones, helper para `SET LOCAL app.current_user_id`.
+**T0.4 Base de datos, roles y RLS.** Alembic, rol de aplicación sin `BYPASSRLS` y rol de migraciones, helper para `SET LOCAL app.current_user_id`. Cola de tareas Procrastinate (esquema por migración) usada por el worker, y endpoint `/ready`.
 - Criterio: test que demuestra que, sin contexto de usuario, una tabla de usuario devuelve cero filas.
 
 **T0.5 Logging y cliente LLM.** structlog; `core/llm/client.py` con LiteLLM, registro en `llm_calls` y Langfuse, reintentos y corte por presupuesto; registro de prompts versionados.

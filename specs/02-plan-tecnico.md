@@ -26,9 +26,9 @@ Dos repositorios:
 |---|---|---|
 | Lenguaje | Python 3.12 | Ecosistema de datos, PDFs, evals y SDKs de LLM. |
 | API | FastAPI + Pydantic v2 | Tipado, validación y esquemas reutilizados para structured outputs. |
-| ORM y migraciones | SQLAlchemy 2.0 (async, asyncpg) + Alembic | Maduro, tipado, migraciones versionadas. |
+| ORM y migraciones | SQLAlchemy 2.0 (async, psycopg 3) + Alembic | Maduro, tipado, migraciones versionadas. Un solo driver para ORM, migraciones y cola (ADR 003). |
 | Base de datos | PostgreSQL 16 + pgvector | Una sola base para datos, embeddings, cola de tareas y RLS. |
-| Cola de tareas | Procrastinate | Cola sobre PostgreSQL: evita sumar Redis; suficiente para cientos de documentos por día; escalar = más workers. |
+| Cola de tareas | Procrastinate | Cola sobre PostgreSQL: evita sumar Redis; suficiente para cientos de documentos por día; escalar = más workers. Su esquema se aplica con Alembic (ADR 003). |
 | Acceso a LLMs | LiteLLM + structured outputs nativos | Interfaz única para comparar modelos y medir costo por llamada. Sin LangChain: el sistema es un pipeline fijo, no un agente. |
 | Validación de outputs | Pydantic + reintento con el error de validación | Garantiza esquema; los errores vuelven al modelo una vez antes de fallar. |
 | Observabilidad LLM | Langfuse (plan cloud gratuito) | Trazas, costo y latencia. Autoalojarlo exige ClickHouse, Redis y almacenamiento: no vale para el MVP. |
