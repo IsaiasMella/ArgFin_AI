@@ -1,35 +1,33 @@
-"""Entrada del proceso worker.
+"""Entrada del proceso worker: ejecuta las tareas de la cola (Procrastinate).
 
-Por ahora solo valida la configuración y espera una señal de parada: la cola de tareas
-(Procrastinate) necesita su esquema en la base, que se crea con las migraciones de T0.4.
+Procrastinate instala sus propios manejadores de SIGTERM/SIGINT: al recibir la señal
+termina las tareas en curso y sale.
 """
 
+import asyncio
 import logging
-import signal
-import threading
-from types import FrameType
+import sys
 
-from brujula.core.config import get_settings
+from brujula.core.config import Settings, get_settings
+from brujula.core.queue import create_queue_app
 
 logger = logging.getLogger("brujula.worker")
+
+
+async def run(settings: Settings) -> None:
+    app = create_queue_app(settings)
+    async with app.open_async():
+        logger.info("worker iniciado (entorno: %s)", settings.app_env)
+        await app.run_worker_async()
+    logger.info("worker detenido")
 
 
 def main() -> None:
     settings = get_settings()
     logging.basicConfig(level=settings.log_level)
-
-    stop = threading.Event()
-
-    def _request_stop(signum: int, _frame: FrameType | None) -> None:
-        logger.info("señal %s recibida, deteniendo el worker", signal.Signals(signum).name)
-        stop.set()
-
-    signal.signal(signal.SIGTERM, _request_stop)
-    signal.signal(signal.SIGINT, _request_stop)
-
-    logger.info("worker iniciado (entorno: %s), sin tareas registradas todavía", settings.app_env)
-    stop.wait()
-    logger.info("worker detenido")
+    # psycopg asíncrono no funciona con el event loop por defecto de Windows (Proactor).
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    asyncio.run(run(settings), loop_factory=loop_factory)
 
 
 if __name__ == "__main__":
