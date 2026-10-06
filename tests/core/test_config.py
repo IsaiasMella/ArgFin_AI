@@ -7,56 +7,12 @@ from pathlib import Path
 import pytest
 
 from brujula.core.config import ConfigError, Settings, load_settings
+from tests.support.env import VALID_ENV
 
 ROOT = Path(__file__).resolve().parents[2]
 
-VALID_ENV: dict[str, str] = {
-    "APP_ENV": "development",
-    "APP_BASE_URL": "http://localhost:8000",
-    "WEB_BASE_URL": "http://localhost:3000",
-    "COOKIE_DOMAIN": "localhost",
-    "LOG_LEVEL": "info",
-    "APP_TIMEZONE": "America/Argentina/Buenos_Aires",
-    "DATABASE_URL": "postgresql+asyncpg://app:clave-app@localhost:5432/brujula",
-    "DATABASE_URL_MIGRATIONS": "postgresql+asyncpg://migr:clave-migr@localhost:5432/brujula",
-    "SESSION_SECRET": "s" * 40,
-    "FIELD_ENCRYPTION_KEY": base64.urlsafe_b64encode(bytes(32)).decode(),
-    "CSRF_SECRET": "c" * 40,
-    "ADMIN_EMAILS": " Admin@Ejemplo.com , otra@ejemplo.com",
-    "GOOGLE_CLIENT_ID": "google-client-id",
-    "GOOGLE_CLIENT_SECRET": "google-client-secret",
-    "GOOGLE_REDIRECT_URI": "http://localhost:8000/auth/callback",
-    "LLM_EXTRACTION_MODEL": "modelo-extraccion",
-    "LLM_CLASSIFICATION_MODEL": "modelo-clasificacion",
-    "LLM_WRITER_MODEL": "modelo-redaccion",
-    "LLM_EMBEDDING_MODEL": "modelo-embeddings",
-    "LLM_EMBEDDING_DIMENSIONS": "1536",
-    "LLM_JUDGE_MODEL": "modelo-juez",
-    "ANTHROPIC_API_KEY": "anthropic-key",
-    "OPENAI_API_KEY": "openai-key",
-    "LLM_MONTHLY_BUDGET_USD": "50",
-    "LANGFUSE_PUBLIC_KEY": "pk-test",
-    "LANGFUSE_SECRET_KEY": "sk-test",
-    "LANGFUSE_HOST": "https://cloud.langfuse.com",
-    "SEC_USER_AGENT": "Brujula contacto@ejemplo.com",
-    "BYMA_OPEN_DATA_BASE_URL": "https://byma.example.invalid",
-    "DATA912_BASE_URL": "https://data912.example.invalid",
-    "PRICE_DIVERGENCE_THRESHOLD_PCT": "2.5",
-    "CRON_PRICES_DAILY": "0 19 * * 1-5",
-    "CRON_FILINGS_CHECK": "0 */6 * * *",
-    "CRON_NEWS_INGEST": "*/30 * * * *",
-    "CRON_WEEKLY_DIGEST": "0 8 * * 6",
-    "RESEND_API_KEY": "resend-key",
-    "EMAIL_FROM": "Brujula <hola@ejemplo.com>",
-    "RESEND_WEBHOOK_SECRET": "resend-webhook-secret",
-    "PRICE_PRO_ARS": "9999.99",
-    "FREE_PLAN_MAX_POSITIONS": "5",
-    "FREE_PLAN_DIGESTS_PER_MONTH": "1",
-    "FOUNDER_PLAN_OPEN": "true",
-    "DOCUMENT_STORAGE_DIR": "./data/documents",
-    "CONFIG_DIR": "./config",
-    "PROMPTS_DIR": "./prompts",
-}
+# Variables de .env.example que usa docker/compose.yml y no la app.
+COMPOSE_ONLY = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "CADDY_SITE_ADDRESS"}
 
 OPTIONAL = {
     "LLM_EXTRACTION_FALLBACK_MODEL",
@@ -64,16 +20,6 @@ OPTIONAL = {
     "MERCADOPAGO_ACCESS_TOKEN",
     "MERCADOPAGO_WEBHOOK_SECRET",
 }
-
-
-@pytest.fixture
-def env(monkeypatch: pytest.MonkeyPatch) -> pytest.MonkeyPatch:
-    """Entorno controlado: sin variables heredadas de la máquina y sin leer ningún .env."""
-    for name in Settings.model_fields:
-        monkeypatch.delenv(name.upper(), raising=False)
-    for name, value in VALID_ENV.items():
-        monkeypatch.setenv(name, value)
-    return monkeypatch
 
 
 def _error_for(env: pytest.MonkeyPatch, name: str, value: str) -> str:
@@ -175,5 +121,5 @@ def test_env_example_documenta_exactamente_las_variables() -> None:
     documented = {m.group(1) for line in lines if (m := re.match(r"^([A-Z0-9_]+)=", line))}
     declared = {name.upper() for name in Settings.model_fields}
 
-    assert documented == declared
+    assert documented == declared | COMPOSE_ONLY
     assert declared == set(VALID_ENV) | OPTIONAL

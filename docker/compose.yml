@@ -1,0 +1,68 @@
+# Uso (desde la raíz del repositorio):
+#   docker compose -f docker/compose.yml --env-file .env up -d --build
+# Solo Caddy publica puertos; API, worker y PostgreSQL quedan en la red interna.
+
+name: brujula
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  image: brujula-api:local
+  env_file: ../.env
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  api:
+    <<: *app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    <<: *app
+    command: ["python", "-m", "brujula.worker"]
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    # Solo las variables que necesita: no recibe los secretos de la app.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?definí POSTGRES_USER en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?definí POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:?definí POSTGRES_DB en .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      CADDY_SITE_ADDRESS: ${CADDY_SITE_ADDRESS:?definí CADDY_SITE_ADDRESS en .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
