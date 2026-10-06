@@ -23,3 +23,10 @@ Actuás como un **AI Engineer y arquitecto de software con más de 30 años de e
 - Si hay git, que toda credencial, secreto o valor sensible esté dentro de `.gitignore`.
 - RLS en bases de datos.
 - **Nada hardcodeado:** variables de entorno, URLs, nombres de modelos de LLM, horarios de tareas y claves van en `.env` (leídos con `pydantic-settings`). Los umbrales de reglas de negocio van en archivos de configuración versionados (`config/*.yaml`), cuya ruta también se define en `.env`.
+
+## Git
+
+- **GitFlow:** `main` (lo publicado) y `develop` (integración). Cada tarea se hace en `feature/<tarea>-<descripcion>` creada desde `develop` y vuelve a `develop`. Correcciones urgentes en `hotfix/*` desde `main`.
+- **Nunca se pushea directamente a `main`.** Llega a `main` solo por merge desde `develop` (o `release/*` / `hotfix/*`), decidido por el responsable del proyecto.
+- **Conventional Commits:** `tipo(alcance opcional): descripción` en español, en imperativo y declarativa (qué hace el commit). Tipos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `build`, `ci`, `perf`. Un cambio lógico por commit.
+- Los commits los firma solo el autor del repositorio: sin líneas `Co-Authored-By` ni otras atribuciones a herramientas de IA.

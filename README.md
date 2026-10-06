@@ -1,6 +1,6 @@
 # Brújula — API
 
-Monolito modular en Python (API FastAPI + worker). Ver `AGENTS.md` y `spec/`.
+Monolito modular en Python (API FastAPI + worker). Ver `AGENTS.md` y `specs/`.
 
 ## Desarrollo
 

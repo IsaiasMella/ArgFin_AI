@@ -40,6 +40,7 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 ## Fase 2 — Universo y precios
 
 **T2.1 Universo.** `config/universe.yaml` con 20 acciones del panel líder y 20 CEDEARs (ticker BYMA, ticker de origen, ratio, sector, CIK de la SEC si corresponde). Comando para sincronizarlo con la base.
+- Selección: los más operados (volumen) del último trimestre cerrado, según la fuente más fiable disponible, preferentemente oficial (BYMA). La fuente, la ventana y la fecha de corte quedan documentadas en el YAML.
 
 **T2.2 Interfaz `PriceProvider` e implementaciones** para BYMA Open Data y data912.
 - Criterio: tests con respuestas grabadas (fixtures), sin llamadas reales en CI.

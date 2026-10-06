@@ -36,6 +36,8 @@ Dos repositorios:
 | Extracción de PDFs | PyMuPDF para texto; envío del PDF al modelo multimodal solo si la página es escaneada o tiene tablas complejas | Minimiza costo; la decisión se toma por página y se mide en evals. |
 | Datos de EE.UU. | SEC EDGAR API (`companyfacts`, XBRL) | Estructurado y oficial: no requiere LLM para extraer cifras. |
 | Precios | BYMA Open Data (PyOBD) principal; data912 respaldo | Gratis; sin API oficial disponible para no miembros. Detrás de una interfaz `PriceProvider`. |
+| Embeddings | OpenAI `text-embedding-3-large`, reducido a `LLM_EMBEDDING_DIMENSIONS` (por ejemplo 1536) | Mejor calidad que `small` en benchmarks; el modelo admite acortar el vector sin perder mucha calidad, y los índices HNSW de pgvector para el tipo `vector` admiten hasta 2000 dimensiones. Se confirma en las evals de T4.4. |
+| Almacenamiento de documentos | Disco del VPS (`DOCUMENT_STORAGE_DIR`) detrás de una interfaz `DocumentStorage`, incluido en los backups diarios | Lo más simple para el MVP; los PDFs son públicos pero se guardan porque las fuentes pueden desaparecer (trazabilidad, constitución punto 2). Migrable a almacenamiento de objetos compatible con S3 sin tocar las features. |
 | Emails | Resend | API simple y webhooks de apertura. |
 | Pagos (fase 9) | Mercado Pago (suscripciones / preapproval) | Cliente argentino, cobro en pesos. |
 | Autenticación | OAuth 2.0 / OIDC con Google vía Authlib, sesiones del lado del servidor | La API es la única fuente de identidad; facilita RLS. |
@@ -106,6 +108,7 @@ Cada feature contiene, cuando aplique: `models.py` (SQLAlchemy), `schemas.py` (P
 ## 4. Configuración
 
 - `core/config.py` define un `Settings` con `pydantic-settings`. **Toda** configuración se lee de ahí; ningún módulo lee variables de entorno por su cuenta.
+- Todas las variables son **obligatorias**, salvo las marcadas como opcionales (funcionalidades de fases posteriores). El código no define valores por defecto: si falta una obligatoria, la app no arranca y el mensaje lista cuáles faltan (sin mostrar valores).
 - `.env.example` (sin valores reales):
 
 ```
@@ -115,6 +118,7 @@ APP_BASE_URL=
 WEB_BASE_URL=
 COOKIE_DOMAIN=
 LOG_LEVEL=
+APP_TIMEZONE=                    # p. ej. America/Argentina/Buenos_Aires; usada por los cron
 
 # Base de datos
 DATABASE_URL=
@@ -124,6 +128,7 @@ DATABASE_URL_MIGRATIONS=
 SESSION_SECRET=
 FIELD_ENCRYPTION_KEY=
 CSRF_SECRET=
+ADMIN_EMAILS=                    # emails separados por coma que reciben el rol admin al ingresar
 
 # OAuth (Google)
 GOOGLE_CLIENT_ID=
@@ -132,10 +137,11 @@ GOOGLE_REDIRECT_URI=
 
 # LLMs (nombres de modelo configurables)
 LLM_EXTRACTION_MODEL=
-LLM_EXTRACTION_FALLBACK_MODEL=
+LLM_EXTRACTION_FALLBACK_MODEL=   # opcional
 LLM_CLASSIFICATION_MODEL=
 LLM_WRITER_MODEL=
 LLM_EMBEDDING_MODEL=
+LLM_EMBEDDING_DIMENSIONS=        # <= 2000 (límite de índices HNSW de pgvector)
 LLM_JUDGE_MODEL=
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
@@ -166,11 +172,16 @@ RESEND_WEBHOOK_SECRET=
 # Negocio
 PRICE_PRO_ARS=
 FREE_PLAN_MAX_POSITIONS=
-VALIDATION_THRESHOLD_PCT=
+FREE_PLAN_DIGESTS_PER_MONTH=
+FOUNDER_PLAN_OPEN=               # true durante el MVP: todo registro nuevo es plan fundador
+VALIDATION_THRESHOLD_PCT=        # opcional hasta T9.1
 
-# Pagos (fase 9)
+# Pagos (fase 9, opcionales hasta entonces)
 MERCADOPAGO_ACCESS_TOKEN=
 MERCADOPAGO_WEBHOOK_SECRET=
+
+# Almacenamiento
+DOCUMENT_STORAGE_DIR=
 
 # Rutas de configuración
 CONFIG_DIR=
@@ -194,16 +205,18 @@ PROMPTS_DIR=
 - `exposure_entries`: company_id, factor_id, dirección (`+`, `-`, `ambigua`), intensidad (`alta`, `media`, `baja`), justificación, cita_documento_id, cita_pagina, estado (`propuesta`, `aprobada`, `rechazada`), aprobada_por, aprobada_en.
 - `signals_fired`: company_id, período, regla_código, valores_usados (json), fecha.
 - `company_reports`: id, company_id, período, contenido_renderizado, versión_prompt, costo_usd, estado.
+- `roles`: código (`usuario`, `admin`, …), descripción. Catálogo extensible sin migrar enums; el rol define **permisos** y es independiente del plan. Los emails de `ADMIN_EMAILS` reciben `admin` al ingresar.
+- `news_facts`: id, news_id, descripción, valor, unidad, fecha_referencia, url_fuente, extractor_version. Cifras de noticias extraídas como datos con fuente, para usarlas con marcadores (constitución, punto 2).
 - `llm_calls`: id, propósito, modelo, versión_prompt, tokens_in, tokens_out, costo_usd, latencia_ms, éxito, trace_id.
 
 **Tablas de usuario** (con RLS):
 
-- `users`: id, email, nombre, proveedor_oauth, sub_oauth, plan, creado_en, borrado_en.
+- `users`: id, email, nombre, proveedor_oauth, sub_oauth, rol (FK a `roles`), plan (`gratis`, `pro`, `fundador`), creado_en, borrado_en.
 - `sessions`: id, user_id, token_hash, expira_en, ip_hash, user_agent.
 - `holdings`: id, user_id, instrument_id o ticker_libre, cantidad_cifrada, precio_promedio_cifrado, broker (opcional), creado_en.
 - `user_report_deliveries`: id, user_id, tipo (`semanal`, `trimestral`), referencia, enviado_en, abierto_en.
 - `email_preferences`: user_id, semanal_activo, trimestral_activo, token_baja.
-- `payment_intents`: id, user_id o visitor_id, plan, fecha, origen_campaña.
+- `payment_intents`: id, user_id, plan, fecha, origen_campaña. *(El registro de intención de visitantes anónimos está pendiente: ver `preguntas-abiertas.md`, punto 5.)*
 - `subscriptions` (fase 9): user_id, proveedor, estado, id_externo.
 
 ## 6. Seguridad
@@ -214,6 +227,7 @@ PROMPTS_DIR=
    - Política: `user_id = current_setting('app.current_user_id')::uuid`.
    - La aplicación se conecta con un rol **sin** privilegios de dueño de tabla ni `BYPASSRLS`. Las migraciones usan otro rol (`DATABASE_URL_MIGRATIONS`).
    - Cada request autenticado ejecuta `SET LOCAL app.current_user_id` dentro de su transacción. El worker hace lo mismo por cada usuario que procesa; no existe un rol que saltee RLS.
+   - Las operaciones que necesitan resolver un usuario **antes** de conocer su id (ingreso OAuth, resolución de sesión por `token_hash`) o enumerar usuarios (worker: usuarios activos, usuarios con una empresa) usan funciones `SECURITY DEFINER` acotadas, con `search_path` fijo, que devuelven solo lo mínimo (ids). Se documentan en un ADR en T0.4.
    - Tests que verifican que un usuario no puede leer ni modificar filas de otro.
 3. **Autenticación:** OAuth 2.0 / OIDC con Google, Authorization Code + PKCE, validación de `state`, `nonce` y firma del ID token. Sesiones del lado del servidor; en la base solo se guarda el hash del token. Cookie `HttpOnly`, `Secure`, `SameSite=Lax`, dominio compartido entre `app.` y `api.`.
 4. **CSRF:** verificación de `Origin` más token doble para métodos que modifican estado.
@@ -235,7 +249,7 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 
 ### 7.2 Estados contables
 1. **Descubrimiento:** revisar periódicamente las fuentes de cada empresa (relación con inversores, CNV) en busca de documentos nuevos. Las URLs y métodos concretos por empresa se definen en la tarea de discovery (ver `03-tareas.md`, T3.1) y se guardan en `config/universe.yaml`.
-2. **Descarga y deduplicación** por hash.
+2. **Descarga y deduplicación** por hash. Los archivos se guardan con `DocumentStorage` (implementación en disco bajo `DOCUMENT_STORAGE_DIR`).
 3. **Empresas con datos en la SEC:** leer `companyfacts` (XBRL) y mapear conceptos a métricas internas sin LLM.
 4. **Empresas argentinas (PDF):**
    - Extraer texto por página con PyMuPDF; detectar páginas con tablas complejas o escaneadas y enviarlas al modelo multimodal.
@@ -248,7 +262,8 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 1. Ingesta de fuentes configuradas en `config/news_sources.yaml` (RSS y hechos relevantes oficiales). Se guarda **solo** título, link, fecha y un resumen propio; nunca el texto completo.
 2. Embedding del título y resumen; agrupar duplicados por similitud (umbral configurable).
 3. Clasificación con LLM (structured output): empresas mencionadas, relevancia, importancia (`alta`, `media`, `baja`) y factores macro afectados (de la taxonomía de `factors.yaml`).
-4. Ruteo: una noticia macro llega a un usuario si afecta un factor al que alguna de sus empresas tiene exposición **aprobada**.
+4. Cifras de la noticia: se extraen como `news_facts` (valor, unidad, fuente). Validación determinística: el valor debe aparecer literalmente en el texto fuente descargado; si no, se descarta.
+5. Ruteo: una noticia macro llega a un usuario si afecta un factor al que alguna de sus empresas tiene exposición **aprobada**.
 
 ### 7.4 Mapa de exposición
 1. Para cada empresa, a partir de la memoria anual o de la sección de factores de riesgo, el LLM propone entradas de exposición con justificación y cita (documento y página).
@@ -263,9 +278,9 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 1. **Ensamblado de datos:** el código arma un objeto con métricas, variaciones, señales, exposición y noticias.
 2. **Redacción:** el LLM escribe el texto narrativo usando **solo** marcadores (`{{metric:ebitda_ajustado:2T26}}`, `{{var:ebitda_ajustado:qoq}}`, `{{source:doc_123:p4}}`).
 3. **Validación del texto:**
-   - Sin dígitos fuera de marcadores.
+   - Sin dígitos fuera de marcadores, salvo los patrones de una lista blanca versionada en `config/numeros_permitidos.yaml` (nombres propios como "3M", "G20", "COVID-19"; períodos como "2T26"; normas como "Ley 25.326").
    - Todos los marcadores existen en el objeto de datos.
-   - Sin términos de `lenguaje_prohibido.yaml`.
+   - Sin términos de `lenguaje_prohibido.yaml`. Los patrones apuntan a formas de recomendación (infinitivo, imperativo, "conviene", "habría que", segunda persona) y no a hechos en tercera persona ("la empresa vendió su participación").
    - Si falla, un reintento con el error; si vuelve a fallar, el informe queda en `revision_manual`.
 4. **Renderizado:** el código reemplaza marcadores y produce HTML para email y vista web.
 5. El informe trimestral se genera **una vez por empresa y período**; el envío a cada usuario agrega solo el contexto de su posición (peso en su portafolio).
@@ -304,7 +319,7 @@ Los umbrales son configurables y se documentan en un ADR. Cada eval reporta tamb
 - VPS con Docker Compose: contenedores `api`, `worker`, `postgres` y `caddy`.
 - Una sola imagen para API y worker, con distinto comando de entrada.
 - Migraciones con Alembic al desplegar, usando el rol de migraciones.
-- Backups diarios de PostgreSQL (`pg_dump`) a almacenamiento externo, con retención configurable y prueba de restauración documentada.
+- Backups diarios de PostgreSQL (`pg_dump`) y de `DOCUMENT_STORAGE_DIR` a almacenamiento externo, con retención configurable y prueba de restauración documentada.
 - CI (GitHub Actions): Ruff, mypy, pytest y build de la imagen en cada push; evals en ejecución manual o nocturna.
 
 ## 12. Frontend (`brujula-web`, repositorio aparte)

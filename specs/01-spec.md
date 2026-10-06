@@ -91,8 +91,13 @@ Como administrador, quiero revisar y aprobar los factores de exposición propues
 
 | Plan | Incluye | Precio |
 |---|---|---|
-| Gratis | Resumen semanal, hasta 5 posiciones | $0 |
-| Pago | Posiciones ilimitadas + informes trimestrales | Definido en `.env` (`PRICE_PRO_ARS`) |
+| Gratis | Un resumen semanal por mes (`FREE_PLAN_DIGESTS_PER_MONTH`), hasta 5 posiciones (`FREE_PLAN_MAX_POSITIONS`), sin informes trimestrales | $0 |
+| Pago | Posiciones ilimitadas, todos los resúmenes semanales e informes trimestrales | Definido en `.env` (`PRICE_PRO_ARS`) |
+| Fundador | Todo lo del plan pago, gratis y para siempre | $0 |
+
+- **Durante el MVP todos reciben todo** (resúmenes semanales e informes trimestrales): todo usuario que se registra mientras `FOUNDER_PLAN_OPEN=true` queda con plan `fundador`.
+- Al cerrar la validación se pone `FOUNDER_PLAN_OPEN=false`: los fundadores conservan todo gratis y los nuevos usuarios entran en el plan gratuito.
+- El plan (qué funcionalidades recibe) es independiente del **rol** (qué puede hacer en el sistema, por ejemplo `admin`); ver `02-plan-tecnico.md`, sección 5.
 
 ## 7. Métricas de éxito del MVP
 
