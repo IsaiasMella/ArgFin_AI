@@ -29,6 +29,8 @@ from brujula.core.security.rate_limit import RateLimiter
 from brujula.features.auth.oidc import GoogleOIDC
 from brujula.features.auth.router import router as auth_router
 from brujula.features.auth.service import AuthService
+from brujula.features.portfolios.router import router as portfolio_router
+from brujula.features.portfolios.service import PortfolioService
 
 # La cola vive en la misma base: está disponible si su esquema existe.
 QUEUE_READY_QUERY = text("SELECT to_regclass('procrastinate_jobs') IS NOT NULL")
@@ -65,9 +67,11 @@ def create_app(
         async with httpx2.AsyncClient(
             transport=http_transport, timeout=OUTBOUND_TIMEOUT_SECONDS
         ) as http:
+            session_factory = create_session_factory(app.state.engine)
             app.state.auth_service = AuthService(
-                settings, create_session_factory(app.state.engine), GoogleOIDC(settings, http)
+                settings, session_factory, GoogleOIDC(settings, http)
             )
+            app.state.portfolio_service = PortfolioService(settings, session_factory)
             yield
         await app.state.engine.dispose()
 
@@ -125,4 +129,5 @@ def create_app(
         return JSONResponse(body.model_dump(), status_code=200 if body.status == "ready" else 503)
 
     app.include_router(auth_router)
+    app.include_router(portfolio_router)
     return app

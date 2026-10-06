@@ -22,3 +22,10 @@ curl http://localhost/ready    # base de datos y cola disponibles
 Servicios: `migrate` (aplica las migraciones y termina), `api` (FastAPI), `worker`
 (Procrastinate), `postgres` (con pgvector) y `caddy`. Solo Caddy publica
 puertos (80/443); el resto queda en la red interna de Docker.
+
+## Operación
+
+```bash
+# Re-cifrar los datos de portafolio después de rotar la clave (docs/adr/008)
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli recifrar
+```

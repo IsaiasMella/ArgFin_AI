@@ -218,7 +218,8 @@ PROMPTS_DIR=
 
 - `users`: id, email, nombre, proveedor_oauth, sub_oauth, rol (FK a `roles`), plan (`gratis`, `pro`, `fundador`), creado_en, borrado_en.
 - `sessions`: id, user_id, token_hash, expira_en, ip_hash, user_agent.
-- `holdings`: id, user_id, instrument_id o ticker_libre, cantidad_cifrada, precio_promedio_cifrado, broker (opcional), creado_en.
+- `oauth_transactions` (sin datos de usuario, sin RLS): state_hash, code_verifier, nonce, expira_en. De un solo uso.
+- `holdings`: id, user_id, instrument_id o ticker_libre, cantidad_cifrada, precio_promedio_cifrado (opcional), moneda_precio (`ARS` | `USD`, junto con el precio), broker (opcional), creado_en, actualizado_en.
 - `user_report_deliveries`: id, user_id, tipo (`semanal`, `trimestral`), referencia, enviado_en, abierto_en.
 - `email_preferences`: user_id, semanal_activo, trimestral_activo, token_baja.
 - `payment_intents`: id, user_id, plan, fecha, origen_campaña. Si el usuario se registra con una cookie de visitante que tiene intenciones en `visitor_intents`, se copian acá (plan, fecha, campaña); la fila anónima no guarda referencia al usuario.

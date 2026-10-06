@@ -16,8 +16,15 @@ import psycopg
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
+from pydantic import SecretStr
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.docker_client import DockerClient
+
+from brujula.core.config import Settings
+from brujula.main import create_app
+from tests.support.app import backend_options
+from tests.support.google import FakeGoogle
 
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE = "pgvector/pgvector:pg16"
@@ -111,3 +118,46 @@ def anyio_backend() -> tuple[str, dict[str, Any]]:
     if sys.platform == "win32":
         options["loop_factory"] = asyncio.SelectorEventLoop
     return "asyncio", options
+
+
+# --- App con base real y Google simulado (tests de integración de features) -------------
+
+
+@pytest.fixture
+def auth_settings(settings: Settings, database: Database) -> Settings:
+    return settings.model_copy(
+        update={
+            "database_url": SecretStr(database.url("app")),
+            "admin_emails": ["jefa@ejemplo.com"],
+            "founder_plan_open": True,
+        }
+    )
+
+
+@pytest.fixture
+def google(auth_settings: Settings) -> FakeGoogle:
+    return FakeGoogle(client_id=auth_settings.google_client_id)
+
+
+@pytest.fixture
+def superuser(database: Database) -> Iterator[psycopg.Connection]:
+    """Conexión sin RLS para preparar datos y verificar la base. Limpia al terminar."""
+    with psycopg.connect(database.conninfo("superuser"), autocommit=True) as conn:
+        yield conn
+        conn.execute("DELETE FROM users")  # en cascada: sesiones y posiciones
+        conn.execute("DELETE FROM oauth_transactions")
+        conn.execute("DELETE FROM instruments")
+        conn.execute("DELETE FROM companies")
+
+
+def make_client(settings: Settings, google: FakeGoogle) -> TestClient:
+    app = create_app(settings, http_transport=google.transport())
+    return TestClient(app, base_url="https://testserver", backend_options=backend_options())
+
+
+@pytest.fixture
+def client(
+    auth_settings: Settings, google: FakeGoogle, superuser: psycopg.Connection
+) -> Iterator[TestClient]:
+    with make_client(auth_settings, google) as test_client:
+        yield test_client
