@@ -6,6 +6,7 @@ Principios no negociables. Si cualquier spec, plan o tarea entra en conflicto co
 
 - El producto **informa**: qué pasó, qué cambió, qué viene. **Nunca** recomienda comprar, vender, mantener, hacer short ni sugiere precios objetivo, ni de forma explícita ni implícita.
 - Las "señales" son **reglas determinísticas y documentadas** sobre datos (por ejemplo, "la deuda neta sobre EBITDA subió tres trimestres seguidos"). El LLM no inventa señales ni opina.
+- Lo positivo y lo negativo se presentan de forma **simétrica**: todo informe muestra puntos fuertes y puntos débiles, seleccionados y ordenados por reglas determinísticas. Nunca se elige qué resaltar según una tesis de compra o venta.
 - Lista de términos prohibidos en cualquier texto generado (validada por código): "comprar", "vender", "recomendamos", "oportunidad", "conviene", "precio objetivo", "sobreponderar", "subponderar", "short", y equivalentes configurados en `config/lenguaje_prohibido.yaml`.
 - Todo informe y la landing incluyen el disclaimer legal configurado.
 
