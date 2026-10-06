@@ -1,0 +1,26 @@
+# Mantiene al día las acciones fijadas por SHA y las dependencias de uv.lock.
+# Los PR van a develop, como el resto del trabajo (GitFlow).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      acciones:
+        patterns: ["*"]
+
+  - package-ecosystem: uv
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+    groups:
+      dependencias:
+        patterns: ["*"]
+        update-types: [minor, patch]
