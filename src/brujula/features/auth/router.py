@@ -6,7 +6,7 @@ from uuid import UUID
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from brujula.core.config import Settings
 from brujula.features.auth.cookies import (
@@ -25,7 +25,11 @@ from brujula.features.auth.dependencies import (
     rate_limited,
 )
 from brujula.features.auth.oidc import OIDCError
-from brujula.features.auth.service import AuthService, LoginRejectedError
+from brujula.features.auth.service import (
+    AuthService,
+    DeletionNotConfirmedError,
+    LoginRejectedError,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -34,6 +38,10 @@ router = APIRouter(tags=["autenticación"])
 Service = Annotated[AuthService, Depends(get_auth_service)]
 AppSettings = Annotated[Settings, Depends(get_settings_from_app)]
 auth_rate_limit = Depends(rate_limited("auth_rate_limiter"))
+
+
+class AccountDeletion(BaseModel):
+    confirmacion_email: str = Field(min_length=3, max_length=320)
 
 
 class Profile(BaseModel):
@@ -118,3 +126,20 @@ async def me(user: CurrentUser, service: Service) -> Profile:
         rol=profile.rol,
         plan=profile.plan,
     )
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_account(
+    user: CsrfProtectedUser, service: Service, settings: AppSettings, data: AccountDeletion
+) -> Response:
+    """Borra la cuenta y todos los datos del usuario (borrado real, HU-08)."""
+    try:
+        await service.delete_account(user, data.confirmacion_email)
+    except DeletionNotConfirmedError:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="El email de confirmación no coincide con el de la cuenta",
+        ) from None
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    clear_session_cookies(response, settings)
+    return response

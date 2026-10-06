@@ -25,6 +25,10 @@ OAUTH_TRANSACTION_TTL = timedelta(minutes=10)
 USER_AGENT_MAX_LENGTH = 512
 
 
+class DeletionNotConfirmedError(Exception):
+    """El email de confirmación no coincide con el de la cuenta."""
+
+
 class LoginRejectedError(Exception):
     """El ingreso no se completa. `reason` es para los logs, nunca para el usuario."""
 
@@ -159,6 +163,15 @@ class AuthService:
         async with user_transaction(self._sessions, user.id) as session:
             await repository.delete_session(session, token_hash(user.session_token))
         logger.info("logout", usuario=self.pseudonym(str(user.id)))
+
+    async def delete_account(self, user: AuthenticatedUser, confirmation_email: str) -> None:
+        """Borra la cuenta y todos sus datos (HU-08). Exige confirmar el email de la cuenta."""
+        async with user_transaction(self._sessions, user.id) as session:
+            profile = await repository.get_user(session, user.id)
+            if profile is None or profile.email != confirmation_email.strip().lower():
+                raise DeletionNotConfirmedError
+            await repository.delete_user(session, user.id)
+        logger.info("cuenta_borrada", usuario=self.pseudonym(str(user.id)))
 
     async def get_profile(self, user: AuthenticatedUser) -> User | None:
         async with user_transaction(self._sessions, user.id) as session:
