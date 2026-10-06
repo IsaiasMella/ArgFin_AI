@@ -4,18 +4,30 @@
 
 name: brujula
 
-x-app: &app
+x-image: &image
   build:
     context: ..
     dockerfile: docker/Dockerfile
   image: brujula-api:local
   env_file: ../.env
+
+x-app: &app
+  <<: *image
   restart: unless-stopped
   depends_on:
-    postgres:
-      condition: service_healthy
+    migrate:
+      condition: service_completed_successfully
 
 services:
+  # Aplica las migraciones con el rol de migraciones y termina.
+  migrate:
+    <<: *image
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     <<: *app
     healthcheck:
@@ -37,8 +49,14 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?definí POSTGRES_USER en .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?definí POSTGRES_PASSWORD en .env}
       POSTGRES_DB: ${POSTGRES_DB:?definí POSTGRES_DB en .env}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:?definí POSTGRES_APP_USER en .env}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?definí POSTGRES_APP_PASSWORD en .env}
+      POSTGRES_MIGRATOR_USER: ${POSTGRES_MIGRATOR_USER:?definí POSTGRES_MIGRATOR_USER en .env}
+      POSTGRES_MIGRATOR_PASSWORD: ${POSTGRES_MIGRATOR_PASSWORD:?definí POSTGRES_MIGRATOR_PASSWORD en .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Crea roles y extensiones solo al inicializar un volumen vacío.
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s

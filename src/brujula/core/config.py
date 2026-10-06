@@ -44,13 +44,18 @@ class ConfigError(RuntimeError):
 # Los mensajes nunca incluyen el valor recibido: puede ser un secreto.
 
 _POSTGRES_DSN: TypeAdapter[PostgresDsn] = TypeAdapter(PostgresDsn)
+# Un solo driver para SQLAlchemy, Alembic y la cola de tareas (ver docs/adr/003).
+DATABASE_SCHEME = "postgresql+psycopg"
 
 
 def _validate_dsn(value: SecretStr) -> SecretStr:
+    message = f"debe ser una URL de PostgreSQL con el driver psycopg ({DATABASE_SCHEME}://...)"
     try:
-        _POSTGRES_DSN.validate_python(value.get_secret_value())
+        dsn = _POSTGRES_DSN.validate_python(value.get_secret_value())
     except ValidationError:
-        raise ValueError("debe ser una URL de PostgreSQL válida (postgresql://...)") from None
+        raise ValueError(message) from None
+    if dsn.scheme != DATABASE_SCHEME:
+        raise ValueError(message)
     return value
 
 

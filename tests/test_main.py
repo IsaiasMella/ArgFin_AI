@@ -1,9 +1,13 @@
 """App FastAPI: arranque y `/health` (T0.3)."""
 
+import asyncio
+import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from brujula.core.config import ConfigError, Settings, get_settings
 from brujula.main import create_app
@@ -35,3 +39,19 @@ def test_la_app_no_arranca_sin_configuracion(env: pytest.MonkeyPatch, tmp_path: 
             create_app()
     finally:
         get_settings.cache_clear()
+
+
+def test_ready_sin_base_responde_503(settings: Settings) -> None:
+    # Puerto 1 en localhost: conexión rechazada al instante, sin red externa.
+    unreachable = settings.model_copy(
+        update={"database_url": SecretStr("postgresql+psycopg://u:p@127.0.0.1:1/db")}
+    )
+    backend_options: dict[str, Any] = {}
+    if sys.platform == "win32":
+        backend_options["loop_factory"] = asyncio.SelectorEventLoop
+
+    with TestClient(create_app(unreachable), backend_options=backend_options) as client:
+        response = client.get("/ready")
+
+    assert response.status_code == 503
+    assert response.json() == {"status": "not_ready", "database": False, "queue": False}

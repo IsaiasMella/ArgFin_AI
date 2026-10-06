@@ -12,7 +12,16 @@ from tests.support.env import VALID_ENV
 ROOT = Path(__file__).resolve().parents[2]
 
 # Variables de .env.example que usa docker/compose.yml y no la app.
-COMPOSE_ONLY = {"POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "CADDY_SITE_ADDRESS"}
+COMPOSE_ONLY = {
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_DB",
+    "POSTGRES_APP_USER",
+    "POSTGRES_APP_PASSWORD",
+    "POSTGRES_MIGRATOR_USER",
+    "POSTGRES_MIGRATOR_PASSWORD",
+    "CADDY_SITE_ADDRESS",
+}
 
 OPTIONAL = {
     "LLM_EXTRACTION_FALLBACK_MODEL",
@@ -77,7 +86,8 @@ def test_lista_todas_las_faltantes_juntas(env: pytest.MonkeyPatch) -> None:
         ("SESSION_SECRET", "secreto-corto-filtrable", "al menos 32 caracteres"),
         ("FIELD_ENCRYPTION_KEY", "clave-que-no-es-base64!", "base64"),
         ("FIELD_ENCRYPTION_KEY", base64.urlsafe_b64encode(b"corta").decode(), "32 bytes"),
-        ("DATABASE_URL", "mysql://u:clave-filtrable@h/db", "PostgreSQL"),
+        ("DATABASE_URL", "mysql://u:clave-filtrable@h/db", "postgresql+psycopg"),
+        ("DATABASE_URL", "postgresql+asyncpg://u:clave-filtrable@h/db", "psycopg"),
         ("APP_TIMEZONE", "Marte/Olympus_Mons", "zona horaria"),
         ("CRON_WEEKLY_DIGEST", "0 8 * *", "cron de 5 campos"),
         ("LLM_EMBEDDING_DIMENSIONS", "3072", "2000"),
