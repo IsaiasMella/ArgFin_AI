@@ -309,6 +309,8 @@ Carpeta `evals/`, ejecutables con un comando y con resultados guardados por fech
 
 Los umbrales son configurables y se documentan en un ADR. Cada eval reporta también **costo y latencia promedio**, y permite comparar modelos (por ejemplo, extracción con dos modelos distintos), con resultados exportados a una tabla para el README.
 
+**Elección de modelo por costo:** cada eval de un componente con LLM compara al menos un modelo de bajo costo de **otro proveedor** contra el modelo de Claude configurado. Se usa el modelo **más barato que cumpla el umbral** de la tabla; el precio de lista no decide por sí solo. Los precios se verifican al momento de correr la eval. Agregar un proveedor nuevo implica sumar su clave en `Settings` y en `.env.example` (el cliente LLM rechaza modelos sin clave).
+
 ## 10. Observabilidad
 
 - Langfuse: una traza por documento procesado y por informe generado.
