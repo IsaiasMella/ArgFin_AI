@@ -1,0 +1,33 @@
+# Hooks locales: usan las versiones fijadas en uv.lock (una sola fuente de verdad,
+# sin descargar repos externos). Ver docs/adr/001-herramientas-de-calidad.md.
+default_install_hook_types: [pre-commit]
+
+repos:
+  - repo: local
+    hooks:
+      # Bloquea cualquier archivo .env (.env, .env.local, sub/.env, ...) salvo .env.example.
+      # Es una segunda barrera: .gitignore ya los excluye, pero `git add -f` lo saltearía.
+      - id: block-env-files
+        name: bloquear archivos .env con secretos
+        language: fail
+        entry: "Archivo .env con secretos: no se puede commitear (solo .env.example)."
+        files: '(^|/)\.env(\.(?!example$)[^/]+)?$'
+
+      - id: ruff-check
+        name: ruff check
+        language: system
+        entry: uv run --frozen ruff check --force-exclude
+        types_or: [python, pyi]
+
+      - id: ruff-format
+        name: ruff format
+        language: system
+        entry: uv run --frozen ruff format --check --force-exclude
+        types_or: [python, pyi]
+
+      - id: mypy
+        name: mypy (strict)
+        language: system
+        entry: uv run --frozen mypy
+        pass_filenames: false
+        types_or: [python, pyi]

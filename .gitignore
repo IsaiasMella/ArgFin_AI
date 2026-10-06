@@ -1,0 +1,27 @@
+# --- Secretos (nunca al repositorio) ---------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+
+# --- Herramientas ------------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Editores y sistema -----------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
