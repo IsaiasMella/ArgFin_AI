@@ -207,6 +207,7 @@ PROMPTS_DIR=
 - `company_reports`: id, company_id, período, contenido_renderizado, versión_prompt, costo_usd, estado.
 - `roles`: código (`usuario`, `admin`, …), descripción. Catálogo extensible sin migrar enums; el rol define **permisos** y es independiente del plan. Los emails de `ADMIN_EMAILS` reciben `admin` al ingresar.
 - `news_facts`: id, news_id, descripción, valor, unidad, fecha_referencia, url_fuente, extractor_version. Cifras de noticias extraídas como datos con fuente, para usarlas con marcadores (constitución, punto 2).
+- `visitor_intents`: id, visitor_id (aleatorio, en una cookie propia), plan, fecha, origen_campaña. Sin datos personales ni `user_id`. El rol de la app solo puede insertar; las métricas se leen con funciones de agregación.
 - `llm_calls`: id, propósito, modelo, versión_prompt, tokens_in, tokens_out, costo_usd, latencia_ms, éxito, trace_id.
 
 **Tablas de usuario** (con RLS):
@@ -216,7 +217,7 @@ PROMPTS_DIR=
 - `holdings`: id, user_id, instrument_id o ticker_libre, cantidad_cifrada, precio_promedio_cifrado, broker (opcional), creado_en.
 - `user_report_deliveries`: id, user_id, tipo (`semanal`, `trimestral`), referencia, enviado_en, abierto_en.
 - `email_preferences`: user_id, semanal_activo, trimestral_activo, token_baja.
-- `payment_intents`: id, user_id, plan, fecha, origen_campaña. *(El registro de intención de visitantes anónimos está pendiente: ver `preguntas-abiertas.md`, punto 5.)*
+- `payment_intents`: id, user_id, plan, fecha, origen_campaña. Si el usuario se registra con una cookie de visitante que tiene intenciones en `visitor_intents`, se copian acá (plan, fecha, campaña); la fila anónima no guarda referencia al usuario.
 - `subscriptions` (fase 9): user_id, proveedor, estado, id_externo.
 
 ## 6. Seguridad
@@ -271,20 +272,21 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 3. Solo se usan las entradas aprobadas.
 
 ### 7.5 Señales
-- Motor de reglas determinístico definido en `config/signals.yaml`. Ejemplo de regla: código, descripción en lenguaje neutro, métrica, condición, ventana y umbral.
+- Motor de reglas determinístico definido en `config/signals.yaml`. Ejemplo de regla: código, descripción en lenguaje neutro, métrica, condición, ventana, umbral, **polaridad** (`fuerte` o `debil`) y **materialidad** (prioridad para ordenar).
 - Cada señal disparada guarda los valores que la activaron, para mostrarlos con su fuente.
 
 ### 7.6 Informes
 1. **Ensamblado de datos:** el código arma un objeto con métricas, variaciones, señales, exposición y noticias.
-2. **Redacción:** el LLM escribe el texto narrativo usando **solo** marcadores (`{{metric:ebitda_ajustado:2T26}}`, `{{var:ebitda_ajustado:qoq}}`, `{{source:doc_123:p4}}`).
-3. **Validación del texto:**
+2. **Puntos fuertes y puntos débiles:** el código selecciona las señales de cada polaridad y las ordena por materialidad. Ambas secciones están siempre presentes, con el mismo tope de ítems configurable; si una no tiene señales, lo dice explícitamente. El LLM no elige qué resaltar (constitución, punto 1).
+3. **Redacción:** el LLM escribe el texto narrativo usando **solo** marcadores (`{{metric:ebitda_ajustado:2T26}}`, `{{var:ebitda_ajustado:qoq}}`, `{{source:doc_123:p4}}`).
+4. **Validación del texto:**
    - Sin dígitos fuera de marcadores, salvo los patrones de una lista blanca versionada en `config/numeros_permitidos.yaml` (nombres propios como "3M", "G20", "COVID-19"; períodos como "2T26"; normas como "Ley 25.326").
    - Todos los marcadores existen en el objeto de datos.
    - Sin términos de `lenguaje_prohibido.yaml`. Los patrones apuntan a formas de recomendación (infinitivo, imperativo, "conviene", "habría que", segunda persona) y no a hechos en tercera persona ("la empresa vendió su participación").
    - Si falla, un reintento con el error; si vuelve a fallar, el informe queda en `revision_manual`.
-4. **Renderizado:** el código reemplaza marcadores y produce HTML para email y vista web.
-5. El informe trimestral se genera **una vez por empresa y período**; el envío a cada usuario agrega solo el contexto de su posición (peso en su portafolio).
-6. El resumen semanal se arma por usuario, reutilizando bloques ya generados por empresa y por noticia.
+5. **Renderizado:** el código reemplaza marcadores y produce HTML para email y vista web.
+6. El informe trimestral se genera **una vez por empresa y período**; el envío a cada usuario agrega solo el contexto de su posición (peso en su portafolio).
+7. El resumen semanal se arma por usuario, reutilizando bloques ya generados por empresa y por noticia.
 
 ## 8. Uso de LLMs
 

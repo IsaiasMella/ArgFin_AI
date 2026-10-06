@@ -80,12 +80,13 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 
 ## Fase 5 — Señales e informes
 
-**T5.1 Motor de señales** desde `config/signals.yaml`, con valores usados guardados.
+**T5.1 Motor de señales** desde `config/signals.yaml`, con valores usados guardados, polaridad (`fuerte`/`debil`) y materialidad.
 
 **T5.2 Sistema de marcadores y validación de texto** (sin dígitos fuera de marcadores, marcadores existentes, lenguaje prohibido).
 - Criterio: tests con textos que deben ser rechazados.
 
 **T5.3 Informe trimestral por empresa** (HU-04), generado una vez por empresa y período.
+- Criterio: secciones de puntos fuertes y débiles siempre presentes, seleccionadas por código; test que verifica la simetría.
 
 **T5.4 Resumen semanal por usuario** (HU-03), reutilizando bloques por empresa y noticia.
 
@@ -109,7 +110,7 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 **T7.3** Ingreso con Google (vía API) y panel de portafolio con carga de CSV.
 **T7.4** Vista de informes y preferencias de email.
 **T7.5** Páginas legales.
-**T7.6** Fake door del plan pago (HU-06), que registra el evento en la API.
+**T7.6** Fake door del plan pago (HU-06), que registra el evento en la API (anónimo en `visitor_intents` o vinculado al usuario).
 
 ## Fase 8 — Despliegue
 

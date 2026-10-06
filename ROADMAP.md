@@ -10,6 +10,7 @@ Nada de este documento se implementa en el MVP. Cada ítem indica de dónde surg
 - **Separación del rendimiento de los CEDEARs** entre la variación de la acción de origen y la del dólar CCL. *Origen: asesor financiero.*
 - **Comparables por empresa:** métricas de pares del mismo sector como dato, sin recomendación. *Origen: idea de empresas similares.*
 - **Exportar informes a PDF.**
+- **Informe de bienvenida gratis** al registrarse: un informe de una empresa al azar del portafolio, distinto del trimestral y del resumen semanal. Falta definir contenido y momento de envío. *Origen: decisión 5 de `specs/preguntas-abiertas.md`.*
 
 ## Versión 2
 
