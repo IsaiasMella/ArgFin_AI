@@ -171,6 +171,11 @@ class Settings(BaseSettings):
     # Sesiones y límites de pedidos
     session_ttl_hours: Annotated[int, Field(gt=0, le=24 * 30)]
     rate_limit_auth_per_minute: Annotated[int, Field(gt=0)]
+    rate_limit_upload_per_hour: Annotated[int, Field(gt=0)]
+
+    # Carga de portafolio por CSV
+    csv_max_bytes: Annotated[int, Field(gt=0, le=10 * 1024 * 1024)]
+    csv_max_rows: Annotated[int, Field(gt=0)]
 
     # OAuth (Google)
     google_client_id: NonEmptyStr
