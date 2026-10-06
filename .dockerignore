@@ -1,0 +1,15 @@
+# Nunca al contexto de build: secretos y artefactos locales.
+.env
+.env.*
+!.env.example
+.git
+.venv
+**/__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+tests
+evals
+docs
+specs
+docker

@@ -5,8 +5,10 @@ description = "Seguimiento informativo de portafolios de acciones argentinas y C
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi>=0.142.2",
     "pydantic-settings>=2.15.0",
     "tzdata>=2026.5",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [build-system]
@@ -15,6 +17,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.13.1",
     "mypy>=2.4.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
@@ -46,6 +49,9 @@ select = [
     "RUF",
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["brujula", "tests"]
+
 [tool.ruff.lint.per-file-ignores]
 # En tests se permiten assert y subprocess con ejecutables del PATH.
 "tests/**" = ["S101", "S603", "S607"]
@@ -56,9 +62,13 @@ python_version = "3.12"
 strict = true
 files = ["src", "tests"]
 mypy_path = "src"
+# Resuelve `tests.support` como paquete desde la raíz.
+explicit_package_bases = true
 plugins = ["pydantic.mypy"]
 
 # --- pytest -----------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Raíz en sys.path para importar `tests.support` (modo importlib no la agrega).
+pythonpath = ["."]
 addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
