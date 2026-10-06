@@ -9,7 +9,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-import brujula.features.auth.models  # noqa: F401  (registra las tablas en Base.metadata)
+# Registran sus tablas en Base.metadata (para autogenerate).
+import brujula.core.llm.records
+import brujula.features.auth.models  # noqa: F401
 from brujula.core.config import get_settings
 from brujula.core.db import Base
 
