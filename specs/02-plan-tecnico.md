@@ -35,7 +35,7 @@ Dos repositorios:
 | Logs | structlog (JSON) | Logs estructurados con `request_id` y `job_id`. |
 | Extracción de PDFs | PyMuPDF para texto; envío del PDF al modelo multimodal solo si la página es escaneada o tiene tablas complejas | Minimiza costo; la decisión se toma por página y se mide en evals. |
 | Datos de EE.UU. | SEC EDGAR API (`companyfacts`, XBRL) | Estructurado y oficial: no requiere LLM para extraer cifras. |
-| Precios | BYMA Open Data (PyOBD) principal; data912 respaldo | Gratis; sin API oficial disponible para no miembros. Detrás de una interfaz `PriceProvider`. |
+| Precios | BYMA Open Data principal (API directa, ADR 011); data912 respaldo | Gratis; sin API oficial disponible para no miembros. Detrás de una interfaz `PriceProvider`. |
 | Embeddings | OpenAI `text-embedding-3-large`, reducido a `LLM_EMBEDDING_DIMENSIONS` (por ejemplo 1536) | Mejor calidad que `small` en benchmarks; el modelo admite acortar el vector sin perder mucha calidad, y los índices HNSW de pgvector para el tipo `vector` admiten hasta 2000 dimensiones. Se confirma en las evals de T4.4. |
 | Almacenamiento de documentos | Disco del VPS (`DOCUMENT_STORAGE_DIR`) detrás de una interfaz `DocumentStorage`, incluido en los backups diarios | Lo más simple para el MVP; los PDFs son públicos pero se guardan porque las fuentes pueden desaparecer (trazabilidad, constitución punto 2). Migrable a almacenamiento de objetos compatible con S3 sin tocar las features. |
 | Emails | Resend | API simple y webhooks de apertura. |
