@@ -4,6 +4,7 @@ El archivo es la fuente de verdad del universo cubierto; la base es una copia qu
 con `python -m brujula.cli sincronizar-universo`.
 """
 
+import re
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -63,6 +64,34 @@ class InstrumentEntry(_Strict):
     moneda: Literal["ARS", "USD"]
 
 
+class CnvSource(_Strict):
+    """Ficha de la empresa en la Autopista de Información Financiera de la CNV (ADR 013)."""
+
+    cuit: Annotated[str, Field(pattern=r"^\d{11}$")]
+    id: Annotated[int, Field(gt=0)]
+    balance: Literal["consolidado", "individual"]
+    cierre_ejercicio: Annotated[str, Field(pattern=r"^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$")]
+
+
+ResultsSource = Literal["cnv_hecho_relevante", "sec_6k", "sitio_inversores"]
+
+
+class InvestorSite(_Strict):
+    """Dónde y cómo encontrar los comunicados en el sitio de inversores (ADR 013)."""
+
+    url: Annotated[str, Field(pattern=r"^https://")]
+    acceso: Literal["enlaces_pdf", "wordpress_media"]
+    patron: Annotated[str, Field(min_length=3)]
+
+    @model_validator(mode="after")
+    def _valid_pattern(self) -> Self:
+        try:
+            re.compile(self.patron)
+        except re.error as exc:
+            raise ValueError(f"patron no es una expresión regular válida: {exc}") from None
+        return self
+
+
 class CompanyEntry(_Strict):
     clave: Key
     nombre: Text
@@ -71,6 +100,9 @@ class CompanyEntry(_Strict):
     pais: CountryCode
     cik_sec: Cik | None = None
     url_relacion_inversores: str | None = None
+    cnv: CnvSource | None = None
+    comunicados: list[ResultsSource] = Field(default_factory=list)
+    inversores: InvestorSite | None = None
     instrumentos: list[InstrumentEntry] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -82,6 +114,15 @@ class CompanyEntry(_Strict):
                 raise ValueError(f"{instrument.ticker_byma}: un CEDEAR necesita ratio y subyacente")
             if self.tipo == "ar_equity" and instrument.ratio_cedear is not None:
                 raise ValueError(f"{instrument.ticker_byma}: una acción local no lleva ratio")
+        # Los estados contables de las empresas argentinas se descubren en la CNV (T3.1).
+        if self.tipo == "ar_equity" and self.cnv is None:
+            raise ValueError(f"{self.clave}: una empresa argentina necesita su ficha de la CNV")
+        if self.tipo == "cedear" and self.cnv is not None:
+            raise ValueError(f"{self.clave}: un CEDEAR no tiene ficha en la CNV")
+        if "sec_6k" in self.comunicados and self.cik_sec is None:
+            raise ValueError(f"{self.clave}: los 6-K de la SEC necesitan cik_sec")
+        if ("sitio_inversores" in self.comunicados) != (self.inversores is not None):
+            raise ValueError(f"{self.clave}: sitio_inversores y el bloque inversores van juntos")
         return self
 
 

@@ -89,6 +89,28 @@ seleccion:
 # clave: identificador estable de la empresa en este archivo (no cambia aunque cambie el nombre).
 # ticker_origen: en las acciones argentinas es el ticker del ADR en EE. UU., si existe; en los
 # CEDEARs, el ticker del subyacente. ratio_cedear: CEDEARs por cada acción del subyacente.
+#
+# Fuentes de documentos de las empresas argentinas (T3.1, docs/adr/013), relevadas el 2026-10-07:
+# cnv: la ficha de la empresa en la Autopista de Información Financiera de la CNV. Ahí están todos
+#   sus estados contables, con datos estructurados y los PDF (balance, informe del auditor,
+#   reseña informativa).
+#   - cuit e id: los identificadores de la CNV, sacados de su buscador.
+#   - balance: el que se informa. Es el consolidado, salvo que la empresa publique solo el
+#     individual.
+#   - cierre_ejercicio: mes-día del cierre del ejercicio anual.
+# comunicados: dónde publica sus comunicados de resultados.
+#   - cnv_hecho_relevante: como hecho relevante en la CNV, de forma consistente en los últimos
+#     15 meses.
+#   - sec_6k: como formulario 6-K en la SEC (empresas con ADR).
+#   - sitio_inversores: en el sitio de relación con inversores de la empresa (ver `inversores`).
+#   Lista vacía: la empresa no publica comunicados de resultados; el informe usa el estado
+#   contable y la reseña informativa de la CNV.
+# inversores: cómo encontrar los comunicados en el sitio de la empresa.
+#   - url: la página o el sitio.
+#   - acceso: `enlaces_pdf` (PDF enlazados en la página) o `wordpress_media` (la API de medios
+#     de WordPress del sitio).
+#   - patron: expresión regular que identifica el comunicado de resultados en el nombre del
+#     archivo.
 empresas:
   # --- Acciones del panel líder ------------------------------------------------------------
   - clave: GGAL
@@ -97,6 +119,8 @@ empresas:
     sector: Financiero
     pais: AR
     cik_sec: "0001114700"
+    cnv: {cuit: "30704962807", id: 3353, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [cnv_hecho_relevante, sec_6k]
     instrumentos:
       - {ticker_byma: GGAL, ticker_origen: GGAL, moneda: ARS}
   - clave: YPF
@@ -105,6 +129,8 @@ empresas:
     sector: Petróleo y gas
     pais: AR
     cik_sec: "0000904851"
+    cnv: {cuit: "30546689979", id: 31224, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [cnv_hecho_relevante, sec_6k]
     instrumentos:
       - {ticker_byma: YPFD, ticker_origen: YPF, moneda: ARS}
   - clave: PAMPA
@@ -113,6 +139,8 @@ empresas:
     sector: Energía eléctrica
     pais: AR
     cik_sec: "0001469395"
+    cnv: {cuit: "30526552659", id: 30775, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: PAMP, ticker_origen: PAM, moneda: ARS}
   - clave: MACRO
@@ -121,6 +149,8 @@ empresas:
     sector: Financiero
     pais: AR
     cik_sec: "0001347426"
+    cnv: {cuit: "30500010084", id: 32118, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: BMA, ticker_origen: BMA, moneda: ARS}
   - clave: BBVA_AR
@@ -129,6 +159,8 @@ empresas:
     sector: Financiero
     pais: AR
     cik_sec: "0000913059"
+    cnv: {cuit: "30500003193", id: 30485, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: BBAR, ticker_origen: BBAR, moneda: ARS}
   - clave: TGS
@@ -137,6 +169,8 @@ empresas:
     sector: Gas natural
     pais: AR
     cik_sec: "0000931427"
+    cnv: {cuit: "30657862068", id: 248, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: TGSU2, ticker_origen: TGS, moneda: ARS}
   - clave: CENTRAL_PUERTO
@@ -145,6 +179,8 @@ empresas:
     sector: Energía eléctrica
     pais: AR
     cik_sec: "0001717161"
+    cnv: {cuit: "33650305499", id: 254, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [cnv_hecho_relevante, sec_6k]
     instrumentos:
       - {ticker_byma: CEPU, ticker_origen: CEPU, moneda: ARS}
   - clave: SUPERVIELLE
@@ -153,6 +189,8 @@ empresas:
     sector: Financiero
     pais: AR
     cik_sec: "0001517399"
+    cnv: {cuit: "30617442937", id: 30230, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: SUPV, ticker_origen: SUPV, moneda: ARS}
   - clave: TRANSENER
@@ -160,6 +198,9 @@ empresas:
     tipo: ar_equity
     sector: Energía eléctrica
     pais: AR
+    cnv: {cuit: "30663148776", id: 1018, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.transener.com.ar/home-inversores/", acceso: enlaces_pdf, patron: 'Transener\dQ\d{2}'}
     instrumentos:
       - {ticker_byma: TRAN, moneda: ARS}
   - clave: BYMA
@@ -167,6 +208,9 @@ empresas:
     tipo: ar_equity
     sector: Financiero
     pais: AR
+    cnv: {cuit: "30715471953", id: 31697, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.byma.com.ar/relacion-con-inversores/informacion-financiera", acceso: enlaces_pdf, patron: 'Comunicado_de_Prensa'}
     instrumentos:
       - {ticker_byma: BYMA, moneda: ARS}
   - clave: LOMA_NEGRA
@@ -175,6 +219,8 @@ empresas:
     sector: Materiales
     pais: AR
     cik_sec: "0001711375"
+    cnv: {cuit: "30500530851", id: 31905, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [cnv_hecho_relevante, sec_6k]
     instrumentos:
       - {ticker_byma: LOMA, ticker_origen: LOMA, moneda: ARS}
   - clave: METROGAS
@@ -182,6 +228,8 @@ empresas:
     tipo: ar_equity
     sector: Gas natural
     pais: AR
+    cnv: {cuit: "30657863676", id: 249, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: []
     instrumentos:
       - {ticker_byma: METR, moneda: ARS}
   - clave: TERNIUM_AR
@@ -189,6 +237,8 @@ empresas:
     tipo: ar_equity
     sector: Materiales
     pais: AR
+    cnv: {cuit: "30516888241", id: 32121, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: []
     instrumentos:
       - {ticker_byma: TXAR, moneda: ARS}
   - clave: EDENOR
@@ -197,6 +247,8 @@ empresas:
     sector: Energía eléctrica
     pais: AR
     cik_sec: "0001395213"
+    cnv: {cuit: "30655116202", id: 2005, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: EDN, ticker_origen: EDN, moneda: ARS}
   - clave: TGN
@@ -204,6 +256,9 @@ empresas:
     tipo: ar_equity
     sector: Gas natural
     pais: AR
+    cnv: {cuit: "30657863056", id: 292, balance: individual, cierre_ejercicio: "12-31"}
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.tgn.com.ar/inversores/informacion-financiera/", acceso: enlaces_pdf, patron: 'informe_de_resultados_\dq_\d{4}'}
     instrumentos:
       - {ticker_byma: TGNO4, moneda: ARS}
   - clave: BANCO_VALORES
@@ -211,6 +266,9 @@ empresas:
     tipo: ar_equity
     sector: Financiero
     pais: AR
+    cnv: {cuit: "30576124275", id: 30471, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.valo.ar", acceso: wordpress_media, patron: 'IR-\d{4}Q\d-ESP-Press-Release'}
     instrumentos:
       - {ticker_byma: VALO, moneda: ARS}
   - clave: TELECOM
@@ -219,6 +277,8 @@ empresas:
     sector: Telecomunicaciones
     pais: AR
     cik_sec: "0000932470"
+    cnv: {cuit: "30639453738", id: 5029, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sec_6k]
     instrumentos:
       - {ticker_byma: TECO2, ticker_origen: TEO, moneda: ARS}
   - clave: ECOGAS
@@ -226,6 +286,9 @@ empresas:
     tipo: ar_equity
     sector: Gas natural
     pais: AR
+    cnv: {cuit: "30658275522", id: 105391, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.ecogasinversiones.com.ar", acceso: wordpress_media, patron: 'Informacion_para_inversores_\dQ_\d{4}'}
     instrumentos:
       - {ticker_byma: ECOG, moneda: ARS}
   - clave: COMERCIAL_DEL_PLATA
@@ -233,6 +296,8 @@ empresas:
     tipo: ar_equity
     sector: Conglomerado
     pais: AR
+    cnv: {cuit: "33526316989", id: 200, balance: consolidado, cierre_ejercicio: "12-31"}
+    comunicados: []
     instrumentos:
       - {ticker_byma: COME, moneda: ARS}
   - clave: ALUAR
@@ -240,6 +305,8 @@ empresas:
     tipo: ar_equity
     sector: Materiales
     pais: AR
+    cnv: {cuit: "30522780606", id: 7, balance: consolidado, cierre_ejercicio: "06-30"}
+    comunicados: []
     instrumentos:
       - {ticker_byma: ALUA, moneda: ARS}
 

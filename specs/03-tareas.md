@@ -52,17 +52,22 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 
 **T3.1 Discovery de fuentes (tarea de investigación).** Para cada empresa argentina del universo, documentar dónde y en qué formato publica estados contables y comunicados (relación con inversores, CNV). Guardar en `config/universe.yaml`. Lo que no se pueda resolver va a `specs/preguntas-abiertas.md`.
 - Criterio: fuente documentada para al menos 10 empresas antes de seguir.
+- Incluye los sitios de relación con inversores de las empresas cuyos comunicados no están en la CNV ni en la SEC (pregunta abierta 17).
 
-**T3.2 Ingesta de documentos.** Descubrimiento, descarga, hash y almacenamiento.
+**T3.2 Ingesta de documentos.** Descubrimiento, descarga, hash y almacenamiento desde la CNV (estados contables, reseñas y hechos relevantes), la SEC (6-K) y los sitios de inversores.
 
 **T3.3 SEC XBRL.** Lectura de `companyfacts` y mapeo a métricas internas para los subyacentes de CEDEARs, con `SEC_USER_AGENT`.
 
-**T3.4 Esquemas de extracción.** `FinancialStatementExtraction` y métricas por sector (`config/metrics_by_sector.yaml`), con moneda, unidad, período, base de medición y página fuente.
+**T3.4 Esquemas de extracción.** `FinancialStatementExtraction` y métricas por sector (`config/metrics_by_sector.yaml`), con moneda, unidad, período, base de medición y página fuente. Incluye el mapeo del plan de cuentas de la CNV a métricas internas.
 
-**T3.5 Extractor de PDFs.** PyMuPDF más ruteo a modelo multimodal por página, validaciones contables y estado `revision_manual`.
+**T3.5 Verificación triple de cifras** (pregunta abierta 18). Datos estructurados de la CNV, búsqueda literal en el texto del PDF (PyMuPDF) y extracción completa con LLM (con ruteo a modelo multimodal por página), más validaciones contables. Solo se publica lo que coincide en las tres; si no, estado `revision_manual`.
+- Criterio: tests con documentos grabados donde cada tipo de diferencia termina en `revision_manual`.
 
 **T3.6 Dataset de referencia y evals de extracción.** 10 empresas × 4 trimestres, cargado a mano; runner de evals con exactitud por campo, costo y latencia; comparación de al menos dos modelos, uno de ellos de bajo costo de otro proveedor (plan técnico, sección 9).
 - **GATE:** no se amplía a las 40 empresas ni se pasa a la fase 5 sin cumplir los umbrales de la sección 9 del plan técnico.
+
+**T3.7 Monitor de integraciones.** Registro de corridas por fuente y aviso por email a `ADMIN_EMAILS` cuando una fuente falla de forma repetida, cambia su formato o no publica un documento esperado. Nunca llega a clientes.
+- Criterio: tests que simulan cada tipo de falla y verifican que se envía un único aviso por incidente.
 
 ## Fase 4 — Noticias y exposición
 
@@ -102,6 +107,8 @@ Reglas: una tarea por vez, en orden. Cada tarea está terminada cuando cumple su
 **T6.2 Webhooks de Resend** (con verificación de firma) para registrar aperturas.
 
 **T6.3 Analytics de producto:** registros, intención de pago y tasa de apertura semanal.
+
+**T6.4 Revisiones manuales (admin).** Sección de admin (API y panel web) que lista los documentos en `revision_manual` con las diferencias encontradas y las páginas del PDF, y permite aprobar el valor correcto o descartarlo. Solo rol `admin`; queda registrado quién aprobó y cuándo.
 
 ## Fase 7 — Frontend (`brujula-web`)
 

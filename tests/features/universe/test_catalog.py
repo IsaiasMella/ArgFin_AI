@@ -34,6 +34,18 @@ def test_cada_ticker_figura_en_el_ranking_que_justifica_su_eleccion() -> None:
     assert not set(universe.seleccion.excluidos) & set(ranking["cedears"])
 
 
+def test_toda_empresa_argentina_tiene_su_fuente_documentada_en_la_cnv() -> None:
+    # Criterio de T3.1: fuente documentada para al menos 10 empresas antes de seguir.
+    universe = load_universe(VERSIONED)
+    argentine = [c for c in universe.empresas if c.tipo == "ar_equity"]
+
+    assert len(argentine) == 20
+    assert all(c.cnv is not None for c in argentine)
+    assert len({c.cnv.cuit for c in argentine if c.cnv}) == 20
+    with_site = {c.clave for c in argentine if c.inversores}
+    assert with_site == {"TRANSENER", "BYMA", "TGN", "BANCO_VALORES", "ECOGAS"}
+
+
 def test_la_ventana_de_seleccion_cierra_antes_de_la_fecha_de_corte() -> None:
     selection = load_universe(VERSIONED).seleccion
 
@@ -52,6 +64,14 @@ def _base() -> dict[str, Any]:
             "tipo": "ar_equity",
             "sector": "Financiero",
             "pais": "AR",
+            "cik_sec": "0001114700",
+            "cnv": {
+                "cuit": "30704962807",
+                "id": 3353,
+                "balance": "consolidado",
+                "cierre_ejercicio": "12-31",
+            },
+            "comunicados": ["cnv_hecho_relevante", "sec_6k"],
             "instrumentos": [{"ticker_byma": "GGAL", "moneda": "ARS"}],
         },
         {
@@ -103,6 +123,31 @@ def test_un_archivo_minimo_valido_carga_y_normaliza_tickers(tmp_path: Path) -> N
         (lambda r: r["empresas"][0].update(tipo="bono"), "tipo"),
         (lambda r: r["empresas"][0].update(precio_objetivo=1), "precio_objetivo"),
         (lambda r: r["seleccion"].pop("fuente"), "fuente"),
+        (lambda r: r["empresas"][0].pop("cnv"), "necesita su ficha de la CNV"),
+        (lambda r: r["empresas"][1].update(cnv=r["empresas"][0]["cnv"]), "no tiene ficha"),
+        (lambda r: r["empresas"][0].pop("cik_sec"), "necesitan cik_sec"),
+        (lambda r: r["empresas"][0]["cnv"].update(cuit="30-70496280-7"), "cuit"),
+        (lambda r: r["empresas"][0]["cnv"].update(cierre_ejercicio="13-31"), "cierre_ejercicio"),
+        (lambda r: r["empresas"][0]["cnv"].update(balance="ambos"), "balance"),
+        (lambda r: r["empresas"][0].update(comunicados=["twitter"]), "comunicados"),
+        (
+            lambda r: r["empresas"][0].update(comunicados=["sitio_inversores"]),
+            "van juntos",
+        ),
+        (
+            lambda r: r["empresas"][0].update(
+                comunicados=["sitio_inversores"],
+                inversores={"url": "https://x.com", "acceso": "enlaces_pdf", "patron": "(abc"},
+            ),
+            "expresión regular",
+        ),
+        (
+            lambda r: r["empresas"][0].update(
+                comunicados=["sitio_inversores"],
+                inversores={"url": "http://x.com", "acceso": "enlaces_pdf", "patron": "abc"},
+            ),
+            "url",
+        ),
     ],
 )
 def test_errores_de_esquema(tmp_path: Path, change: Any, message: str) -> None:
