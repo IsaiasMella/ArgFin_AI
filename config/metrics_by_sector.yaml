@@ -1,0 +1,27 @@
+# Métricas obligatorias por sector (T3.4, plan 7.2.4). Un estado contable al que le falte
+# alguna no se valida: queda en revisión manual (T3.5). Los sectores son los de
+# universe.yaml; `comunes` se exige a todos.
+#
+# Bancos y no bancos comparten el sector "Financiero" (BYMA y Banco de Valores no son
+# bancos comerciales): se exige solo lo que tienen todos.
+
+version: 1
+
+comunes:
+  - activo_total
+  - pasivo_total
+  - patrimonio_neto
+  - resultado_neto
+
+sectores:
+  Financiero: []
+  Petróleo y gas: [ingresos, resultado_operativo]
+  Energía eléctrica: [ingresos, resultado_operativo]
+  Gas natural: [ingresos, resultado_operativo]
+  Materiales: [ingresos, resultado_operativo]
+  Telecomunicaciones: [ingresos, resultado_operativo]
+  Conglomerado: [ingresos]
+  Tecnología: [ingresos, resultado_operativo]
+  Consumo: [ingresos, resultado_operativo]
+  Salud: [ingresos]
+  Automotriz: [ingresos, resultado_operativo]

@@ -1,0 +1,48 @@
+# Plan de cuentas de la CNV → métricas internas (T3.4, docs/adr/016).
+#
+# El mismo código significa cosas distintas según la plantilla de la CNV (industria o bancos):
+# por ejemplo, 3000100 es "INGRESOS DE ACTIVIDADES ORDINARIAS" en una y "INGRESOS POR
+# INTERESES" en la otra. Por eso cada regla exige el código y un patrón sobre el rubro
+# (mayúsculas, sin tildes). Una cuenta que no coincide con ninguna regla no se usa.
+#
+# suma: la métrica es la suma de varias cuentas (todas tienen que estar).
+# Relevado el 2026-10-07 sobre las presentaciones de las 20 empresas del panel líder.
+
+version: 1
+
+reglas:
+  # Situación patrimonial
+  - {metrica: activo_total, nro: "1999999", rubro: '^TOTAL DEL ACTIVO$'}
+  - {metrica: activo_corriente, nro: "1139999", rubro: '^ACTIVO CORRIENTE$'}
+  - {metrica: pasivo_total, nro: "2399999", rubro: '^TOTAL DEL PASIVO$'}
+  - {metrica: pasivo_corriente, nro: "2339999", rubro: '^PASIVO CORRIENTE$'}
+  - {metrica: patrimonio_neto, nro: "2299999", rubro: '^TOTAL PATRIMONIO NETO$'}
+  - {metrica: caja_y_equivalentes, nro: "1122500", rubro: '^EFECTIVO Y (EQUIVALENTES A EFECTIVO|DEPOSITOS EN BANCOS)$'}
+  - metrica: deuda_financiera
+    suma:
+      - {nro: "2322200", rubro: '^PASIVOS FINANCIEROS CORRIENTES$'}
+      - {nro: "2312300", rubro: '^PASIVOS FINANCIEROS NO CORRIENTES$'}
+
+  # Resultados (acumulados del ejercicio)
+  - {metrica: ingresos, nro: "3000100", rubro: '^INGRESOS DE ACTIVIDADES ORDINARIAS$'}
+  - {metrica: resultado_bruto, nro: "3009999", rubro: '^GANANCIA \(PERDIDA\) BRUTA$'}
+  - {metrica: resultado_operativo, nro: "3019999", rubro: '^GANANCIA \(PERDIDA\) DE ACTIVIDADES OPERATIVAS$'}
+  - {metrica: resultado_antes_de_impuestos, nro: "3029999", rubro: '^GANANCIA \(PERDIDA\) ANTES DE IMPUESTOS$'}
+  - {metrica: impuesto_a_las_ganancias, nro: "3031100", rubro: '^INGRESO \(GASTO\) POR IMPUESTOS A LAS GANANCIAS$'}
+  - {metrica: resultado_neto, nro: "3049999", rubro: '^GANANCIA \(PERDIDA\) DEL PERIODO / EJERCICIO$'}
+  - {metrica: depreciaciones_y_amortizaciones, nro: "3011600", rubro: '^DEPRECIACIONES Y AMORTIZACIONES$'}
+  - {metrica: ebitda, nro: "8000004", rubro: '^EBITDA$'}
+  - {metrica: ganancia_por_accion_basica, nro: "8000000", rubro: '^GANANCIA \(PERDIDA\) BASICA POR ACCION$'}
+  - {metrica: ganancia_por_accion_diluida, nro: "8000001", rubro: '^GANANCIAS? \(PERDIDA\) DILUIDA POR ACCION$'}
+
+  # Bancos
+  - {metrica: ingresos_por_intereses, nro: "3000100", rubro: '^INGRESOS POR INTERESES$'}
+  - {metrica: egresos_por_intereses, nro: "3000200", rubro: '^EGRESOS POR INTERESES$'}
+  - {metrica: depositos, nro: "2311000", rubro: '^DEPOSITOS$'}
+  - {metrica: prestamos, nro: "1122700", rubro: '^PRESTAMOS Y OTRAS FINANCIACIONES$'}
+
+  # Flujo de efectivo. En la plantilla de industria, 3241100 es "TOTAL CAMBIOS EN ACTIVOS Y
+  # PASIVOS OPERATIVOS", no el flujo operativo: por eso el patrón no la toma.
+  - {metrica: flujo_operativo, nro: "3241100", rubro: '^FLUJOS DE EFECTIVO PROCEDENTES DE \(UTILIZADOS EN\) ACTIVIDADES DE OPERACION$'}
+  - {metrica: flujo_inversion, nro: "3241200", rubro: '^(FLUJOS DE EFECTIVO PROCEDENTES DE \(UTILIZADOS EN\) ACTIVIDADES|TOTAL DE ACTIVIDADES) DE INVERSION$'}
+  - {metrica: flujo_financiacion, nro: "3241300", rubro: '^(FLUJOS DE EFECTIVO PROCEDENTES DE \(UTILIZADOS EN\) ACTIVIDADES|TOTAL DE ACTIVIDADES) DE FINANCIACION$'}
