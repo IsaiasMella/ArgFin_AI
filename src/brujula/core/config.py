@@ -205,6 +205,12 @@ class Settings(BaseSettings):
     byma_open_data_base_url: HttpUrl
     data912_base_url: HttpUrl
     price_divergence_threshold_pct: Percentage
+    # Documentos de empresas (ADR 013): CNV (sitio, AIF y descargas) y SEC (datos y archivos)
+    cnv_base_url: HttpUrl
+    cnv_aif_base_url: HttpUrl
+    cnv_blob_base_url: HttpUrl
+    sec_data_base_url: HttpUrl
+    sec_archives_base_url: HttpUrl
 
     # Programación de tareas
     cron_prices_daily: CronExpression
