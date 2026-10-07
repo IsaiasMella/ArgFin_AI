@@ -1,7 +1,6 @@
 # 013 — Fuentes de documentos de las empresas argentinas
 
-- **Estado:** aceptada (la recomendación de la sección "Impacto en la fase 3" espera el OK del
-  responsable, pregunta abierta 18)
+- **Estado:** aceptada (decisiones del responsable del 2026-10-07, preguntas abiertas 17 y 18)
 - **Fecha:** 2026-10-07
 
 ## Contexto
@@ -55,15 +54,33 @@ siempre vienen limpios.
 Por eso **se valida igual que cualquier extracción**: identidades contables, signos y
 comparación con el PDF.
 
-### Comunicados de resultados: no hay una fuente uniforme
+### Comunicados de resultados: CNV, SEC y sitios de inversores
 
 - **Como hecho relevante en la CNV,** de forma consistente en los últimos 15 meses: GGAL,
   YPF, Loma Negra y Central Puerto.
 - **Como 6-K en la SEC:** las 11 empresas con ADR. La descripción del 6-K no siempre dice
   qué contiene.
-- **Sin fuente uniforme:** Transener, BYMA, Metrogas, Ternium Argentina, TGN, Banco de
-  Valores, Ecogas, Comercial del Plata y Aluar. Solo sus sitios de inversores, que no
-  verifiqué.
+- **Sitios de inversores de las 9 empresas restantes** (relevados el 2026-10-07):
+
+| Empresa | Comunicado trimestral | Dónde | Acceso |
+|---|---|---|---|
+| Transener | Sí (`Transener2Q26_VF.pdf`) | `transener.com.ar/home-inversores/` | PDF enlazados en la página |
+| BYMA | Sí: comunicado, presentación, transcripción y audio | `byma.com.ar/relacion-con-inversores/informacion-financiera` | PDF enlazados en la página |
+| TGN | Sí (`informe_de_resultados_2q_2026.pdf`) | `tgn.com.ar/inversores/informacion-financiera/` | PDF enlazados en la página |
+| Banco de Valores | Sí: comunicado (en castellano e inglés), presentación y conference call | `valo.ar` | API de medios de WordPress |
+| Ecogas Inversiones | Sí (`Informacion_para_inversores_2Q_2026.pdf`) | `ecogasinversiones.com.ar` (no `ecogas.com.ar`, que es la distribuidora) | API de medios de WordPress |
+| Ternium Argentina | Sin verificar | `investors.ternium.com` (plataforma MZ) | Los documentos se cargan con JavaScript desde una API con autenticación. Se revisa en T3.2 con un navegador automatizado |
+| Metrogas | No: el último es de noviembre de 2023 | — | — |
+| Comercial del Plata | No: solo estados contables y presentación anual | — | — |
+| Aluar | No: solo estados contables | — | — |
+
+- **`robots.txt`:** los 9 sitios permiten el acceso a sus secciones de inversores.
+- **Términos de uso:** ninguno prohíbe expresamente el acceso automatizado, pero tres
+  restringen el uso de su contenido (pregunta abierta 19):
+  - **Transener:** uso "exclusivamente privado y doméstico" y prohíbe reproducirlo sin
+    consentimiento.
+  - **BYMA:** prohíbe reproducirlo, salvo lo que está obligada a publicar por normativa.
+  - **Aluar:** solo fines informativos y no comerciales. Aluar no publica comunicados.
 
 ## Decisión
 
@@ -72,31 +89,26 @@ comparación con el PDF.
    cierre_ejercicio}`. El esquema exige esa ficha a toda empresa argentina.
 2. **Se usa el balance consolidado,** salvo que la empresa publique solo el individual
    (TGN).
-3. **`comunicados` registra dónde publica cada empresa sus comunicados de resultados**
-   (`cnv_hecho_relevante`, `sec_6k`). Cómo tratar a las que no tienen una fuente uniforme es
-   la pregunta abierta 17.
-4. **Los sitios de inversores no se usan como fuente automática:** son heterogéneos y no
-   aportan nada que la CNV no tenga para los estados contables.
+3. **Comunicados de resultados de todas las fuentes disponibles** (decisión del
+   responsable: un informe completo vale el costo de mantener integraciones frágiles).
+   - `comunicados` registra las fuentes de cada empresa: `cnv_hecho_relevante`, `sec_6k`,
+     `sitio_inversores`.
+   - `inversores` dice cómo encontrar el comunicado en el sitio de la empresa: URL, tipo de
+     acceso y un patrón del nombre del archivo.
+   - Para quien no publica comunicados (Metrogas, Comercial del Plata, Aluar), el informe
+     usa el estado contable y la **reseña informativa** de la CNV.
+4. **Monitor de integraciones (T3.7):** las fuentes frágiles avisan a `ADMIN_EMAILS` cuando
+   se rompen, cambian o no publican lo esperado. Los clientes nunca reciben esos avisos.
 5. **Las presentaciones de controladas y vinculadas** (filas `RELAC.: CONTROLADA ...`) se
    ignoran: son de otras sociedades.
-
-## Impacto en la fase 3 (recomendación, pregunta abierta 18)
-
-El plan prevé extraer las cifras de los PDF con un modelo multimodal (T3.5). Con los datos
-estructurados de la CNV, las cifras principales se pueden leer **con código, sin LLM**, como
-se hace con el XBRL de la SEC (T3.3). Ventajas:
-
-- **Constitución, punto 2:** los números los pone el código.
-- **Costo:** sin LLM para las cifras principales.
-- **Exactitud:** los valores son los que la empresa declaró a la CNV.
-
-**Recomendación:**
-- Fuente principal de las métricas del plan de cuentas de la CNV: los datos estructurados,
-  validados.
-- El PDF con extracción por LLM (T3.5), solo para lo que el plan de cuentas no tiene (por
-  ejemplo, métricas por sector o segmentos) y para contrastar cuando la estructura viene
-  incompleta o inconsistente.
-- La eval de extracción (T3.6) mide ambos caminos.
+6. **Cifras verificadas por tres caminos** (decisión del responsable): cada cifra de los
+   datos estructurados de la CNV tiene que aparecer tal cual en el PDF firmado y coincidir
+   con una extracción completa del PDF hecha por un LLM, que cita la página.
+   - Se publica solo lo que coincide en las tres y pasa las validaciones contables.
+   - Cualquier diferencia deja el documento en `revision_manual`: no genera informe hasta
+     que una persona lo revise (sección de admin, T6.4).
+   - El LLM revisa todas las cifras de cada documento, no solo las dudosas. Su costo se mide
+     por documento.
 
 ## Alternativas consideradas
 
@@ -108,8 +120,9 @@ se hace con el XBRL de la SEC (T3.3). Ventajas:
 
 ## Consecuencias
 
-- La ingesta (T3.2) tiene un solo conector para las empresas argentinas. Si la CNV cambia
-  su sitio, se arregla en un lugar.
+- **La ingesta (T3.2) necesita un conector para la CNV, otro para la SEC y dos genéricos
+  para sitios de inversores** (`enlaces_pdf` y `wordpress_media`), configurados por empresa
+  en el YAML. Si un sitio cambia, se ajusta su patrón o su URL.
 - La CNV no ofrece una API documentada: el conector depende del HTML y del XML de la vista
   pública. Va con tests sobre respuestas grabadas, igual que los precios (ADR 011).
 - Los montos se interpretan con su `UnidadMedida`. Normalizarlos es responsabilidad del

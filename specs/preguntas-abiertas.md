@@ -28,26 +28,17 @@ responsable del producto y la decisión se lleva a la spec correspondiente.
       desmarca los cierres después de la revisión.
     - **Necesito:** tu OK, o que me digas si querés guardar también la serie sin ajustar
       (más trabajo y no lo pide la spec).
-17. **Comunicados de resultados sin fuente uniforme** (T3.1, 2026-10-07). De las 20 empresas
-    argentinas, 9 no publican sus comunicados ni en la CNV ni en la SEC: Transener, BYMA,
-    Metrogas, Ternium Argentina, TGN, Banco de Valores, Ecogas, Comercial del Plata y Aluar.
+19. **Términos de uso de los sitios de inversores** (T3.1, 2026-10-07). Ninguno prohíbe el
+    acceso automatizado y todos los `robots.txt` lo permiten, pero Transener restringe su
+    contenido a uso "privado y doméstico" y BYMA prohíbe reproducirlo sin consentimiento.
     Detalle en el ADR 013.
-    - **Recomendación:** que el informe trimestral se base en el estado contable (que la CNV
-      tiene para las 20) y use el comunicado solo cuando haya fuente. No conviene
-      integrar 9 sitios de inversores distintos para el MVP.
-    - **Necesito:** tu OK.
-18. **Usar los datos estructurados de la CNV para las cifras** (T3.1, 2026-10-07). La CNV
-    publica, junto con cada estado contable, el plan de cuentas con sus montos: total del
-    activo, pasivo y patrimonio, resultado, flujos, EBITDA y ganancia por acción. Lo verifiqué
-    contra el PDF firmado. Eso permite leer las cifras principales con código, sin LLM, como
-    con el XBRL de la SEC.
-    - **Recomendación:** la estructura de la CNV, validada, es la fuente principal. El
-      extractor de PDF con LLM (T3.5) queda para lo que la estructura no tiene (métricas por
-      sector, segmentos) y para contrastar cuando viene incompleta. Ajusta el alcance de
-      T3.4 a T3.6 y baja el costo por documento. Detalle en el ADR 013.
-    - **Necesito:** tu OK para ajustar el plan técnico y las tareas en ese sentido.
+    - **Recomendación:** integrarlos igual, porque el sistema no redistribuye sus documentos:
+      toma cifras (que son hechos), escribe un texto propio y cita la fuente. Que la revisión
+      legal previa al cobro (T9.4) lo confirme, o pedirles autorización por email a las dos
+      empresas.
+    - **Necesito:** tu decisión.
 
-## Resueltas (2026-10-05 y 2026-10-06)
+## Resueltas (2026-10-05 a 2026-10-07)
 
 1. **`spec/` → `specs/`.** Se renombró la carpeta para coincidir con `AGENTS.md` y el plan.
 2. **Git.** El remoto existe en GitHub. GitFlow (`main`, `develop`, `feature/*`), nunca push
@@ -87,3 +78,21 @@ responsable del producto y la decisión se lleva a la spec correspondiente.
 14. **Embeddings.** OpenAI `text-embedding-3-large`, acortado a `LLM_EMBEDDING_DIMENSIONS`
     (≤ 2000 por el límite de índices HNSW de pgvector). Más dimensiones no implica
     automáticamente más precisión; se confirma con las evals de T4.4.
+17. **Comunicados y sitios de inversores** (2026-10-07). Se integran todas las fuentes para que
+    el informe sea completo:
+    - para las 20 empresas, el estado contable y la reseña informativa de la CNV;
+    - los comunicados de resultados, como hecho relevante en la CNV, como 6-K en la SEC y
+      desde los **sitios de inversores**, incluidos los de las 9 empresas sin otra fuente.
+    Como esas integraciones son frágiles, un **monitor de integraciones** avisa a los
+    `ADMIN_EMAILS` (nunca a clientes) cuando una fuente se rompe o deja de publicar lo
+    esperado. Antes de integrar un sitio se revisan su `robots.txt` y sus términos; si
+    prohíbe el acceso automatizado, se consulta al responsable.
+18. **Cifras verificadas por tres caminos** (2026-10-07). Cada cifra de un estado contable
+    argentino se toma de los datos estructurados de la CNV y se verifica:
+    - (a) que aparezca tal cual en el texto del PDF firmado, con su página;
+    - (b) contra una extracción completa del PDF hecha por un LLM, que revisa **todas** las
+      cifras y cita la página.
+    Se publica solo lo que coincide en las tres. Cualquier diferencia, una cifra que no
+    aparece en el PDF o un control contable que no cierra deja el documento en
+    `revision_manual`. No genera informe hasta que una persona lo revise, desde una sección
+    de admin "Revisiones manuales" (fase 6). ADR 013.

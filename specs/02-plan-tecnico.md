@@ -256,16 +256,33 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 4. Si la fuente principal falla, usar el respaldo y registrarlo.
 5. Guardar tipo de cambio CCL diario, calculado y validado igual que un precio (ADR 012).
 
-### 7.2 Estados contables
-1. **Descubrimiento:** revisar periódicamente la ficha de cada empresa en la Autopista de Información Financiera de la CNV en busca de estados contables nuevos (ADR 013). Los identificadores por empresa (CUIT e id de la CNV) están en `config/universe.yaml` (T3.1).
+### 7.2 Estados contables y comunicados
+1. **Descubrimiento** (fuentes por empresa en `config/universe.yaml`, ADR 013):
+   - **CNV (AIF), las 20 empresas argentinas:** estados contables con datos estructurados y
+     PDF adjuntos (balance, informe del auditor, reseña informativa, memoria).
+   - **Comunicados de resultados:** hechos relevantes de la CNV, 6-K de la SEC y sitios de
+     relación con inversores.
 2. **Descarga y deduplicación** por hash. Los archivos se guardan con `DocumentStorage` (implementación en disco bajo `DOCUMENT_STORAGE_DIR`).
 3. **Empresas con datos en la SEC:** leer `companyfacts` (XBRL) y mapear conceptos a métricas internas sin LLM.
-4. **Empresas argentinas (PDF):**
-   - Extraer texto por página con PyMuPDF; detectar páginas con tablas complejas o escaneadas y enviarlas al modelo multimodal.
-   - Extracción con structured outputs al esquema `FinancialStatementExtraction` (Pydantic): cada métrica con valor, moneda, unidad, período, base de medición, si es comparativo y página fuente.
-   - Validaciones determinísticas: identidades contables (activo = pasivo + patrimonio, con tolerancia configurable), signos esperados, unidades coherentes, presencia de las métricas obligatorias del sector (`config/metrics_by_sector.yaml`).
-   - Si la validación falla: un reintento con el error; si vuelve a fallar, el documento queda en estado `revision_manual` y no genera informe.
+4. **Empresas argentinas, verificación triple** (cada cifra debe coincidir en las tres):
+   - **Datos estructurados de la CNV:** se leen con código y se normalizan con su unidad.
+   - **Texto del PDF firmado** (PyMuPDF): cada cifra tiene que aparecer tal cual, y se
+     guarda su página como fuente.
+   - **Extracción completa con LLM** (structured outputs al esquema
+     `FinancialStatementExtraction`): revisa todas las cifras, citando la página. Las
+     páginas escaneadas o con tablas complejas van al modelo multimodal.
+   - **Validaciones determinísticas:** identidades contables (activo = pasivo + patrimonio,
+     con tolerancia configurable), signos esperados, unidades coherentes, presencia de las
+     métricas obligatorias del sector (`config/metrics_by_sector.yaml`) y saltos absurdos
+     contra el período anterior.
+   - **Resultado:** se publica solo lo que coincide en las tres fuentes y pasa las
+     validaciones. Cualquier diferencia deja el documento en `revision_manual`: no genera
+     informe hasta que una persona lo revise (sección de admin "Revisiones manuales").
 5. Al validar un documento nuevo, encolar la generación del informe trimestral.
+6. **Monitor de integraciones:** cada fuente registra sus corridas. Si una fuente falla de
+   forma repetida, cambia su formato o no publica un documento esperado (por ejemplo, el
+   balance trimestral después del plazo legal), se avisa por email a `ADMIN_EMAILS`. Los
+   clientes nunca reciben esos avisos.
 
 ### 7.3 Noticias
 1. Ingesta de fuentes configuradas en `config/news_sources.yaml` (RSS y hechos relevantes oficiales). Se guarda **solo** título, link, fecha y un resumen propio; nunca el texto completo.
