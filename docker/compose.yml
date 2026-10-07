@@ -14,6 +14,9 @@ x-image: &image
 x-app: &app
   <<: *image
   restart: unless-stopped
+  # Documentos descargados (DOCUMENT_STORAGE_DIR=/app/data/documents). Va en los backups (T8.2).
+  volumes:
+    - documents:/app/data/documents
   depends_on:
     migrate:
       condition: service_completed_successfully
@@ -82,5 +85,6 @@ services:
 
 volumes:
   pgdata:
+  documents:
   caddy_data:
   caddy_config:
