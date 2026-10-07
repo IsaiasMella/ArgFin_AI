@@ -8,9 +8,12 @@ actualizar-precios      Corre la tarea de precios y CCL para un rango de fechas 
                         p. ej. para cargar historia. Por defecto, la última semana.
 ingestar-documentos     Busca y descarga documentos nuevos de las empresas argentinas
                         (docs/adr/014). Opcional: --empresa CLAVE y --desde AAAA-MM-DD.
+actualizar-sec          Actualiza las cifras XBRL de la SEC de los subyacentes de CEDEARs
+                        (docs/adr/015). Opcional: --empresa CLAVE.
 
 `recifrar` y `sincronizar-universo` usan el rol de migraciones (dueño de las tablas);
-`actualizar-precios` e `ingestar-documentos`, el de la app, igual que el worker.
+`actualizar-precios`, `ingestar-documentos` y `actualizar-sec`, el de la app, igual que el
+worker.
 """
 
 import argparse
@@ -29,6 +32,8 @@ from brujula.core.security.encrypted_types import cipher_from_settings
 from brujula.features.documents.ingest import CompanyReport
 from brujula.features.documents.settings import DocumentsConfigError
 from brujula.features.documents.tasks import ingest_documents
+from brujula.features.financials.catalog import FinancialsConfigError
+from brujula.features.financials.tasks import refresh_sec_facts
 from brujula.features.portfolios.maintenance import link_free_tickers
 from brujula.features.portfolios.models import PRICE_CONTEXT, QUANTITY_CONTEXT
 from brujula.features.prices.daily import (
@@ -158,6 +163,20 @@ def _run_ingestion(settings: Settings, only: str | None, since: date | None) -> 
             print(f"  error en {fuente}: {motivo}")
 
 
+def _run_sec(settings: Settings, only: str | None) -> None:
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    try:
+        reports = asyncio.run(refresh_sec_facts(settings, only=only), loop_factory=loop_factory)
+    except (FinancialsConfigError, UniverseError) as exc:
+        raise SystemExit(f"error: {exc}") from None
+    if not reports:
+        raise SystemExit("error: ningún CEDEAR con CIK coincide con --empresa")
+    for report in reports:
+        print(f"{report.clave}: cifras {report.cifras}, escritas {report.escritas}")
+        for fuente, motivo in report.errores:
+            print(f"  error en {fuente}: {motivo}")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="brujula.cli")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -170,9 +189,14 @@ def main(argv: list[str] | None = None) -> None:
     documents = commands.add_parser("ingestar-documentos", help="documentos nuevos de empresas")
     documents.add_argument("--empresa", help="clave de la empresa en universe.yaml")
     documents.add_argument("--desde", type=date.fromisoformat, help="AAAA-MM-DD")
+    sec = commands.add_parser("actualizar-sec", help="cifras XBRL de los CEDEARs")
+    sec.add_argument("--empresa", help="clave de la empresa en universe.yaml")
     args = parser.parse_args(argv)
 
     settings = get_settings()
+    if args.command == "actualizar-sec":
+        _run_sec(settings, args.empresa)
+        return
     if args.command == "actualizar-precios":
         _run_prices(settings, args.desde, args.hasta)
         return

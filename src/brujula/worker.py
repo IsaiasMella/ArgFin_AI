@@ -11,6 +11,7 @@ import structlog
 
 # Registran sus tareas en la cola al importarse.
 import brujula.features.documents.tasks
+import brujula.features.financials.tasks
 import brujula.features.prices.tasks  # noqa: F401
 from brujula.core.config import Settings, get_settings
 from brujula.core.logging import configure_logging
