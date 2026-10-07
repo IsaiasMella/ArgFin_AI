@@ -146,6 +146,9 @@ def superuser(database: Database) -> Iterator[psycopg.Connection]:
         yield conn
         conn.execute("DELETE FROM users")  # en cascada: sesiones y posiciones
         conn.execute("DELETE FROM oauth_transactions")
+        conn.execute("DELETE FROM document_checks")
+        conn.execute("DELETE FROM cnv_statements")
+        conn.execute("DELETE FROM documents")
         conn.execute("DELETE FROM prices_daily")
         conn.execute("DELETE FROM fx_daily")
         conn.execute("DELETE FROM instruments")
