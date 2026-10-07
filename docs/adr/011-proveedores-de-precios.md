@@ -28,8 +28,15 @@ aviso (riesgo listado en el plan, §10).
    bonds/{ticker}`). La fuente entrega la historia completa y el proveedor filtra el rango.
    Un ticker desconocido responde con un JSON de error, que se informa como
    `ticker_desconocido`.
-4. **Cierres sin ajustar.** En las respuestas grabadas, las dos fuentes coinciden rueda
-   por rueda (hay un test que lo verifica). Por eso se pueden comparar de forma directa.
+4. **Ajustes por eventos corporativos.**
+   - **BYMA ajusta su serie histórica hacia atrás** cuando hay un evento corporativo.
+     Ejemplos verificados el 2026-10-07: YPFD tuvo un split 10:1 a fines de julio de 2026 y
+     BYMA divide por 10 los cierres previos; METR tuvo un ajuste de alrededor del 9,5 % a
+     mediados de julio.
+   - **data912 da los precios tal como se operaron.**
+   - En las ruedas recientes y sin eventos, las dos coinciden rueda por rueda (hay un test
+     que lo verifica con las respuestas grabadas).
+   - Alrededor de un evento difieren a propósito, y la tarea diaria lo trata (ADR 012).
 5. **Decimales exactos.** El JSON se lee con `Decimal` desde el texto, sin pasar por
    `float`. Se rechazan los cierres nulos, no numéricos o menores o iguales a cero.
 6. **Robustez:**
