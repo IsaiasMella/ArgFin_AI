@@ -28,6 +28,24 @@ responsable del producto y la decisión se lleva a la spec correspondiente.
       desmarca los cierres después de la revisión.
     - **Necesito:** tu OK, o que me digas si querés guardar también la serie sin ajustar
       (más trabajo y no lo pide la spec).
+17. **Comunicados de resultados sin fuente uniforme** (T3.1, 2026-10-07). De las 20 empresas
+    argentinas, 9 no publican sus comunicados ni en la CNV ni en la SEC: Transener, BYMA,
+    Metrogas, Ternium Argentina, TGN, Banco de Valores, Ecogas, Comercial del Plata y Aluar.
+    Detalle en el ADR 013.
+    - **Recomendación:** que el informe trimestral se base en el estado contable (que la CNV
+      tiene para las 20) y use el comunicado solo cuando haya fuente. No conviene
+      integrar 9 sitios de inversores distintos para el MVP.
+    - **Necesito:** tu OK.
+18. **Usar los datos estructurados de la CNV para las cifras** (T3.1, 2026-10-07). La CNV
+    publica, junto con cada estado contable, el plan de cuentas con sus montos: total del
+    activo, pasivo y patrimonio, resultado, flujos, EBITDA y ganancia por acción. Lo verifiqué
+    contra el PDF firmado. Eso permite leer las cifras principales con código, sin LLM, como
+    con el XBRL de la SEC.
+    - **Recomendación:** la estructura de la CNV, validada, es la fuente principal. El
+      extractor de PDF con LLM (T3.5) queda para lo que la estructura no tiene (métricas por
+      sector, segmentos) y para contrastar cuando viene incompleta. Ajusta el alcance de
+      T3.4 a T3.6 y baja el costo por documento. Detalle en el ADR 013.
+    - **Necesito:** tu OK para ajustar el plan técnico y las tareas en ese sentido.
 
 ## Resueltas (2026-10-05 y 2026-10-06)
 

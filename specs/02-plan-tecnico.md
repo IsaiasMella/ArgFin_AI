@@ -257,7 +257,7 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 5. Guardar tipo de cambio CCL diario, calculado y validado igual que un precio (ADR 012).
 
 ### 7.2 Estados contables
-1. **Descubrimiento:** revisar periódicamente las fuentes de cada empresa (relación con inversores, CNV) en busca de documentos nuevos. Las URLs y métodos concretos por empresa se definen en la tarea de discovery (ver `03-tareas.md`, T3.1) y se guardan en `config/universe.yaml`.
+1. **Descubrimiento:** revisar periódicamente la ficha de cada empresa en la Autopista de Información Financiera de la CNV en busca de estados contables nuevos (ADR 013). Los identificadores por empresa (CUIT e id de la CNV) están en `config/universe.yaml` (T3.1).
 2. **Descarga y deduplicación** por hash. Los archivos se guardan con `DocumentStorage` (implementación en disco bajo `DOCUMENT_STORAGE_DIR`).
 3. **Empresas con datos en la SEC:** leer `companyfacts` (XBRL) y mapear conceptos a métricas internas sin LLM.
 4. **Empresas argentinas (PDF):**
