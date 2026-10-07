@@ -4,12 +4,19 @@ recifrar                Re-cifra con la clave actual los valores cifrados con un
                         anterior (paso 3 de la rotación, docs/adr/008).
 sincronizar-universo    Carga config/universe.yaml en la base (docs/adr/010). Con --simular
                         muestra los cambios sin guardarlos.
+actualizar-precios      Corre la tarea de precios y CCL para un rango de fechas (docs/adr/012),
+                        p. ej. para cargar historia. Por defecto, la última semana.
 
-Los comandos usan el rol de migraciones (dueño de las tablas).
+`recifrar` y `sincronizar-universo` usan el rol de migraciones (dueño de las tablas);
+`actualizar-precios`, el de la app, igual que el worker.
 """
 
 import argparse
+import asyncio
+import sys
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session
@@ -19,6 +26,12 @@ from brujula.core.security.crypto import FieldCipher
 from brujula.core.security.encrypted_types import cipher_from_settings
 from brujula.features.portfolios.maintenance import link_free_tickers
 from brujula.features.portfolios.models import PRICE_CONTEXT, QUANTITY_CONTEXT
+from brujula.features.prices.daily import (
+    DailyRunReport,
+    PricesConfigError,
+    PricesUnavailableError,
+)
+from brujula.features.prices.tasks import LOOKBACK_DAYS, update_prices
 from brujula.features.universe.catalog import UNIVERSE_FILE, UniverseError, load_universe
 from brujula.features.universe.sync import SyncResult, sync_universe
 
@@ -98,15 +111,46 @@ def _print_sync_report(report: UniverseSyncReport) -> None:
     print(f"  posiciones vinculadas al universo: {report.posiciones_vinculadas}")
 
 
+def _print_prices_report(report: DailyRunReport) -> None:
+    print(f"Precios del {report.desde} al {report.hasta}:")
+    for name, value in vars(report).items():
+        if name not in {"desde", "hasta", "errores"}:
+            print(f"  {name.replace('_', ' ')}: {value}")
+    for provider, errors in report.errores.items():
+        print(f"  sin datos de {provider}: {', '.join(f'{t} ({m})' for t, m in errors.items())}")
+
+
+def _run_prices(settings: Settings, start: date | None, end: date | None) -> None:
+    end = end or datetime.now(ZoneInfo(settings.app_timezone)).date()
+    start = start or end - timedelta(days=LOOKBACK_DAYS - 1)
+    if start > end:
+        raise SystemExit("error: --desde es posterior a --hasta")
+    # psycopg asíncrono no funciona con el event loop por defecto de Windows (Proactor).
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    try:
+        report = asyncio.run(
+            update_prices(settings, start=start, end=end), loop_factory=loop_factory
+        )
+    except (PricesConfigError, PricesUnavailableError) as exc:
+        raise SystemExit(f"error: {exc}") from None
+    _print_prices_report(report)
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="brujula.cli")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("recifrar", help="re-cifra datos con la clave actual (rotación)")
     sync = commands.add_parser("sincronizar-universo", help="carga config/universe.yaml")
     sync.add_argument("--simular", action="store_true", help="muestra los cambios sin guardarlos")
+    prices = commands.add_parser("actualizar-precios", help="precios y CCL para un rango")
+    prices.add_argument("--desde", type=date.fromisoformat, help="AAAA-MM-DD")
+    prices.add_argument("--hasta", type=date.fromisoformat, help="AAAA-MM-DD (por defecto, hoy)")
     args = parser.parse_args(argv)
 
     settings = get_settings()
+    if args.command == "actualizar-precios":
+        _run_prices(settings, args.desde, args.hasta)
+        return
     engine = create_engine(settings.database_url_migrations.get_secret_value())
     try:
         if args.command == "recifrar":

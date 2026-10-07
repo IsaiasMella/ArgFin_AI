@@ -5,7 +5,29 @@ responsable del producto y la decisión se lleva a la spec correspondiente.
 
 ## Pendientes
 
-Ninguna por ahora.
+15. **Precios de las posiciones fuera del universo** (detectada en T2.3, 2026-10-07). La spec
+    (4.1) dice que de esas posiciones "solo se informa precio y variación", pero el plan
+    (7.1) y T2.3 piden precios solo "para cada instrumento del universo". Hoy la tarea diaria
+    cubre el universo y el CCL; los tickers libres no tienen precio.
+    - **Recomendación:** sumarlos cuando se arme el resumen semanal (fase 5), que es el
+      primero que los usa. La tarea diaria los leería con una función `SECURITY DEFINER`
+      que devuelve solo la lista de tickers distintos, sin usuarios (mismo mecanismo que
+      los puntos 3 y 4), y guardaría sus cierres en una tabla aparte. Un ticker libre no
+      tiene tipo conocido: BYMA no lo necesita y data912 se probaría como acción y como
+      CEDEAR.
+    - **Necesito:** tu OK para ese enfoque, o adelantarlo a la fase 2 si preferís.
+16. **Eventos corporativos y la historia de precios** (detectada en T2.3, 2026-10-07). BYMA
+    ajusta su serie histórica hacia atrás ante splits y otros eventos (YPFD tuvo un split
+    10:1 a fines de julio de 2026), mientras que data912 da los precios tal como se
+    operaron. El `ROADMAP.md` deja los eventos corporativos completos fuera del MVP.
+    - **Qué hace hoy el sistema (ADR 012):** marca los cierres afectados. Así ningún
+      informe calcula una variación a través del evento, y en su lugar dice que no hay
+      dato.
+    - **Recomendación para el MVP:** mantenerlo así. Sumar al panel de admin (fase 6) una
+      acción "reprocesar instrumento": vuelve a bajar de BYMA toda la serie ajustada y
+      desmarca los cierres después de la revisión.
+    - **Necesito:** tu OK, o que me digas si querés guardar también la serie sin ajustar
+      (más trabajo y no lo pide la spec).
 
 ## Resueltas (2026-10-05 y 2026-10-06)
 

@@ -9,6 +9,8 @@ import sys
 
 import structlog
 
+# Registran sus tareas en la cola al importarse.
+import brujula.features.prices.tasks  # noqa: F401
 from brujula.core.config import Settings, get_settings
 from brujula.core.logging import configure_logging
 from brujula.core.queue import create_queue_app

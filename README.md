@@ -32,4 +32,7 @@ docker compose -f docker/compose.yml --env-file .env run --rm api python -m bruj
 # Cargar o actualizar el universo desde config/universe.yaml (docs/adr/010).
 # Primero con --simular para ver los cambios; después sin él para aplicarlos.
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli sincronizar-universo --simular
+
+# Cargar precios y CCL de un rango (el worker lo hace solo cada día, docs/adr/012)
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli actualizar-precios --desde 2026-07-01
 ```

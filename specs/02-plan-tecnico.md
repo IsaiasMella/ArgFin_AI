@@ -201,8 +201,8 @@ PROMPTS_DIR=
 
 - `companies`: id, clave (estable, la del YAML), nombre, sector, país, tipo (`ar_equity`, `cedear`), cik_sec, url_relacion_inversores, activa.
 - `instruments`: id, company_id, ticker_byma, ticker_origen, ratio_cedear, moneda, activo. Se cargan desde `config/universe.yaml` con `sincronizar-universo` (ADR 010).
-- `prices_daily`: instrument_id, fecha, cierre, volumen, fuente, divergencia_pct, marcado (bool).
-- `fx_daily`: fecha, ccl, mep, oficial, fuente.
+- `prices_daily`: instrument_id, fecha, cierre, volumen, fuente, cierre_respaldo, divergencia_pct, marcado (bool).
+- `fx_daily`: fecha, ccl, fuente, ccl_respaldo, divergencia_pct, marcado. CCL implícito en bonos (`config/fx.yaml`); MEP y oficial no se usan en el MVP (ADR 012).
 - `documents`: id, company_id, tipo (`estado_contable`, `comunicado_resultados`, `hecho_relevante`, `memoria_anual`), período, url_origen, hash_sha256, ruta_almacenada, fecha_publicacion, estado.
 - `financial_facts`: id, document_id, company_id, métrica, período, valor, moneda, unidad, base_medicion (`nominal` | `homogenea`), fecha_reexpresion, es_comparativo, fuente_pagina o fuente_xbrl, confianza, extractor_version.
 - `news_items`: id, url, titulo, fuente, fecha, resumen_propio, embedding (vector), cluster_id, importancia.
@@ -254,7 +254,7 @@ Todas las tareas son **idempotentes**: reintentarlas no duplica datos (claves na
 2. Guardar el principal; calcular divergencia contra el respaldo.
 3. Si la divergencia supera `PRICE_DIVERGENCE_THRESHOLD_PCT`, marcar el dato; un dato marcado no se publica en informes sin revisión.
 4. Si la fuente principal falla, usar el respaldo y registrarlo.
-5. Guardar tipo de cambio CCL diario.
+5. Guardar tipo de cambio CCL diario, calculado y validado igual que un precio (ADR 012).
 
 ### 7.2 Estados contables
 1. **Descubrimiento:** revisar periódicamente las fuentes de cada empresa (relación con inversores, CNV) en busca de documentos nuevos. Las URLs y métodos concretos por empresa se definen en la tarea de discovery (ver `03-tareas.md`, T3.1) y se guardan en `config/universe.yaml`.

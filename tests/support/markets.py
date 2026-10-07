@@ -5,6 +5,7 @@ Grabadas el 2026-10-07: ruedas del 28/09 al 06/10/2026. Sin llamadas reales en l
 
 from collections import Counter
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -24,8 +25,9 @@ UNKNOWN = {"byma": "byma_NOEXISTE.json", "data912": "data912_stocks_NOEXISTE.jso
 class RecordedMarkets:
     # Respuestas forzadas por ticker (en orden; la última se repite): status o cuerpo crudo.
     scripted: dict[tuple[str, str], list[httpx2.Response]] = field(default_factory=dict)
-    # Cierres reemplazados en las respuestas de data912: (ticker, fecha ISO) -> cierre.
+    # Cierres reemplazados en las respuestas: (ticker, fecha ISO) -> cierre.
     data912_closes: dict[tuple[str, str], float] = field(default_factory=dict)
+    byma_closes: dict[tuple[str, str], float] = field(default_factory=dict)
     requests: Counter[tuple[str, str]] = field(default_factory=Counter)
     byma_params: list[dict[str, str]] = field(default_factory=list)
 
@@ -44,7 +46,8 @@ class RecordedMarkets:
             params = dict(request.url.params)
             self.byma_params.append(params)
             ticker = params["symbol"].removesuffix(" 24HS")
-            return self._respond("byma", ticker, FIXTURES / f"byma_{ticker}.json")
+            response = self._respond("byma", ticker, FIXTURES / f"byma_{ticker}.json")
+            return self._patch_byma(ticker, response)
         if url.startswith(DATA912_BASE + "/historical/"):
             kind, ticker = url.removeprefix(DATA912_BASE + "/historical/").split("/")
             ticker = unquote(ticker)
@@ -60,6 +63,17 @@ class RecordedMarkets:
         if not path.exists():
             return httpx2.Response(200, content=(FIXTURES / UNKNOWN[provider]).read_bytes())
         return httpx2.Response(200, content=path.read_bytes())
+
+    def _patch_byma(self, ticker: str, response: httpx2.Response) -> httpx2.Response:
+        if response.status_code != 200 or not any(t == ticker for t, _ in self.byma_closes):
+            return response
+        data = response.json()
+        for i, timestamp in enumerate(data["t"]):
+            day = datetime.fromtimestamp(timestamp, UTC).date().isoformat()
+            close = self.byma_closes.get((ticker, day))
+            if close is not None:
+                data["c"][i] = close
+        return httpx2.Response(200, json=data)
 
     def _patch_data912(self, ticker: str, response: httpx2.Response) -> httpx2.Response:
         if response.status_code != 200 or not any(t == ticker for t, _ in self.data912_closes):
