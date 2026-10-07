@@ -1,0 +1,11 @@
+# Tipo de cambio que calcula la tarea diaria de precios (T2.3, docs/adr/012).
+#
+# CCL (contado con liquidación) implícito: cierre en pesos de un bono dividido por su cierre
+# en dólares cable, la misma rueda y la misma fuente. Se usa el par más líquido.
+# Elegido el 2026-10-07 con datos de BYMA del tercer trimestre de 2026 (64 ruedas): el AL30
+# operó unas 11 veces el monto del GD30 en la especie en pesos y unas 49 veces en la de cable.
+
+version: 1
+ccl:
+  bono_pesos: AL30
+  bono_cable: AL30C

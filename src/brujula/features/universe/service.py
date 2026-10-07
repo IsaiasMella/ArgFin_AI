@@ -20,6 +20,13 @@ class InstrumentInfo:
     covered: bool
 
 
+@dataclass(frozen=True)
+class ActiveInstrument:
+    id: UUID
+    ticker: str
+    tipo: str  # tipo de la empresa: "ar_equity" | "cedear"
+
+
 def _base_query() -> Select[UUID, str, str, bool]:
     return select(
         Instrument.id,
@@ -51,3 +58,14 @@ async def find_by_ids(session: AsyncSession, ids: Iterable[UUID]) -> dict[UUID, 
         return {}
     rows = await session.execute(_base_query().where(Instrument.id.in_(wanted)))
     return {info.id: info for info in (_info(row) for row in rows)}
+
+
+async def active_instruments(session: AsyncSession) -> list[ActiveInstrument]:
+    """Instrumentos cubiertos hoy (empresa e instrumento activos), ordenados por ticker."""
+    rows = await session.execute(
+        select(Instrument.id, Instrument.ticker_byma, Company.tipo)
+        .join(Company, Company.id == Instrument.company_id)
+        .where(Company.activa, Instrument.activo)
+        .order_by(Instrument.ticker_byma)
+    )
+    return [ActiveInstrument(id=i, ticker=t, tipo=k) for i, t, k in rows]
