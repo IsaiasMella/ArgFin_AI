@@ -48,6 +48,24 @@ marcado no aparece en informes.
   BYMA falla en una corrida, los días que ya tenía se conservan. Esto se vio en una prueba
   real: una falla transitoria de BYMA en 2 tickers habría pisado 8 cierres validados.
 
+### Ajustes retroactivos (eventos corporativos)
+
+BYMA ajusta su serie hacia atrás ante splits y otros eventos (ADR 011). Si un ajuste cae
+dentro de la ventana, la corrida reescribe esos días con valores ajustados. data912 sigue
+con los precios tal como se operaron, así que la divergencia los marca. Pero los cierres
+guardados **antes** de la ventana quedarían sin ajustar y sin marcar: una variación mensual
+mostraría una caída falsa (por ejemplo, −90 % en un split 10:1).
+
+**Regla:** si la principal reescribe un cierre oficial ya guardado más allá del umbral, se
+marcan todos los cierres anteriores a la ventana de ese instrumento (`ajuste_retroactivo`
+en el log). Así ningún informe compara precios de antes y de después del evento. Para
+volver a publicarlos hay que revisarlos (fase 6). El tratamiento completo de los eventos
+corporativos está en el `ROADMAP.md` (pregunta abierta 16).
+
+Al cargar la historia del tercer trimestre de 2026 con datos reales, los cierres previos a
+esos eventos (YPFD hasta el 31/07 y METR hasta mediados de julio) quedaron marcados por la
+divergencia. Es el comportamiento buscado.
+
 ### Lectura para informes (`features/prices/service.py`)
 
 `publishable_closes` y `publishable_ccl` son la única puerta para leer precios y **excluyen
@@ -88,3 +106,5 @@ día.
 - Para revisar un dato marcado hace falta una herramienta de admin (fase 6). Hasta
   entonces, se revisa con SQL.
 - Las posiciones fuera del universo no tienen precio todavía (pregunta abierta 15).
+- Después de un evento corporativo, la historia previa del instrumento queda fuera de los
+  informes hasta que alguien la revise (pregunta abierta 16).
