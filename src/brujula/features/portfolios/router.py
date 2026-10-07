@@ -3,10 +3,22 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, UploadFile, status
 
-from brujula.features.auth.dependencies import CsrfProtectedUser, CurrentUser
-from brujula.features.portfolios.schemas import HoldingCreate, HoldingOut, HoldingUpdate
+from brujula.core.config import Settings
+from brujula.features.auth.dependencies import (
+    CsrfProtectedUser,
+    CurrentUser,
+    get_settings_from_app,
+    rate_limited,
+)
+from brujula.features.portfolios.csv_import import TEMPLATE, CsvFormatError, parse_csv
+from brujula.features.portfolios.schemas import (
+    CsvImportResult,
+    HoldingCreate,
+    HoldingOut,
+    HoldingUpdate,
+)
 from brujula.features.portfolios.service import (
     HoldingNotFoundError,
     PlanLimitError,
@@ -22,6 +34,8 @@ def get_portfolio_service(request: Request) -> PortfolioService:
 
 
 Service = Annotated[PortfolioService, Depends(get_portfolio_service)]
+AppSettings = Annotated[Settings, Depends(get_settings_from_app)]
+upload_rate_limit = Depends(rate_limited("upload_rate_limiter", per_session=True))
 NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, detail="Posición inexistente")
 
 
@@ -56,3 +70,31 @@ async def delete_holding(user: CsrfProtectedUser, service: Service, holding_id: 
     except HoldingNotFoundError:
         raise NOT_FOUND from None
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/csv/plantilla")
+async def csv_template() -> Response:
+    """Plantilla descargable con las columnas aceptadas."""
+    return Response(
+        TEMPLATE,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="plantilla-portafolio.csv"'},
+    )
+
+
+@router.post("/csv", dependencies=[upload_rate_limit])
+async def import_csv(
+    user: CsrfProtectedUser,
+    service: Service,
+    settings: AppSettings,
+    archivo: Annotated[UploadFile, File(description="CSV con las columnas de la plantilla")],
+) -> CsvImportResult:
+    """Valida fila por fila: guarda las válidas e informa los errores de las demás."""
+    content = await archivo.read(settings.csv_max_bytes + 1)
+    try:
+        parsed = parse_csv(
+            content, max_bytes=settings.csv_max_bytes, max_rows=settings.csv_max_rows
+        )
+    except CsvFormatError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc)) from None
+    return await service.import_csv(user, parsed)

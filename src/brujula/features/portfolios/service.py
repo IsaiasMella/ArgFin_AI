@@ -9,8 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from brujula.core.config import Settings
 from brujula.core.db import user_transaction
 from brujula.features.auth.service import AuthenticatedUser
+from brujula.features.portfolios.csv_import import ParsedCsv, RowError
 from brujula.features.portfolios.models import Holding
-from brujula.features.portfolios.schemas import Coverage, HoldingCreate, HoldingOut, HoldingUpdate
+from brujula.features.portfolios.schemas import (
+    Coverage,
+    CsvImportResult,
+    CsvRowError,
+    HoldingCreate,
+    HoldingOut,
+    HoldingUpdate,
+)
 from brujula.features.universe import service as universe
 from brujula.features.universe.service import InstrumentInfo
 
@@ -71,6 +79,33 @@ class PortfolioService:
             await session.flush()
             logger.info("posiciones_agregadas", cantidad=len(holdings))
             return await _to_out(session, holdings)
+
+    async def import_csv(self, user: AuthenticatedUser, parsed: ParsedCsv) -> CsvImportResult:
+        """Guarda las filas válidas; las inválidas y las que exceden el plan se informan."""
+        errors = list(parsed.errors)
+        valid = parsed.valid
+        slots = await self.remaining_slots(user)
+        if slots is not None and len(valid) > slots:
+            message = f"supera el límite del plan gratuito ({self._free_plan_limit} posiciones)"
+            errors.extend(RowError(line, [message]) for line, _ in valid[slots:])
+            valid = valid[:slots]
+        imported = await self.add_many(user, [item for _, item in valid]) if valid else []
+        return CsvImportResult(
+            filas_procesadas=parsed.rows,
+            importadas=imported,
+            errores=[
+                CsvRowError(fila=e.row, errores=e.errors)
+                for e in sorted(errors, key=lambda e: e.row)
+            ],
+        )
+
+    async def remaining_slots(self, user: AuthenticatedUser) -> int | None:
+        """Posiciones que todavía puede cargar (None: sin límite)."""
+        if user.plan != PLAN_WITH_LIMIT:
+            return None
+        async with user_transaction(self._sessions, user.id) as session:
+            current = await session.scalar(select(func.count()).select_from(Holding)) or 0
+        return max(self._free_plan_limit - current, 0)
 
     async def update(
         self, user: AuthenticatedUser, holding_id: UUID, data: HoldingUpdate

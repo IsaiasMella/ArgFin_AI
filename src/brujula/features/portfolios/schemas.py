@@ -87,3 +87,14 @@ class HoldingOut(BaseModel):
     precio_promedio: Decimal | None
     moneda_precio: Currency | None
     broker: str | None
+
+
+class CsvRowError(BaseModel):
+    fila: int
+    errores: list[str]
+
+
+class CsvImportResult(BaseModel):
+    filas_procesadas: int
+    importadas: list[HoldingOut]
+    errores: list[CsvRowError]

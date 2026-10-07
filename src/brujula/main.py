@@ -85,6 +85,7 @@ def create_app(
     )
     app.state.settings = settings
     app.state.auth_rate_limiter = RateLimiter(settings.rate_limit_auth_per_minute, 60)
+    app.state.upload_rate_limiter = RateLimiter(settings.rate_limit_upload_per_hour, 3600)
 
     # El frontend llama con cookies desde otro origen (app.): solo ese origen.
     app.add_middleware(

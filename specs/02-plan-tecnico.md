@@ -132,6 +132,9 @@ CSRF_SECRET=
 ADMIN_EMAILS=                    # emails separados por coma que reciben el rol admin al ingresar
 SESSION_TTL_HOURS=
 RATE_LIMIT_AUTH_PER_MINUTE=
+RATE_LIMIT_UPLOAD_PER_HOUR=
+CSV_MAX_BYTES=
+CSV_MAX_ROWS=
 
 # OAuth (Google)
 GOOGLE_CLIENT_ID=
