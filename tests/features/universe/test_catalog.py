@@ -1,0 +1,126 @@
+"""`config/universe.yaml`: el archivo versionado es válido y el esquema rechaza errores (T2.1)."""
+
+from pathlib import Path
+from typing import Any
+
+import pytest
+import yaml
+
+from brujula.features.universe.catalog import UNIVERSE_FILE, UniverseError, load_universe
+
+ROOT = Path(__file__).resolve().parents[3]
+VERSIONED = ROOT / "config" / UNIVERSE_FILE
+
+
+def test_el_universo_versionado_tiene_20_acciones_y_20_cedears() -> None:
+    universe = load_universe(VERSIONED)
+
+    assert (universe.count("ar_equity"), universe.count("cedear")) == (20, 20)
+
+
+def test_cada_ticker_figura_en_el_ranking_que_justifica_su_eleccion() -> None:
+    universe = load_universe(VERSIONED)
+    ranking = universe.seleccion.ranking_millones_ars
+
+    for group, tipo in (("acciones", "ar_equity"), ("cedears", "cedear")):
+        tickers = {
+            instrument.ticker_byma
+            for company in universe.empresas
+            if company.tipo == tipo
+            for instrument in company.instrumentos
+        }
+        assert tickers == set(ranking[group])
+    # Ningún excluido (ETF) se coló en el universo.
+    assert not set(universe.seleccion.excluidos) & set(ranking["cedears"])
+
+
+def test_la_ventana_de_seleccion_cierra_antes_de_la_fecha_de_corte() -> None:
+    selection = load_universe(VERSIONED).seleccion
+
+    assert selection.ventana.hasta < selection.fecha_de_corte
+
+
+# --- Errores del esquema -----------------------------------------------------------------
+
+
+def _base() -> dict[str, Any]:
+    raw: dict[str, Any] = yaml.safe_load(VERSIONED.read_text(encoding="utf-8"))
+    raw["empresas"] = [
+        {
+            "clave": "GGAL",
+            "nombre": "Galicia",
+            "tipo": "ar_equity",
+            "sector": "Financiero",
+            "pais": "AR",
+            "instrumentos": [{"ticker_byma": "GGAL", "moneda": "ARS"}],
+        },
+        {
+            "clave": "APPLE",
+            "nombre": "Apple",
+            "tipo": "cedear",
+            "sector": "Tecnología",
+            "pais": "US",
+            "cik_sec": "0000320193",
+            "instrumentos": [
+                {
+                    "ticker_byma": "AAPL",
+                    "ticker_origen": "AAPL",
+                    "ratio_cedear": 20,
+                    "moneda": "ARS",
+                }
+            ],
+        },
+    ]
+    return raw
+
+
+def _write(tmp_path: Path, raw: dict[str, Any]) -> Path:
+    path = tmp_path / UNIVERSE_FILE
+    path.write_text(yaml.safe_dump(raw, allow_unicode=True), encoding="utf-8")
+    return path
+
+
+def test_un_archivo_minimo_valido_carga_y_normaliza_tickers(tmp_path: Path) -> None:
+    raw = _base()
+    raw["empresas"][0]["instrumentos"][0]["ticker_byma"] = " ggal "
+
+    universe = load_universe(_write(tmp_path, raw))
+
+    assert universe.empresas[0].instrumentos[0].ticker_byma == "GGAL"
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (lambda r: r["empresas"][1]["instrumentos"][0].pop("ratio_cedear"), "necesita ratio"),
+        (lambda r: r["empresas"][0]["instrumentos"][0].update(ratio_cedear=1), "no lleva ratio"),
+        (lambda r: r["empresas"][1].update(clave="GGAL"), "claves repetidas: GGAL"),
+        (
+            lambda r: r["empresas"][1]["instrumentos"][0].update(ticker_byma="GGAL"),
+            "tickers repetidas: GGAL",
+        ),
+        (lambda r: r["empresas"][1].update(cik_sec="320193"), "cik_sec"),
+        (lambda r: r["empresas"][0].update(tipo="bono"), "tipo"),
+        (lambda r: r["empresas"][0].update(precio_objetivo=1), "precio_objetivo"),
+        (lambda r: r["seleccion"].pop("fuente"), "fuente"),
+    ],
+)
+def test_errores_de_esquema(tmp_path: Path, change: Any, message: str) -> None:
+    raw = _base()
+    change(raw)
+
+    with pytest.raises(UniverseError, match=message):
+        load_universe(_write(tmp_path, raw))
+
+
+def test_archivo_inexistente(tmp_path: Path) -> None:
+    with pytest.raises(UniverseError, match="no se pudo leer"):
+        load_universe(tmp_path / "no-existe.yaml")
+
+
+def test_yaml_invalido(tmp_path: Path) -> None:
+    path = tmp_path / UNIVERSE_FILE
+    path.write_text("empresas: [", encoding="utf-8")
+
+    with pytest.raises(UniverseError, match="no es YAML válido"):
+        load_universe(path)
