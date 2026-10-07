@@ -63,6 +63,18 @@ class InstrumentEntry(_Strict):
     moneda: Literal["ARS", "USD"]
 
 
+class CnvSource(_Strict):
+    """Ficha de la empresa en la Autopista de Información Financiera de la CNV (ADR 013)."""
+
+    cuit: Annotated[str, Field(pattern=r"^\d{11}$")]
+    id: Annotated[int, Field(gt=0)]
+    balance: Literal["consolidado", "individual"]
+    cierre_ejercicio: Annotated[str, Field(pattern=r"^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$")]
+
+
+ResultsSource = Literal["cnv_hecho_relevante", "sec_6k"]
+
+
 class CompanyEntry(_Strict):
     clave: Key
     nombre: Text
@@ -71,6 +83,8 @@ class CompanyEntry(_Strict):
     pais: CountryCode
     cik_sec: Cik | None = None
     url_relacion_inversores: str | None = None
+    cnv: CnvSource | None = None
+    comunicados: list[ResultsSource] = Field(default_factory=list)
     instrumentos: list[InstrumentEntry] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -82,6 +96,13 @@ class CompanyEntry(_Strict):
                 raise ValueError(f"{instrument.ticker_byma}: un CEDEAR necesita ratio y subyacente")
             if self.tipo == "ar_equity" and instrument.ratio_cedear is not None:
                 raise ValueError(f"{instrument.ticker_byma}: una acción local no lleva ratio")
+        # Los estados contables de las empresas argentinas se descubren en la CNV (T3.1).
+        if self.tipo == "ar_equity" and self.cnv is None:
+            raise ValueError(f"{self.clave}: una empresa argentina necesita su ficha de la CNV")
+        if self.tipo == "cedear" and self.cnv is not None:
+            raise ValueError(f"{self.clave}: un CEDEAR no tiene ficha en la CNV")
+        if "sec_6k" in self.comunicados and self.cik_sec is None:
+            raise ValueError(f"{self.clave}: los 6-K de la SEC necesitan cik_sec")
         return self
 
 
