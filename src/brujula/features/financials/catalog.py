@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 METRICS_FILE = "metrics.yaml"
 SEC_XBRL_FILE = "sec_xbrl.yaml"
+SECTOR_METRICS_FILE = "metrics_by_sector.yaml"
 CONCEPT = re.compile(r"^[a-z][a-z0-9\-]*:[A-Za-z][A-Za-z0-9]*$")
 
 
@@ -69,3 +70,31 @@ def load_sec_mapping(config_dir: Path, catalog: MetricCatalog) -> SecXbrlMapping
     mapping = _load(config_dir / SEC_XBRL_FILE, SecXbrlMapping)
     mapping.check_against(catalog)
     return mapping
+
+
+class SectorMetrics(_Strict):
+    """Métricas obligatorias de un estado contable según el sector de la empresa."""
+
+    version: Literal[1]
+    comunes: list[str] = Field(min_length=1)
+    sectores: dict[str, list[str]] = Field(min_length=1)
+
+    def required(self, sector: str) -> list[str]:
+        if sector not in self.sectores:
+            raise FinancialsConfigError(f"sector sin métricas obligatorias: {sector}")
+        return [*self.comunes, *self.sectores[sector]]
+
+
+def load_sector_metrics(
+    config_dir: Path, catalog: MetricCatalog, sectors: set[str]
+) -> SectorMetrics:
+    """Valida que las métricas existan y que todos los sectores del universo estén."""
+    config = _load(config_dir / SECTOR_METRICS_FILE, SectorMetrics)
+    used = {m for metrics in config.sectores.values() for m in metrics} | set(config.comunes)
+    unknown = sorted(used - set(catalog.metricas))
+    if unknown:
+        raise FinancialsConfigError(f"métricas fuera del catálogo: {', '.join(unknown)}")
+    missing = sorted(sectors - set(config.sectores))
+    if missing:
+        raise FinancialsConfigError(f"sectores sin métricas obligatorias: {', '.join(missing)}")
+    return config
