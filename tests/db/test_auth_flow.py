@@ -1,56 +1,15 @@
 """Ingreso con Google de punta a punta contra PostgreSQL (T1.1 / HU-01)."""
 
-from collections.abc import Iterator
-
 import psycopg
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import SecretStr
 
 from brujula.core.config import Settings
 from brujula.core.security.hashing import token_hash
 from brujula.features.auth.cookies import SESSION_COOKIE, STATE_COOKIE
-from brujula.main import create_app
-from tests.db.conftest import Database
-from tests.support.app import WEB_ORIGIN, backend_options, csrf_headers, login
+from tests.db.conftest import Database, make_client
+from tests.support.app import WEB_ORIGIN, csrf_headers, login
 from tests.support.google import FakeGoogle
-
-
-@pytest.fixture
-def auth_settings(settings: Settings, database: Database) -> Settings:
-    return settings.model_copy(
-        update={
-            "database_url": SecretStr(database.url("app")),
-            "admin_emails": ["jefa@ejemplo.com"],
-            "founder_plan_open": True,
-        }
-    )
-
-
-@pytest.fixture
-def google(auth_settings: Settings) -> FakeGoogle:
-    return FakeGoogle(client_id=auth_settings.google_client_id)
-
-
-@pytest.fixture
-def superuser(database: Database) -> Iterator[psycopg.Connection]:
-    with psycopg.connect(database.conninfo("superuser"), autocommit=True) as conn:
-        yield conn
-        conn.execute("DELETE FROM users")
-        conn.execute("DELETE FROM oauth_transactions")
-
-
-def make_client(settings: Settings, google: FakeGoogle) -> TestClient:
-    app = create_app(settings, http_transport=google.transport())
-    return TestClient(app, base_url="https://testserver", backend_options=backend_options())
-
-
-@pytest.fixture
-def client(
-    auth_settings: Settings, google: FakeGoogle, superuser: psycopg.Connection
-) -> Iterator[TestClient]:
-    with make_client(auth_settings, google) as test_client:
-        yield test_client
 
 
 def test_ingreso_completo_crea_usuario_y_sesion(
