@@ -116,6 +116,16 @@ EmailLike = Annotated[str, AfterValidator(_validate_email_like)]
 NonEmptyStr = Annotated[str, Field(min_length=1)]
 Percentage = Annotated[Decimal, Field(gt=0, le=100)]
 PositiveDecimal = Annotated[Decimal, Field(gt=0)]
+
+
+def _split_csv(value: object) -> object:
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return value
+
+
+# Claves anteriores: solo para descifrar durante una rotación (ver docs/adr/008).
+AesKeyList = Annotated[list[AesKey], NoDecode, BeforeValidator(_split_csv)]
 EmailList = Annotated[
     list[Annotated[str, AfterValidator(_validate_email_like)]],
     NoDecode,
@@ -154,6 +164,7 @@ class Settings(BaseSettings):
     # Seguridad
     session_secret: StrongSecret
     field_encryption_key: AesKey
+    field_encryption_keys_previous: AesKeyList | None = None
     csrf_secret: StrongSecret
     admin_emails: EmailList
 

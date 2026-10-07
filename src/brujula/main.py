@@ -24,6 +24,7 @@ from brujula.core.config import Settings, get_settings
 from brujula.core.db import create_engine, create_session_factory
 from brujula.core.logging import configure_logging
 from brujula.core.security.csrf import CSRF_HEADER, origin_of
+from brujula.core.security.encrypted_types import cipher_from_settings, configure_field_cipher
 from brujula.core.security.rate_limit import RateLimiter
 from brujula.features.auth.oidc import GoogleOIDC
 from brujula.features.auth.router import router as auth_router
@@ -55,6 +56,7 @@ def create_app(
     """`http_transport` permite simular proveedores externos (Google) en los tests."""
     settings = settings or get_settings()
     configure_logging(settings)
+    configure_field_cipher(cipher_from_settings(settings))
     is_production = settings.app_env == "production"
 
     @asynccontextmanager

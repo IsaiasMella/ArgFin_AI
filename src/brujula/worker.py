@@ -12,6 +12,7 @@ import structlog
 from brujula.core.config import Settings, get_settings
 from brujula.core.logging import configure_logging
 from brujula.core.queue import create_queue_app
+from brujula.core.security.encrypted_types import cipher_from_settings, configure_field_cipher
 
 logger = structlog.get_logger(__name__)
 
@@ -27,6 +28,7 @@ async def run(settings: Settings) -> None:
 def main() -> None:
     settings = get_settings()
     configure_logging(settings)
+    configure_field_cipher(cipher_from_settings(settings))
     # psycopg asíncrono no funciona con el event loop por defecto de Windows (Proactor).
     loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
     asyncio.run(run(settings), loop_factory=loop_factory)
