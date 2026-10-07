@@ -1,6 +1,5 @@
 """Esquemas de entrada y salida del portafolio. Toda entrada se valida estrictamente."""
 
-import re
 from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated, Literal, Self
@@ -8,16 +7,9 @@ from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
 
-# Tickers BYMA: letras y números, a veces con punto o guion (p. ej. "BRK.B").
-TICKER_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.\-]{0,11}$")
+from brujula.core.tickers import Ticker
+
 BROKER_MAX_LENGTH = 60
-
-
-def _normalize_ticker(value: str) -> str:
-    ticker = value.strip().upper()
-    if not TICKER_PATTERN.match(ticker):
-        raise ValueError("ticker inválido: letras, números, punto o guion (hasta 12)")
-    return ticker
 
 
 def _normalize_broker(value: str | None) -> str | None:
@@ -27,7 +19,6 @@ def _normalize_broker(value: str | None) -> str | None:
     return broker or None
 
 
-Ticker = Annotated[str, AfterValidator(_normalize_ticker)]
 Quantity = Annotated[Decimal, Field(gt=0, max_digits=20, decimal_places=8)]
 Price = Annotated[Decimal, Field(gt=0, max_digits=20, decimal_places=6)]
 Broker = Annotated[
