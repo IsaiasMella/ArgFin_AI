@@ -14,6 +14,7 @@ class Company(Base):
     __table_args__ = (CheckConstraint("tipo IN ('ar_equity', 'cedear')", name="tipo"),)
 
     id: Mapped[UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
+    clave: Mapped[str] = mapped_column(Text, unique=True)
     nombre: Mapped[str] = mapped_column(Text)
     sector: Mapped[str] = mapped_column(Text)
     pais: Mapped[str] = mapped_column(Text)
@@ -32,3 +33,4 @@ class Instrument(Base):
     ticker_origen: Mapped[str | None] = mapped_column(Text)
     ratio_cedear: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     moneda: Mapped[str] = mapped_column(Text)
+    activo: Mapped[bool] = mapped_column(server_default=text("true"))
