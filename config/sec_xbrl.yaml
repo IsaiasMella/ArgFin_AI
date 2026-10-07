@@ -1,0 +1,71 @@
+# Conceptos XBRL de la SEC por métrica interna (T3.3, docs/adr/015).
+#
+# Para cada métrica, la lista de conceptos en orden de preferencia: para un mismo período se
+# usa el primer concepto que tenga dato. Sin LLM: es un mapeo determinístico.
+# us-gaap: empresas de EE. UU. (10-Q, 10-K). ifrs-full: extranjeras con 20-F.
+
+version: 1
+
+# Desde qué fecha de cierre se guardan datos (incluye el año anterior para comparar).
+desde: 2024-01-01
+formularios: [10-Q, 10-K, 20-F, 40-F]
+
+conceptos:
+  activo_total: [us-gaap:Assets, ifrs-full:Assets]
+  activo_corriente: [us-gaap:AssetsCurrent, ifrs-full:CurrentAssets]
+  pasivo_total: [us-gaap:Liabilities, ifrs-full:Liabilities]
+  pasivo_corriente: [us-gaap:LiabilitiesCurrent, ifrs-full:CurrentLiabilities]
+  patrimonio_neto:
+    - us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest
+    - us-gaap:StockholdersEquity
+    - ifrs-full:Equity
+  patrimonio_neto_controladora:
+    - us-gaap:StockholdersEquity
+    - ifrs-full:EquityAttributableToOwnersOfParent
+  caja_y_equivalentes:
+    - us-gaap:CashAndCashEquivalentsAtCarryingValue
+    - us-gaap:CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents
+    - ifrs-full:CashAndCashEquivalents
+  ingresos:
+    - us-gaap:Revenues
+    - us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax
+    - us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax
+    - us-gaap:SalesRevenueNet
+    - ifrs-full:Revenue
+  resultado_bruto: [us-gaap:GrossProfit, ifrs-full:GrossProfit]
+  resultado_operativo: [us-gaap:OperatingIncomeLoss, ifrs-full:ProfitLossFromOperatingActivities]
+  resultado_antes_de_impuestos:
+    - us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest
+    - us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments
+    - ifrs-full:ProfitLossBeforeTax
+  impuesto_a_las_ganancias: [us-gaap:IncomeTaxExpenseBenefit, ifrs-full:IncomeTaxExpenseContinuingOperations]
+  resultado_neto:
+    - us-gaap:ProfitLoss
+    - us-gaap:NetIncomeLoss
+    - ifrs-full:ProfitLoss
+  resultado_neto_controladora: [us-gaap:NetIncomeLoss, ifrs-full:ProfitLossAttributableToOwnersOfParent]
+  depreciaciones_y_amortizaciones:
+    - us-gaap:DepreciationDepletionAndAmortization
+    - us-gaap:DepreciationAndAmortization
+    - ifrs-full:DepreciationAndAmortisationExpense
+  ganancia_por_accion_basica: [us-gaap:EarningsPerShareBasic, ifrs-full:BasicEarningsLossPerShare]
+  ganancia_por_accion_diluida: [us-gaap:EarningsPerShareDiluted, ifrs-full:DilutedEarningsLossPerShare]
+  ingresos_por_intereses:
+    - us-gaap:InterestAndDividendIncomeOperating
+    - ifrs-full:InterestRevenueCalculatedUsingEffectiveInterestMethod
+  egresos_por_intereses: [us-gaap:InterestExpense, ifrs-full:InterestExpense]
+  flujo_operativo:
+    - us-gaap:NetCashProvidedByUsedInOperatingActivities
+    - ifrs-full:CashFlowsFromUsedInOperatingActivities
+  flujo_inversion:
+    - us-gaap:NetCashProvidedByUsedInInvestingActivities
+    - ifrs-full:CashFlowsFromUsedInInvestingActivities
+  flujo_financiacion:
+    - us-gaap:NetCashProvidedByUsedInFinancingActivities
+    - ifrs-full:CashFlowsFromUsedInFinancingActivities
+  inversiones_en_bienes_de_uso:
+    - us-gaap:PaymentsToAcquirePropertyPlantAndEquipment
+    - ifrs-full:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities
+  acciones_en_circulacion:
+    - dei:EntityCommonStockSharesOutstanding
+    - us-gaap:CommonStockSharesOutstanding

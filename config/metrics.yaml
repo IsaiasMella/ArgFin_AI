@@ -1,0 +1,46 @@
+# Catálogo de métricas internas (T3.3, T3.4). Todas las fuentes (XBRL de la SEC, datos
+# estructurados de la CNV, extracción de PDF) se traducen a estos códigos.
+#
+# tipo: saldo (a una fecha) o flujo (de un período: trimestre, semestre, año).
+# unidad: moneda (importe), moneda_por_accion o acciones.
+
+version: 1
+
+metricas:
+  # Situación patrimonial
+  activo_total: {nombre: Activo total, tipo: saldo, unidad: moneda}
+  activo_corriente: {nombre: Activo corriente, tipo: saldo, unidad: moneda}
+  pasivo_total: {nombre: Pasivo total, tipo: saldo, unidad: moneda}
+  pasivo_corriente: {nombre: Pasivo corriente, tipo: saldo, unidad: moneda}
+  patrimonio_neto: {nombre: Patrimonio neto total, tipo: saldo, unidad: moneda}
+  patrimonio_neto_controladora: {nombre: Patrimonio atribuible a la controladora, tipo: saldo, unidad: moneda}
+  caja_y_equivalentes: {nombre: Efectivo y equivalentes, tipo: saldo, unidad: moneda}
+  deuda_financiera: {nombre: Deuda financiera, tipo: saldo, unidad: moneda}
+
+  # Resultados
+  ingresos: {nombre: Ingresos, tipo: flujo, unidad: moneda}
+  resultado_bruto: {nombre: Resultado bruto, tipo: flujo, unidad: moneda}
+  resultado_operativo: {nombre: Resultado operativo, tipo: flujo, unidad: moneda}
+  resultado_antes_de_impuestos: {nombre: Resultado antes de impuestos, tipo: flujo, unidad: moneda}
+  impuesto_a_las_ganancias: {nombre: Impuesto a las ganancias, tipo: flujo, unidad: moneda}
+  resultado_neto: {nombre: Resultado neto, tipo: flujo, unidad: moneda}
+  resultado_neto_controladora: {nombre: Resultado neto atribuible a la controladora, tipo: flujo, unidad: moneda}
+  depreciaciones_y_amortizaciones: {nombre: Depreciaciones y amortizaciones, tipo: flujo, unidad: moneda}
+  ebitda: {nombre: EBITDA, tipo: flujo, unidad: moneda}
+  ganancia_por_accion_basica: {nombre: Ganancia por acción básica, tipo: flujo, unidad: moneda_por_accion}
+  ganancia_por_accion_diluida: {nombre: Ganancia por acción diluida, tipo: flujo, unidad: moneda_por_accion}
+
+  # Bancos y financieras
+  ingresos_por_intereses: {nombre: Ingresos por intereses, tipo: flujo, unidad: moneda}
+  egresos_por_intereses: {nombre: Egresos por intereses, tipo: flujo, unidad: moneda}
+  depositos: {nombre: Depósitos, tipo: saldo, unidad: moneda}
+  prestamos: {nombre: Préstamos y otras financiaciones, tipo: saldo, unidad: moneda}
+
+  # Flujo de efectivo
+  flujo_operativo: {nombre: Flujo de efectivo de las operaciones, tipo: flujo, unidad: moneda}
+  flujo_inversion: {nombre: Flujo de efectivo de inversión, tipo: flujo, unidad: moneda}
+  flujo_financiacion: {nombre: Flujo de efectivo de financiación, tipo: flujo, unidad: moneda}
+  inversiones_en_bienes_de_uso: {nombre: Inversiones en bienes de uso (capex), tipo: flujo, unidad: moneda}
+
+  # Acciones
+  acciones_en_circulacion: {nombre: Acciones en circulación, tipo: saldo, unidad: acciones}
