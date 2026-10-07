@@ -4,8 +4,11 @@ La SEC exige un User-Agent con un email de contacto (`SEC_USER_AGENT`) y admite 
 pedidos por segundo: se va de a uno.
 """
 
+import json
 from dataclasses import dataclass
 from datetime import date
+from decimal import Decimal
+from typing import Any
 
 import httpx2
 
@@ -55,6 +58,15 @@ class SecClient:
             ]
         except (KeyError, TypeError, ValueError):
             raise FetchError("sec_formato_inesperado") from None
+
+    async def company_facts(self, cik: str) -> dict[str, Any]:
+        """Todos los datos XBRL de la empresa (`companyfacts`), con decimales exactos."""
+        response = await self._get(f"{self._data}/api/xbrl/companyfacts/CIK{cik}.json")
+        try:
+            data: dict[str, Any] = json.loads(response.text, parse_float=Decimal)
+        except json.JSONDecodeError:
+            raise FetchError("sec_formato_inesperado") from None
+        return data
 
     def _folder(self, cik: str, accession: str) -> str:
         return f"{self._archives}/Archives/edgar/data/{int(cik)}/{accession.replace('-', '')}"
