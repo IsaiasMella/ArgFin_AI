@@ -1,0 +1,35 @@
+# Ingesta de documentos de empresas (T3.2, docs/adr/014). Las fuentes por empresa están en
+# universe.yaml (bloques cnv, comunicados e inversores).
+
+version: 1
+
+# Fecha desde la que se buscan documentos. Cubre los 4 trimestres que usa el dataset de
+# referencia de las evals (T3.6) y el comparativo interanual del primero.
+desde: 2025-07-01
+
+cnv:
+  # Adjuntos de un estado contable que se guardan, por la propiedad del formulario de la CNV.
+  # El informe del auditor y el de la comisión fiscalizadora no aportan cifras nuevas.
+  adjuntos:
+    ABEstadoContable: estado_contable
+    ABResenaInformativa: resena_informativa
+    ABMemoria: memoria_anual
+  # Archivos de relleno que las empresas suben cuando un adjunto no aplica.
+  ignorar_archivo: '(?i)no\s*corresponde'
+  # Hechos relevantes que son comunicados de resultados (sobre la descripción de la CNV).
+  hecho_relevante_resultados: '(?i)resultad\w*\s.*(trimestr|ejercicio|anual|semestr|\dT\s?\d{2}|\d°\s?T)'
+  hecho_relevante_excluir: '(?i)oferta|asamblea|colocaci|licitaci|anuncio\s+(de\s+)?fecha'
+
+sec:
+  # Un 6-K es un comunicado de resultados si su texto (los primeros caracteres) coincide con
+  # alguno de estos patrones.
+  comunicado_resultados:
+    - '(?i)earnings\s+release'
+    - '(?i)announces\s+(its\s+)?(consolidated\s+)?results\s+for\s+the'
+    - '(?i)results\s+for\s+the\s+(first|second|third|fourth)\s+quarter'
+    - '(?i)(first|second|third|fourth)\s+quarter\s+(of\s+)?\d{4}\s+results'
+    - '(?i)(?<!\d)[1-4]Q\s?\d{2,4}\s+(earnings|results)'
+    - '(?i)resultados\s+(del|correspondientes\s+al)\s+(primer|segundo|tercer|cuarto)\s+trimestre'
+  caracteres_a_revisar: 6000
+  # Tipos de archivo del 6-K que se miran (el anexo suele ser ex99-1).
+  extensiones: [.htm, .html, .pdf]

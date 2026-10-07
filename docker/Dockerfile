@@ -30,7 +30,7 @@ FROM ${PYTHON_IMAGE} AS runtime
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
-RUN groupadd --system app && useradd --system --gid app --no-create-home app
+RUN groupadd --system app && useradd --system --gid app --no-create-home app     && mkdir -p /app/data/documents && chown -R app:app /app/data
 WORKDIR /app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 # Migraciones: las ejecuta el servicio `migrate` con `alembic upgrade head`.

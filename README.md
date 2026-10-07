@@ -35,4 +35,7 @@ docker compose -f docker/compose.yml --env-file .env run --rm api python -m bruj
 
 # Cargar precios y CCL de un rango (el worker lo hace solo cada día, docs/adr/012)
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli actualizar-precios --desde 2026-07-01
+
+# Buscar y descargar documentos de las empresas argentinas (el worker lo hace solo, docs/adr/014)
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli ingestar-documentos --empresa GGAL
 ```

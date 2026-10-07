@@ -12,6 +12,7 @@ from sqlalchemy import create_engine, pool
 # Registran sus tablas en Base.metadata (para autogenerate).
 import brujula.core.llm.records
 import brujula.features.auth.models
+import brujula.features.documents.models
 import brujula.features.portfolios.models
 import brujula.features.prices.models
 import brujula.features.universe.models  # noqa: F401

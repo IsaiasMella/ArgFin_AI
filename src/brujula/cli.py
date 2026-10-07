@@ -6,9 +6,11 @@ sincronizar-universo    Carga config/universe.yaml en la base (docs/adr/010). Co
                         muestra los cambios sin guardarlos.
 actualizar-precios      Corre la tarea de precios y CCL para un rango de fechas (docs/adr/012),
                         p. ej. para cargar historia. Por defecto, la última semana.
+ingestar-documentos     Busca y descarga documentos nuevos de las empresas argentinas
+                        (docs/adr/014). Opcional: --empresa CLAVE y --desde AAAA-MM-DD.
 
 `recifrar` y `sincronizar-universo` usan el rol de migraciones (dueño de las tablas);
-`actualizar-precios`, el de la app, igual que el worker.
+`actualizar-precios` e `ingestar-documentos`, el de la app, igual que el worker.
 """
 
 import argparse
@@ -24,6 +26,9 @@ from sqlalchemy.orm import Session
 from brujula.core.config import Settings, get_settings
 from brujula.core.security.crypto import FieldCipher
 from brujula.core.security.encrypted_types import cipher_from_settings
+from brujula.features.documents.ingest import CompanyReport
+from brujula.features.documents.settings import DocumentsConfigError
+from brujula.features.documents.tasks import ingest_documents
 from brujula.features.portfolios.maintenance import link_free_tickers
 from brujula.features.portfolios.models import PRICE_CONTEXT, QUANTITY_CONTEXT
 from brujula.features.prices.daily import (
@@ -136,6 +141,23 @@ def _run_prices(settings: Settings, start: date | None, end: date | None) -> Non
     _print_prices_report(report)
 
 
+def _run_ingestion(settings: Settings, only: str | None, since: date | None) -> None:
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    try:
+        reports: list[CompanyReport] = asyncio.run(
+            ingest_documents(settings, since=since, only=only), loop_factory=loop_factory
+        )
+    except (DocumentsConfigError, UniverseError) as exc:
+        raise SystemExit(f"error: {exc}") from None
+    if not reports:
+        raise SystemExit("error: ninguna empresa argentina coincide con --empresa")
+    for report in reports:
+        nuevos = ", ".join(f"{tipo}: {n}" for tipo, n in sorted(report.nuevos.items())) or "nada"
+        print(f"{report.clave}: {nuevos}; estados estructurados: {report.estados_estructurados}")
+        for fuente, motivo in report.errores:
+            print(f"  error en {fuente}: {motivo}")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="brujula.cli")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -145,11 +167,17 @@ def main(argv: list[str] | None = None) -> None:
     prices = commands.add_parser("actualizar-precios", help="precios y CCL para un rango")
     prices.add_argument("--desde", type=date.fromisoformat, help="AAAA-MM-DD")
     prices.add_argument("--hasta", type=date.fromisoformat, help="AAAA-MM-DD (por defecto, hoy)")
+    documents = commands.add_parser("ingestar-documentos", help="documentos nuevos de empresas")
+    documents.add_argument("--empresa", help="clave de la empresa en universe.yaml")
+    documents.add_argument("--desde", type=date.fromisoformat, help="AAAA-MM-DD")
     args = parser.parse_args(argv)
 
     settings = get_settings()
     if args.command == "actualizar-precios":
         _run_prices(settings, args.desde, args.hasta)
+        return
+    if args.command == "ingestar-documentos":
+        _run_ingestion(settings, args.empresa, args.desde)
         return
     engine = create_engine(settings.database_url_migrations.get_secret_value())
     try:
