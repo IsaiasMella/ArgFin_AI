@@ -129,11 +129,14 @@ SESSION_SECRET=
 FIELD_ENCRYPTION_KEY=
 CSRF_SECRET=
 ADMIN_EMAILS=                    # emails separados por coma que reciben el rol admin al ingresar
+SESSION_TTL_HOURS=
+RATE_LIMIT_AUTH_PER_MINUTE=
 
 # OAuth (Google)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=
+GOOGLE_DISCOVERY_URL=
 
 # LLMs (nombres de modelo configurables)
 LLM_EXTRACTION_MODEL=

@@ -10,8 +10,10 @@ from contextlib import asynccontextmanager
 from typing import Literal
 from uuid import uuid4
 
+import httpx2
 import structlog
 from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import text
@@ -19,8 +21,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from brujula.core.config import Settings, get_settings
-from brujula.core.db import create_engine
+from brujula.core.db import create_engine, create_session_factory
 from brujula.core.logging import configure_logging
+from brujula.core.security.csrf import CSRF_HEADER, origin_of
+from brujula.core.security.rate_limit import RateLimiter
+from brujula.features.auth.oidc import GoogleOIDC
+from brujula.features.auth.router import router as auth_router
+from brujula.features.auth.service import AuthService
 
 # La cola vive en la misma base: está disponible si su esquema existe.
 QUEUE_READY_QUERY = text("SELECT to_regclass('procrastinate_jobs') IS NOT NULL")
@@ -28,6 +35,8 @@ QUEUE_READY_QUERY = text("SELECT to_regclass('procrastinate_jobs') IS NOT NULL")
 REQUEST_ID_HEADER = "X-Request-ID"
 # Solo se acepta un request id entrante con formato seguro (evita inyección en los logs).
 VALID_REQUEST_ID = re.compile(r"^[A-Za-z0-9-]{8,64}$")
+# Pedidos salientes (Google): si el proveedor no responde, se corta rápido.
+OUTBOUND_TIMEOUT_SECONDS = 10.0
 
 
 class HealthResponse(BaseModel):
@@ -40,7 +49,10 @@ class ReadyResponse(BaseModel):
     queue: bool
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, *, http_transport: httpx2.AsyncBaseTransport | None = None
+) -> FastAPI:
+    """`http_transport` permite simular proveedores externos (Google) en los tests."""
     settings = settings or get_settings()
     configure_logging(settings)
     is_production = settings.app_env == "production"
@@ -48,7 +60,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.engine = create_engine(settings)
-        yield
+        async with httpx2.AsyncClient(
+            transport=http_transport, timeout=OUTBOUND_TIMEOUT_SECONDS
+        ) as http:
+            app.state.auth_service = AuthService(
+                settings, create_session_factory(app.state.engine), GoogleOIDC(settings, http)
+            )
+            yield
         await app.state.engine.dispose()
 
     app = FastAPI(
@@ -60,6 +78,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url=None if is_production else "/openapi.json",
     )
     app.state.settings = settings
+    app.state.auth_rate_limiter = RateLimiter(settings.rate_limit_auth_per_minute, 60)
+
+    # El frontend llama con cookies desde otro origen (app.): solo ese origen.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[origin_of(str(settings.web_base_url))],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_headers=["Content-Type", CSRF_HEADER],
+    )
 
     @app.middleware("http")
     async def request_context(
@@ -94,4 +122,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         return JSONResponse(body.model_dump(), status_code=200 if body.status == "ready" else 503)
 
+    app.include_router(auth_router)
     return app

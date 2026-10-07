@@ -3,7 +3,16 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Text, UniqueConstraint, func, text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    LargeBinary,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from brujula.core.db import Base
@@ -36,3 +45,29 @@ class User(Base):
     plan: Mapped[str] = mapped_column(Text)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     borrado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class UserSession(Base):
+    """Sesión del lado del servidor. Solo se guarda el hash del token (tabla con RLS)."""
+
+    __tablename__ = "sessions"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[bytes] = mapped_column(LargeBinary, unique=True)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expira_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ip_hash: Mapped[str | None] = mapped_column(Text)
+    user_agent: Mapped[str | None] = mapped_column(Text)
+
+
+class OAuthTransaction(Base):
+    """Estado de un flujo OAuth en curso (state, PKCE, nonce). De un solo uso."""
+
+    __tablename__ = "oauth_transactions"
+
+    state_hash: Mapped[bytes] = mapped_column(LargeBinary, primary_key=True)
+    code_verifier: Mapped[str] = mapped_column(Text)
+    nonce: Mapped[str] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expira_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))

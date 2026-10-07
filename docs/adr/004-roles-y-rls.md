@@ -35,6 +35,19 @@ usuarios (para el resumen semanal y para enviar el informe trimestral de una emp
    Se crean en la tarea que las necesita (T1.1: `resolver_sesion`, `upsert_usuario_oauth`;
    fase 5: enumeración de usuarios activos). Cada una tiene tests de que no filtra datos.
 
+## Enmienda (2026-10-06, T1.1)
+
+Con `FORCE ROW LEVEL SECURITY` el dueño de la tabla **también** queda sujeto a las
+políticas, así que una función `SECURITY DEFINER` (que corre como el dueño) no veía filas.
+Cada tabla de usuario lleva además una política `<tabla>_duenio ... TO CURRENT_USER USING
+(true) WITH CHECK (true)`, creada por la migración y que aplica solo al rol de migraciones.
+No amplía permisos reales: el dueño ya podía desactivar RLS. El rol de la app no cambia.
+
+**Regla para toda tabla de usuario nueva:** `ENABLE` + `FORCE ROW LEVEL SECURITY`, política
+`<tabla>_propio` por `user_id = app_current_user_id()`, política `<tabla>_duenio` y
+`FOREIGN KEY (user_id) REFERENCES users ON DELETE CASCADE` (necesario para el borrado real
+de la cuenta, T1.5).
+
 ## Alternativas consideradas
 
 - Un rol con `BYPASSRLS` para el login y el worker: un solo error de código expondría todos
