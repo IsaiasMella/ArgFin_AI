@@ -38,4 +38,7 @@ docker compose -f docker/compose.yml --env-file .env run --rm api python -m bruj
 
 # Buscar y descargar documentos de las empresas argentinas (el worker lo hace solo, docs/adr/014)
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli ingestar-documentos --empresa GGAL
+
+# Cifras XBRL de la SEC de los CEDEARs (el worker lo hace solo, docs/adr/015)
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli actualizar-sec
 ```
