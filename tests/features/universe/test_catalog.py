@@ -42,6 +42,8 @@ def test_toda_empresa_argentina_tiene_su_fuente_documentada_en_la_cnv() -> None:
     assert len(argentine) == 20
     assert all(c.cnv is not None for c in argentine)
     assert len({c.cnv.cuit for c in argentine if c.cnv}) == 20
+    with_site = {c.clave for c in argentine if c.inversores}
+    assert with_site == {"TRANSENER", "BYMA", "TGN", "BANCO_VALORES", "ECOGAS"}
 
 
 def test_la_ventana_de_seleccion_cierra_antes_de_la_fecha_de_corte() -> None:
@@ -128,6 +130,24 @@ def test_un_archivo_minimo_valido_carga_y_normaliza_tickers(tmp_path: Path) -> N
         (lambda r: r["empresas"][0]["cnv"].update(cierre_ejercicio="13-31"), "cierre_ejercicio"),
         (lambda r: r["empresas"][0]["cnv"].update(balance="ambos"), "balance"),
         (lambda r: r["empresas"][0].update(comunicados=["twitter"]), "comunicados"),
+        (
+            lambda r: r["empresas"][0].update(comunicados=["sitio_inversores"]),
+            "van juntos",
+        ),
+        (
+            lambda r: r["empresas"][0].update(
+                comunicados=["sitio_inversores"],
+                inversores={"url": "https://x.com", "acceso": "enlaces_pdf", "patron": "(abc"},
+            ),
+            "expresión regular",
+        ),
+        (
+            lambda r: r["empresas"][0].update(
+                comunicados=["sitio_inversores"],
+                inversores={"url": "http://x.com", "acceso": "enlaces_pdf", "patron": "abc"},
+            ),
+            "url",
+        ),
     ],
 )
 def test_errores_de_esquema(tmp_path: Path, change: Any, message: str) -> None:

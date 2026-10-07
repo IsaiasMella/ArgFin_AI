@@ -102,7 +102,15 @@ seleccion:
 #   - cnv_hecho_relevante: como hecho relevante en la CNV, de forma consistente en los últimos
 #     15 meses.
 #   - sec_6k: como formulario 6-K en la SEC (empresas con ADR).
-#   Lista vacía: no hay una fuente uniforme (pregunta abierta 17).
+#   - sitio_inversores: en el sitio de relación con inversores de la empresa (ver `inversores`).
+#   Lista vacía: la empresa no publica comunicados de resultados; el informe usa el estado
+#   contable y la reseña informativa de la CNV.
+# inversores: cómo encontrar los comunicados en el sitio de la empresa.
+#   - url: la página o el sitio.
+#   - acceso: `enlaces_pdf` (PDF enlazados en la página) o `wordpress_media` (la API de medios
+#     de WordPress del sitio).
+#   - patron: expresión regular que identifica el comunicado de resultados en el nombre del
+#     archivo.
 empresas:
   # --- Acciones del panel líder ------------------------------------------------------------
   - clave: GGAL
@@ -191,7 +199,8 @@ empresas:
     sector: Energía eléctrica
     pais: AR
     cnv: {cuit: "30663148776", id: 1018, balance: consolidado, cierre_ejercicio: "12-31"}
-    comunicados: []
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.transener.com.ar/home-inversores/", acceso: enlaces_pdf, patron: 'Transener\dQ\d{2}'}
     instrumentos:
       - {ticker_byma: TRAN, moneda: ARS}
   - clave: BYMA
@@ -200,7 +209,8 @@ empresas:
     sector: Financiero
     pais: AR
     cnv: {cuit: "30715471953", id: 31697, balance: consolidado, cierre_ejercicio: "12-31"}
-    comunicados: []
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.byma.com.ar/relacion-con-inversores/informacion-financiera", acceso: enlaces_pdf, patron: 'Comunicado_de_Prensa'}
     instrumentos:
       - {ticker_byma: BYMA, moneda: ARS}
   - clave: LOMA_NEGRA
@@ -247,7 +257,8 @@ empresas:
     sector: Gas natural
     pais: AR
     cnv: {cuit: "30657863056", id: 292, balance: individual, cierre_ejercicio: "12-31"}
-    comunicados: []
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.tgn.com.ar/inversores/informacion-financiera/", acceso: enlaces_pdf, patron: 'informe_de_resultados_\dq_\d{4}'}
     instrumentos:
       - {ticker_byma: TGNO4, moneda: ARS}
   - clave: BANCO_VALORES
@@ -256,7 +267,8 @@ empresas:
     sector: Financiero
     pais: AR
     cnv: {cuit: "30576124275", id: 30471, balance: consolidado, cierre_ejercicio: "12-31"}
-    comunicados: []
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.valo.ar", acceso: wordpress_media, patron: 'IR-\d{4}Q\d-ESP-Press-Release'}
     instrumentos:
       - {ticker_byma: VALO, moneda: ARS}
   - clave: TELECOM
@@ -275,7 +287,8 @@ empresas:
     sector: Gas natural
     pais: AR
     cnv: {cuit: "30658275522", id: 105391, balance: consolidado, cierre_ejercicio: "12-31"}
-    comunicados: []
+    comunicados: [sitio_inversores]
+    inversores: {url: "https://www.ecogasinversiones.com.ar", acceso: wordpress_media, patron: 'Informacion_para_inversores_\dQ_\d{4}'}
     instrumentos:
       - {ticker_byma: ECOG, moneda: ARS}
   - clave: COMERCIAL_DEL_PLATA
