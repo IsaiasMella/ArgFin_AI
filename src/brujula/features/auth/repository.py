@@ -114,6 +114,15 @@ async def delete_session(session: AsyncSession, token_hash: bytes) -> None:
     await session.execute(delete(UserSession).where(UserSession.token_hash == token_hash))
 
 
+async def delete_user(session: AsyncSession, user_id: UUID) -> bool:
+    """Borrado real. Las tablas de usuario caen en cascada (FK ON DELETE CASCADE).
+
+    Requiere el contexto RLS de `user_id`: la política solo deja borrar la fila propia.
+    """
+    result = await session.execute(delete(User).where(User.id == user_id))
+    return bool(result.rowcount)  # type: ignore[attr-defined]
+
+
 async def get_user(session: AsyncSession, user_id: UUID) -> User | None:
     """Requiere el contexto RLS de `user_id`."""
     return await session.get(User, user_id)
