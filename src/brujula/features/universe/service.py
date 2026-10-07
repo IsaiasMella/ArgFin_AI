@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import Row, Select, select
+from sqlalchemy import Row, Select, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from brujula.features.universe.models import Company, Instrument
@@ -15,14 +15,18 @@ class InstrumentInfo:
     id: UUID
     ticker: str
     company: str
-    # Cobertura completa (informe profundo) solo si la empresa está activa en el universo.
+    # Cobertura completa (informe profundo) solo si el instrumento y su empresa siguen en el
+    # universo (config/universe.yaml).
     covered: bool
 
 
 def _base_query() -> Select[UUID, str, str, bool]:
-    return select(Instrument.id, Instrument.ticker_byma, Company.nombre, Company.activa).join(
-        Company, Company.id == Instrument.company_id
-    )
+    return select(
+        Instrument.id,
+        Instrument.ticker_byma,
+        Company.nombre,
+        and_(Company.activa, Instrument.activo),
+    ).join(Company, Company.id == Instrument.company_id)
 
 
 def _info(row: Row[UUID, str, str, bool]) -> InstrumentInfo:

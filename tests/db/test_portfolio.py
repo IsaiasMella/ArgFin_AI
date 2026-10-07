@@ -17,9 +17,9 @@ GGAL = {"ticker": "ggal", "cantidad": "150", "precio_promedio": "4200.50", "mone
 
 def seed_universe(conn: psycopg.Connection, ticker: str = "GGAL", active: bool = True) -> None:
     company_id = conn.execute(
-        "INSERT INTO companies (nombre, sector, pais, tipo, activa)"
-        " VALUES (%s, 'Bancos', 'AR', 'ar_equity', %s) RETURNING id",
-        (f"Empresa {ticker}", active),
+        "INSERT INTO companies (clave, nombre, sector, pais, tipo, activa)"
+        " VALUES (%s, %s, 'Bancos', 'AR', 'ar_equity', %s) RETURNING id",
+        (ticker, f"Empresa {ticker}", active),
     ).fetchone()
     assert company_id is not None
     conn.execute(

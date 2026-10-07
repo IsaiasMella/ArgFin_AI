@@ -28,4 +28,8 @@ puertos (80/443); el resto queda en la red interna de Docker.
 ```bash
 # Re-cifrar los datos de portafolio después de rotar la clave (docs/adr/008)
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli recifrar
+
+# Cargar o actualizar el universo desde config/universe.yaml (docs/adr/010).
+# Primero con --simular para ver los cambios; después sin él para aplicarlos.
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli sincronizar-universo --simular
 ```

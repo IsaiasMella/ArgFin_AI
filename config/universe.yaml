@@ -1,0 +1,406 @@
+# Universo cubierto: 20 acciones del panel líder y 20 CEDEARs (spec 4.1, tarea T2.1).
+#
+# Se carga en la base con `python -m brujula.cli sincronizar-universo` (ver docs/adr/010).
+# Cambiar el universo es editar este archivo y volver a sincronizar: lo que sale del archivo
+# queda inactivo en la base (no se borra, porque puede haber posiciones que lo usan).
+
+version: 1
+
+seleccion:
+  fecha_de_corte: 2026-10-07
+  ventana:
+    desde: 2026-07-01
+    hasta: 2026-09-30
+    descripcion: Tercer trimestre de 2026, el último trimestre cerrado a la fecha de corte.
+  fuente: >-
+    BYMA Open Data (fuente oficial del mercado), serie histórica diaria de cada especie en plazo
+    24 hs (endpoint chart/historical-series/history). Composición del panel líder: endpoint
+    leading-equity. Lista de CEDEARs: endpoint cedears, solo especies en pesos.
+  metrica: >-
+    Monto operado aproximado en pesos: suma diaria de cierre × volumen nominal. Todas las especies
+    elegidas tienen las 64 ruedas de la ventana.
+  criterio_acciones: >-
+    El panel líder tiene 20 especies a la fecha de corte; entran todas, ordenadas por monto.
+  criterio_cedears: >-
+    Los 20 CEDEARs de empresas con mayor monto. Se excluyen ETF y fondos porque no publican estados
+    contables que se puedan informar (spec 4.2). El primer CEDEAR de empresa que quedó afuera es HUT
+    (136.030 millones).
+  excluidos:
+    SPY: ETF (482.112 millones)
+    IBIT: ETF de bitcoin (254.319 millones)
+    GLD: ETF de oro (209.122 millones)
+    QQQ: ETF (206.073 millones)
+  fuentes_de_datos:
+    ratio_cedear: >-
+      Listas de los emisores: Banco Comafi (comafi.com.ar/custodiaglobal, Programas CEDEARs) y Caja
+      de Valores (cajadevalores.com.ar, CEDEARS.xlsx) para MU y MSTR; lista "CEDEARs negociables
+      en BYMA" del 12/06/2026 para SNDK, SPCX y NBIS. Todos verificados el 2026-10-07 contra el
+      ratio implícito (precio en EE. UU. × CCL / precio del CEDEAR en pesos), con diferencias
+      menores al 1 %.
+    cik_sec: SEC, company_tickers.json; país y sector desde data.sec.gov/submissions.
+    pais: País de la sede según la SEC (las acciones del panel líder, Argentina).
+    sector: >-
+      Agrupación propia en castellano: para los CEDEARs sigue el código SIC de la SEC; para las
+      acciones argentinas, la actividad principal de la empresa.
+  ranking_millones_ars:
+    acciones:
+      GGAL: 989240
+      YPFD: 830599
+      PAMP: 317871
+      BMA: 200345
+      BBAR: 116510
+      TGSU2: 107241
+      CEPU: 100343
+      SUPV: 87604
+      TRAN: 66430
+      BYMA: 64478
+      LOMA: 62244
+      METR: 60923
+      TXAR: 57835
+      EDN: 51783
+      TGNO4: 49243
+      VALO: 48454
+      TECO2: 35242
+      ECOG: 32354
+      COME: 20964
+      ALUA: 19593
+    cedears:
+      MU: 2034328
+      SNDK: 834391
+      META: 632335
+      MSFT: 571781
+      VIST: 539420
+      NVDA: 510835
+      GOOGL: 475125
+      MELI: 466542
+      NU: 406321
+      MSTR: 332647
+      SPCX: 246634
+      ORCL: 220832
+      TSLA: 206997
+      AMZN: 203601
+      MRNA: 198313
+      NBIS: 186591
+      AMD: 179479
+      AAPL: 174928
+      PLTR: 167775
+      INTC: 142118
+
+# clave: identificador estable de la empresa en este archivo (no cambia aunque cambie el nombre).
+# ticker_origen: en las acciones argentinas es el ticker del ADR en EE. UU., si existe; en los
+# CEDEARs, el ticker del subyacente. ratio_cedear: CEDEARs por cada acción del subyacente.
+empresas:
+  # --- Acciones del panel líder ------------------------------------------------------------
+  - clave: GGAL
+    nombre: Grupo Financiero Galicia
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    cik_sec: "0001114700"
+    instrumentos:
+      - {ticker_byma: GGAL, ticker_origen: GGAL, moneda: ARS}
+  - clave: YPF
+    nombre: YPF
+    tipo: ar_equity
+    sector: Petróleo y gas
+    pais: AR
+    cik_sec: "0000904851"
+    instrumentos:
+      - {ticker_byma: YPFD, ticker_origen: YPF, moneda: ARS}
+  - clave: PAMPA
+    nombre: Pampa Energía
+    tipo: ar_equity
+    sector: Energía eléctrica
+    pais: AR
+    cik_sec: "0001469395"
+    instrumentos:
+      - {ticker_byma: PAMP, ticker_origen: PAM, moneda: ARS}
+  - clave: MACRO
+    nombre: Banco Macro
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    cik_sec: "0001347426"
+    instrumentos:
+      - {ticker_byma: BMA, ticker_origen: BMA, moneda: ARS}
+  - clave: BBVA_AR
+    nombre: Banco BBVA Argentina
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    cik_sec: "0000913059"
+    instrumentos:
+      - {ticker_byma: BBAR, ticker_origen: BBAR, moneda: ARS}
+  - clave: TGS
+    nombre: Transportadora de Gas del Sur
+    tipo: ar_equity
+    sector: Gas natural
+    pais: AR
+    cik_sec: "0000931427"
+    instrumentos:
+      - {ticker_byma: TGSU2, ticker_origen: TGS, moneda: ARS}
+  - clave: CENTRAL_PUERTO
+    nombre: Central Puerto
+    tipo: ar_equity
+    sector: Energía eléctrica
+    pais: AR
+    cik_sec: "0001717161"
+    instrumentos:
+      - {ticker_byma: CEPU, ticker_origen: CEPU, moneda: ARS}
+  - clave: SUPERVIELLE
+    nombre: Grupo Supervielle
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    cik_sec: "0001517399"
+    instrumentos:
+      - {ticker_byma: SUPV, ticker_origen: SUPV, moneda: ARS}
+  - clave: TRANSENER
+    nombre: Transener
+    tipo: ar_equity
+    sector: Energía eléctrica
+    pais: AR
+    instrumentos:
+      - {ticker_byma: TRAN, moneda: ARS}
+  - clave: BYMA
+    nombre: Bolsas y Mercados Argentinos
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    instrumentos:
+      - {ticker_byma: BYMA, moneda: ARS}
+  - clave: LOMA_NEGRA
+    nombre: Loma Negra
+    tipo: ar_equity
+    sector: Materiales
+    pais: AR
+    cik_sec: "0001711375"
+    instrumentos:
+      - {ticker_byma: LOMA, ticker_origen: LOMA, moneda: ARS}
+  - clave: METROGAS
+    nombre: Metrogas
+    tipo: ar_equity
+    sector: Gas natural
+    pais: AR
+    instrumentos:
+      - {ticker_byma: METR, moneda: ARS}
+  - clave: TERNIUM_AR
+    nombre: Ternium Argentina
+    tipo: ar_equity
+    sector: Materiales
+    pais: AR
+    instrumentos:
+      - {ticker_byma: TXAR, moneda: ARS}
+  - clave: EDENOR
+    nombre: Edenor
+    tipo: ar_equity
+    sector: Energía eléctrica
+    pais: AR
+    cik_sec: "0001395213"
+    instrumentos:
+      - {ticker_byma: EDN, ticker_origen: EDN, moneda: ARS}
+  - clave: TGN
+    nombre: Transportadora de Gas del Norte
+    tipo: ar_equity
+    sector: Gas natural
+    pais: AR
+    instrumentos:
+      - {ticker_byma: TGNO4, moneda: ARS}
+  - clave: BANCO_VALORES
+    nombre: Banco de Valores
+    tipo: ar_equity
+    sector: Financiero
+    pais: AR
+    instrumentos:
+      - {ticker_byma: VALO, moneda: ARS}
+  - clave: TELECOM
+    nombre: Telecom Argentina
+    tipo: ar_equity
+    sector: Telecomunicaciones
+    pais: AR
+    cik_sec: "0000932470"
+    instrumentos:
+      - {ticker_byma: TECO2, ticker_origen: TEO, moneda: ARS}
+  - clave: ECOGAS
+    nombre: Ecogas Inversiones
+    tipo: ar_equity
+    sector: Gas natural
+    pais: AR
+    instrumentos:
+      - {ticker_byma: ECOG, moneda: ARS}
+  - clave: COMERCIAL_DEL_PLATA
+    nombre: Sociedad Comercial del Plata
+    tipo: ar_equity
+    sector: Conglomerado
+    pais: AR
+    instrumentos:
+      - {ticker_byma: COME, moneda: ARS}
+  - clave: ALUAR
+    nombre: Aluar Aluminio Argentino
+    tipo: ar_equity
+    sector: Materiales
+    pais: AR
+    instrumentos:
+      - {ticker_byma: ALUA, moneda: ARS}
+
+  # --- CEDEARs --------------------------------------------------------------------------------
+  - clave: MICRON
+    nombre: Micron Technology
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0000723125"
+    instrumentos:
+      - {ticker_byma: MU, ticker_origen: MU, ratio_cedear: 5, moneda: ARS}
+  - clave: SANDISK
+    nombre: Sandisk
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0002023554"
+    instrumentos:
+      - {ticker_byma: SNDK, ticker_origen: SNDK, ratio_cedear: 170, moneda: ARS}
+  - clave: META
+    nombre: Meta Platforms
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001326801"
+    instrumentos:
+      - {ticker_byma: META, ticker_origen: META, ratio_cedear: 24, moneda: ARS}
+  - clave: MICROSOFT
+    nombre: Microsoft
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0000789019"
+    instrumentos:
+      - {ticker_byma: MSFT, ticker_origen: MSFT, ratio_cedear: 30, moneda: ARS}
+  - clave: VISTA
+    nombre: Vista Energy
+    tipo: cedear
+    sector: Petróleo y gas
+    pais: MX
+    cik_sec: "0001762506"
+    instrumentos:
+      - {ticker_byma: VIST, ticker_origen: VIST, ratio_cedear: 3, moneda: ARS}
+  - clave: NVIDIA
+    nombre: NVIDIA
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001045810"
+    instrumentos:
+      - {ticker_byma: NVDA, ticker_origen: NVDA, ratio_cedear: 24, moneda: ARS}
+  - clave: ALPHABET
+    nombre: Alphabet
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001652044"
+    instrumentos:
+      - {ticker_byma: GOOGL, ticker_origen: GOOGL, ratio_cedear: 58, moneda: ARS}
+  - clave: MERCADOLIBRE
+    nombre: MercadoLibre
+    tipo: cedear
+    sector: Consumo
+    pais: UY
+    cik_sec: "0001099590"
+    instrumentos:
+      - {ticker_byma: MELI, ticker_origen: MELI, ratio_cedear: 120, moneda: ARS}
+  - clave: NU
+    nombre: Nu Holdings
+    tipo: cedear
+    sector: Financiero
+    pais: BR
+    cik_sec: "0001691493"
+    instrumentos:
+      - {ticker_byma: NU, ticker_origen: NU, ratio_cedear: 2, moneda: ARS}
+  - clave: STRATEGY
+    nombre: Strategy
+    tipo: cedear
+    sector: Financiero
+    pais: US
+    cik_sec: "0001050446"
+    instrumentos:
+      - {ticker_byma: MSTR, ticker_origen: MSTR, ratio_cedear: 20, moneda: ARS}
+  - clave: SPACEX
+    nombre: SpaceX
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001181412"
+    instrumentos:
+      - {ticker_byma: SPCX, ticker_origen: SPCX, ratio_cedear: 50, moneda: ARS}
+  - clave: ORACLE
+    nombre: Oracle
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001341439"
+    instrumentos:
+      - {ticker_byma: ORCL, ticker_origen: ORCL, ratio_cedear: 3, moneda: ARS}
+  - clave: TESLA
+    nombre: Tesla
+    tipo: cedear
+    sector: Automotriz
+    pais: US
+    cik_sec: "0001318605"
+    instrumentos:
+      - {ticker_byma: TSLA, ticker_origen: TSLA, ratio_cedear: 15, moneda: ARS}
+  - clave: AMAZON
+    nombre: Amazon
+    tipo: cedear
+    sector: Consumo
+    pais: US
+    cik_sec: "0001018724"
+    instrumentos:
+      - {ticker_byma: AMZN, ticker_origen: AMZN, ratio_cedear: 144, moneda: ARS}
+  - clave: MODERNA
+    nombre: Moderna
+    tipo: cedear
+    sector: Salud
+    pais: US
+    cik_sec: "0001682852"
+    instrumentos:
+      - {ticker_byma: MRNA, ticker_origen: MRNA, ratio_cedear: 19, moneda: ARS}
+  - clave: NEBIUS
+    nombre: Nebius Group
+    tipo: cedear
+    sector: Tecnología
+    pais: NL
+    cik_sec: "0001513845"
+    instrumentos:
+      - {ticker_byma: NBIS, ticker_origen: NBIS, ratio_cedear: 27, moneda: ARS}
+  - clave: AMD
+    nombre: Advanced Micro Devices
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0000002488"
+    instrumentos:
+      - {ticker_byma: AMD, ticker_origen: AMD, ratio_cedear: 10, moneda: ARS}
+  - clave: APPLE
+    nombre: Apple
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0000320193"
+    instrumentos:
+      - {ticker_byma: AAPL, ticker_origen: AAPL, ratio_cedear: 20, moneda: ARS}
+  - clave: PALANTIR
+    nombre: Palantir Technologies
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0001321655"
+    instrumentos:
+      - {ticker_byma: PLTR, ticker_origen: PLTR, ratio_cedear: 3, moneda: ARS}
+  - clave: INTEL
+    nombre: Intel
+    tipo: cedear
+    sector: Tecnología
+    pais: US
+    cik_sec: "0000050863"
+    instrumentos:
+      - {ticker_byma: INTC, ticker_origen: INTC, ratio_cedear: 5, moneda: ARS}

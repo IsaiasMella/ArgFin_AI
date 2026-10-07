@@ -199,8 +199,8 @@ PROMPTS_DIR=
 
 **Tablas compartidas** (sin datos de usuario, sin RLS de usuario):
 
-- `companies`: id, nombre, sector, país, tipo (`ar_equity`, `cedear`), cik_sec, url_relacion_inversores, activa.
-- `instruments`: id, company_id, ticker_byma, ticker_origen, ratio_cedear, moneda.
+- `companies`: id, clave (estable, la del YAML), nombre, sector, país, tipo (`ar_equity`, `cedear`), cik_sec, url_relacion_inversores, activa.
+- `instruments`: id, company_id, ticker_byma, ticker_origen, ratio_cedear, moneda, activo. Se cargan desde `config/universe.yaml` con `sincronizar-universo` (ADR 010).
 - `prices_daily`: instrument_id, fecha, cierre, volumen, fuente, divergencia_pct, marcado (bool).
 - `fx_daily`: fecha, ccl, mep, oficial, fuente.
 - `documents`: id, company_id, tipo (`estado_contable`, `comunicado_resultados`, `hecho_relevante`, `memoria_anual`), período, url_origen, hash_sha256, ruta_almacenada, fecha_publicacion, estado.
