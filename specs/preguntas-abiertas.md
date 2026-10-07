@@ -5,7 +5,17 @@ responsable del producto y la decisión se lleva a la spec correspondiente.
 
 ## Pendientes
 
-Ninguna por ahora.
+15. **Precios de las posiciones fuera del universo** (detectada en T2.3, 2026-10-07). La spec
+    (4.1) dice que de esas posiciones "solo se informa precio y variación", pero el plan
+    (7.1) y T2.3 piden precios solo "para cada instrumento del universo". Hoy la tarea diaria
+    cubre el universo y el CCL; los tickers libres no tienen precio.
+    - **Recomendación:** sumarlos cuando se arme el resumen semanal (fase 5), que es el
+      primero que los usa. La tarea diaria los leería con una función `SECURITY DEFINER`
+      que devuelve solo la lista de tickers distintos, sin usuarios (mismo mecanismo que
+      los puntos 3 y 4), y guardaría sus cierres en una tabla aparte. Un ticker libre no
+      tiene tipo conocido: BYMA no lo necesita y data912 se probaría como acción y como
+      CEDEAR.
+    - **Necesito:** tu OK para ese enfoque, o adelantarlo a la fase 2 si preferís.
 
 ## Resueltas (2026-10-05 y 2026-10-06)
 
