@@ -13,6 +13,7 @@ from sqlalchemy import create_engine, pool
 import brujula.core.llm.records
 import brujula.features.auth.models
 import brujula.features.portfolios.models
+import brujula.features.prices.models
 import brujula.features.universe.models  # noqa: F401
 from brujula.core.config import get_settings
 from brujula.core.db import Base
