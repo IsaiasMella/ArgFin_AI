@@ -156,6 +156,26 @@ async def test_una_falla_de_la_principal_no_pisa_datos_oficiales_ya_guardados(
     assert superuser.execute("SELECT DISTINCT fuente FROM fx_daily").fetchall() == [("byma",)]
 
 
+async def test_un_ajuste_retroactivo_de_la_principal_marca_la_historia_anterior(
+    auth_settings: Settings, superuser: psycopg.Connection, universe: dict[str, UUID]
+) -> None:
+    # Primera carga: toda la ventana grabada, validada y sin marcas.
+    await run(auth_settings, RecordedMarkets())
+    # Un split 10:1: BYMA reescribe los cierres de la semana divididos por 10; data912 no.
+    markets = RecordedMarkets()
+    for day in ("2026-10-01", "2026-10-02", "2026-10-05"):
+        markets.byma_closes[("GGAL", day)] = 590.0
+
+    report = await run(auth_settings, markets, start=date(2026, 10, 1))
+
+    flags = {row[0]: row[5] for row in prices(superuser, "GGAL")}
+    # Antes de la ventana: marcados por el ajuste. En la ventana: por la divergencia.
+    assert [flags[d] for d in TRADING_DAYS] == [True, True, True, True, True, True, False]
+    assert report.precios_marcados_por_ajuste == 3
+    # Los demás instrumentos no se tocan.
+    assert not any(row[5] for row in prices(superuser, "AAPL"))
+
+
 async def test_feriado_o_fin_de_semana_no_guarda_nada(
     auth_settings: Settings, superuser: psycopg.Connection, universe: dict[str, UUID]
 ) -> None:

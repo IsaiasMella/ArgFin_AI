@@ -5,6 +5,8 @@
 2. Por cada rueda guarda el dato principal y lo compara con el respaldo; si la divergencia
    supera `PRICE_DIVERGENCE_THRESHOLD_PCT`, lo marca (no se publica sin revisión).
 3. Si solo una fuente tiene la rueda, guarda esa y lo registra en el log.
+4. Si la principal reescribió cierres ya guardados (ajuste por un evento corporativo), marca
+   los cierres anteriores de ese instrumento: ya no son comparables con los nuevos.
 
 Idempotente: cada corrida recalcula una ventana de días y hace upsert por clave natural.
 """
@@ -15,12 +17,13 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
+from uuid import UUID
 
 import anyio
 import structlog
 import yaml
 from pydantic import BaseModel, ConfigDict, ValidationError
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -33,7 +36,12 @@ from brujula.features.prices.providers import (
     PriceProvider,
     Symbol,
 )
-from brujula.features.prices.reconcile import Reconciled, implied_rate, reconcile
+from brujula.features.prices.reconcile import (
+    Reconciled,
+    divergence_pct,
+    implied_rate,
+    reconcile,
+)
 from brujula.features.universe import service as universe
 
 logger = structlog.get_logger(__name__)
@@ -81,6 +89,8 @@ class DailyRunReport:
     precios_cambiados: int = 0
     precios_marcados: int = 0
     precios_solo_respaldo: int = 0
+    # Cierres anteriores a la ventana marcados porque la principal reescribió su historia.
+    precios_marcados_por_ajuste: int = 0
     ccl_guardados: int = 0
     ccl_marcados: int = 0
     # proveedor -> ticker -> motivo
@@ -158,6 +168,56 @@ async def _upsert(
     return written
 
 
+async def _retroactive_adjustments(
+    session: AsyncSession,
+    rows: Sequence[dict[str, Any]],
+    primary_name: str,
+    threshold_pct: Decimal,
+    start: date,
+    end: date,
+) -> dict[UUID, date]:
+    """Instrumentos cuyos cierres oficiales ya guardados cambiaron más que el umbral.
+
+    BYMA ajusta su serie histórica hacia atrás ante eventos corporativos (splits,
+    dividendos en acciones). Devuelve, por instrumento, la primera fecha reescrita.
+    """
+    incoming = {
+        (row["instrument_id"], row["fecha"]): row["cierre"]
+        for row in rows
+        if row["fuente"] == primary_name
+    }
+    if not incoming:
+        return {}
+    stored = await session.execute(
+        select(PriceDaily.instrument_id, PriceDaily.fecha, PriceDaily.cierre).where(
+            PriceDaily.instrument_id.in_({key[0] for key in incoming}),
+            PriceDaily.fecha.between(start, end),
+            PriceDaily.fuente == primary_name,
+        )
+    )
+    adjusted: dict[UUID, date] = {}
+    for instrument_id, day, close in stored:
+        new = incoming.get((instrument_id, day))
+        if new is not None and divergence_pct(close, new) > threshold_pct:
+            adjusted[instrument_id] = min(day, adjusted.get(instrument_id, day))
+    return adjusted
+
+
+async def _flag_history_before(session: AsyncSession, instrument_id: UUID, start: date) -> int:
+    """Marca los cierres previos a la ventana: ya no son comparables con los nuevos."""
+    result = await session.execute(
+        update(PriceDaily)
+        .where(
+            PriceDaily.instrument_id == instrument_id,
+            PriceDaily.fecha < start,
+            PriceDaily.marcado.is_(False),
+        )
+        .values(marcado=True, actualizado_en=func.now())
+        .returning(PriceDaily.fecha)
+    )
+    return len(result.all())
+
+
 async def run_daily_prices(
     session_factory: async_sessionmaker[AsyncSession],
     primary: PriceProvider,
@@ -228,9 +288,22 @@ async def run_daily_prices(
         _log_choice("CCL", day, chosen, backup.name)
         report.ccl_marcados += chosen.marcado
 
+    tickers = {instrument.id: instrument.ticker for instrument in instruments}
     async with session_factory() as session, session.begin():
+        adjusted = await _retroactive_adjustments(
+            session, price_rows, primary.name, threshold_pct, start, end
+        )
         report.precios_cambiados = await _upsert(session, PriceDaily, price_rows, primary.name)
         await _upsert(session, FxDaily, fx_rows, primary.name)
+        for instrument_id, first_day in adjusted.items():
+            flagged = await _flag_history_before(session, instrument_id, start)
+            report.precios_marcados_por_ajuste += flagged
+            logger.warning(
+                "ajuste_retroactivo",
+                ticker=tickers[instrument_id],
+                desde=str(first_day),
+                marcados_anteriores=flagged,
+            )
     report.precios_guardados = len(price_rows)
     report.ccl_guardados = len(fx_rows)
     logger.info(
@@ -241,6 +314,7 @@ async def run_daily_prices(
         cambiados=report.precios_cambiados,
         marcados=report.precios_marcados,
         solo_respaldo=report.precios_solo_respaldo,
+        marcados_por_ajuste=report.precios_marcados_por_ajuste,
         ccl=report.ccl_guardados,
         ccl_marcados=report.ccl_marcados,
         errores=sum(len(e) for e in report.errores.values()),
