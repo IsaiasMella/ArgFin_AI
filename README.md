@@ -41,4 +41,8 @@ docker compose -f docker/compose.yml --env-file .env run --rm api python -m bruj
 
 # Cifras XBRL de la SEC de los CEDEARs (el worker lo hace solo, docs/adr/015)
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli actualizar-sec
+
+# Verificación triple de los estados contables argentinos: CNV, PDF y LLM (docs/adr/017).
+# Necesita LLM_EXTRACTION_MODEL y la clave del proveedor; --modelo prueba otro modelo.
+docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli verificar-estados --empresa GGAL --limite 1
 ```

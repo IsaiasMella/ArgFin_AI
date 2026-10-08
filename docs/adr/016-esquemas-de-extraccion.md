@@ -40,7 +40,10 @@ mapeo de cuentas son la base de esa verificación.
    (`cnv.cierre_ejercicio`: Aluar cierra el 30/06).
 6. **Métricas obligatorias por sector** (`config/metrics_by_sector.yaml`):
    - Comunes a todos: activo, pasivo, patrimonio y resultado neto.
-   - Por sector: ingresos y resultado operativo donde corresponde.
+   - Por sector: ingresos, salvo en "Financiero".
+   - Actualizado en T3.5 (ADR 017): ya no se exige el resultado operativo, porque no todos
+     los estados firmados lo imprimen. Por la misma razón se dejó de mapear el EBITDA del
+     formulario.
    - "Financiero" mezcla bancos con BYMA y Banco de Valores, que no son bancos comerciales.
      Por eso solo exige las comunes.
    - La carga valida que todos los sectores del universo estén.
