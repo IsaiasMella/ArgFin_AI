@@ -49,7 +49,7 @@ dev = [
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-src = ["src", "tests", "migrations"]
+src = ["src", "tests", "migrations", "evals"]
 
 [tool.ruff.lint]
 select = [
@@ -79,7 +79,7 @@ known-first-party = ["brujula", "tests"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src", "tests", "migrations"]
+files = ["src", "tests", "migrations", "evals"]
 mypy_path = "src"
 # Resuelve `tests.support` como paquete desde la raíz.
 explicit_package_bases = true

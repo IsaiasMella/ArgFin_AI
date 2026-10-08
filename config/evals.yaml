@@ -1,0 +1,17 @@
+# Evals (T3.6, docs/adr/018). Umbrales para avanzar: plan técnico, sección 9.
+
+version: 1
+
+extraccion:
+  # Rutas relativas al directorio de trabajo (en Docker, /app).
+  dataset: evals/datasets/estados_contables.yaml
+  resultados: evals/results/extraccion
+  # Una cifra es correcta si difiere de la de referencia en menos de este porcentaje.
+  tolerancia_pct: 0.5
+  # Para avanzar (GATE): porcentaje de cifras correctas y de cabeceras (moneda, unidad y base
+  # de medición) correctas.
+  umbral_campos_pct: 95
+  umbral_cabecera_pct: 100
+  # El GATE solo se evalúa con el dataset completo y verificado a mano.
+  empresas_minimas: 10
+  trimestres_por_empresa: 4
