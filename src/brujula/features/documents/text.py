@@ -67,6 +67,24 @@ def pdf_pages(content: bytes) -> list[str]:
         return [page.get_text() for page in document]
 
 
+def ocr_pages(content: bytes, numbers: list[int], *, language: str, dpi: int) -> dict[int, str]:
+    """Texto por OCR (Tesseract vía PyMuPDF) de las páginas pedidas (1-based).
+
+    Si Tesseract no está instalado o una página falla, esa página no se devuelve: quien llama
+    la trata como página sin texto (no se adivina nada).
+    """
+    texts: dict[int, str] = {}
+    with pymupdf.open(stream=content, filetype="pdf") as document:  # type: ignore[no-untyped-call]
+        for number in numbers:
+            page = document[number - 1]
+            try:
+                textpage = page.get_textpage_ocr(language=language, dpi=dpi, full=True)
+            except RuntimeError:
+                continue
+            texts[number] = page.get_text(textpage=textpage)
+    return texts
+
+
 def document_text(content: bytes, filename: str, max_chars: int | None = None) -> str:
     if filename.lower().endswith(".pdf"):
         text = re.sub(r"\s+", " ", " ".join(pdf_pages(content))).strip()

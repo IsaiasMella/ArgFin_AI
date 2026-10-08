@@ -30,6 +30,9 @@ FROM ${PYTHON_IMAGE} AS runtime
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+# OCR para estados contables escaneados (T3.5, docs/adr/017): Tesseract con español.
+RUN apt-get update     && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-spa     && rm -rf /var/lib/apt/lists/*
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 RUN groupadd --system app && useradd --system --gid app --no-create-home app     && mkdir -p /app/data/documents && chown -R app:app /app/data
 WORKDIR /app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
