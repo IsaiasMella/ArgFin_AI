@@ -133,10 +133,12 @@ class LLMClient:
             LLMPurpose.WRITER: settings.llm_writer_model,
             LLMPurpose.JUDGE: settings.llm_judge_model,
         }
-        self._api_keys = {
+        configured = {
             "anthropic": settings.anthropic_api_key,
             "openai": settings.openai_api_key,
+            "gemini": settings.gemini_api_key,
         }
+        self._api_keys = {name: key for name, key in configured.items() if key is not None}
         for model in self._models.values():
             self._check_model(model)
 
@@ -144,7 +146,8 @@ class LLMClient:
         # Sin clave o sin precio conocido no se puede llamar ni controlar el presupuesto.
         if _provider(model) not in self._api_keys:
             raise LLMConfigError(
-                f"{model}: proveedor sin clave configurada (usá {', '.join(self._api_keys)}/...)"
+                f"{model}: proveedor sin clave configurada"
+                f" (con clave: {', '.join(self._api_keys) or 'ninguno'})"
             )
         try:
             litellm.get_model_info(model)
