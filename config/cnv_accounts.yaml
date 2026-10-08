@@ -6,6 +6,10 @@
 # (mayúsculas, sin tildes). Una cuenta que no coincide con ninguna regla no se usa.
 #
 # suma: la métrica es la suma de varias cuentas (todas tienen que estar).
+#
+# No se mapean los indicadores que la empresa carga en el formulario (EBITDA, ratios): no
+# están en los estados firmados, así que no se pueden verificar contra el PDF (T3.5). Si un
+# informe los necesita, el código los calcula desde cifras verificadas.
 # Relevado el 2026-10-07 sobre las presentaciones de las 20 empresas del panel líder.
 
 version: 1
@@ -31,7 +35,6 @@ reglas:
   - {metrica: impuesto_a_las_ganancias, nro: "3031100", rubro: '^INGRESO \(GASTO\) POR IMPUESTOS A LAS GANANCIAS$'}
   - {metrica: resultado_neto, nro: "3049999", rubro: '^GANANCIA \(PERDIDA\) DEL PERIODO / EJERCICIO$'}
   - {metrica: depreciaciones_y_amortizaciones, nro: "3011600", rubro: '^DEPRECIACIONES Y AMORTIZACIONES$'}
-  - {metrica: ebitda, nro: "8000004", rubro: '^EBITDA$'}
   - {metrica: ganancia_por_accion_basica, nro: "8000000", rubro: '^GANANCIA \(PERDIDA\) BASICA POR ACCION$'}
   - {metrica: ganancia_por_accion_diluida, nro: "8000001", rubro: '^GANANCIAS? \(PERDIDA\) DILUIDA POR ACCION$'}
 

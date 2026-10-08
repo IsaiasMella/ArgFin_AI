@@ -136,7 +136,7 @@ def test_plantilla_de_industria_suma_deuda_y_no_confunde_codigos(
         {"nro": "3241100", "rubro": "TOTAL CAMBIOS EN ACTIVOS Y PASIVOS OPERATIVOS", "monto": "5"},
         {"nro": "3241200", "rubro": "TOTAL DE ACTIVIDADES DE INVERSION", "monto": "-8"},
         {"nro": "3011600", "rubro": "DEPRECIACIONES Y AMORTIZACIONES", "monto": "-"},
-        {"nro": "8000004", "rubro": "EBITDA", "monto": "1.234"},
+        {"nro": "1999999", "rubro": "TOTAL DEL ACTIVO", "monto": "1.234"},
     ]
 
     mapped = map_statement(
@@ -158,7 +158,7 @@ def test_plantilla_de_industria_suma_deuda_y_no_confunde_codigos(
     assert facts["flujo_inversion"].valor == Decimal(-8)
     assert "flujo_operativo" not in facts  # 3241100 de industria no es el flujo operativo
     assert "depreciaciones_y_amortizaciones" not in facts  # sin saldo
-    assert mapped.errores == [("ebitda", "formato ambiguo: '1.234'")]
+    assert mapped.errores == [("activo_total", "formato ambiguo: '1.234'")]
 
 
 def test_unidad_desconocida_no_mapea_nada(accounts: CnvAccountMap, catalog: MetricCatalog) -> None:
@@ -187,7 +187,6 @@ def test_todos_los_sectores_del_universo_tienen_metricas_obligatorias(
         "patrimonio_neto",
         "resultado_neto",
         "ingresos",
-        "resultado_operativo",
     ]
 
 

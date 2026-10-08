@@ -2,6 +2,10 @@
 # alguna no se valida: queda en revisión manual (T3.5). Los sectores son los de
 # universe.yaml; `comunes` se exige a todos.
 #
+# Solo se exigen cifras que todos los estados imprimen. Subtotales como el resultado bruto o
+# el operativo no siempre figuran en los estados firmados (cada empresa arma su estado de
+# resultados): si no se pueden verificar, no se publican, pero no bloquean el documento.
+#
 # Bancos y no bancos comparten el sector "Financiero" (BYMA y Banco de Valores no son
 # bancos comerciales): se exige solo lo que tienen todos.
 
@@ -15,13 +19,13 @@ comunes:
 
 sectores:
   Financiero: []
-  Petróleo y gas: [ingresos, resultado_operativo]
-  Energía eléctrica: [ingresos, resultado_operativo]
-  Gas natural: [ingresos, resultado_operativo]
-  Materiales: [ingresos, resultado_operativo]
-  Telecomunicaciones: [ingresos, resultado_operativo]
+  Petróleo y gas: [ingresos]
+  Energía eléctrica: [ingresos]
+  Gas natural: [ingresos]
+  Materiales: [ingresos]
+  Telecomunicaciones: [ingresos]
   Conglomerado: [ingresos]
-  Tecnología: [ingresos, resultado_operativo]
-  Consumo: [ingresos, resultado_operativo]
+  Tecnología: [ingresos]
+  Consumo: [ingresos]
   Salud: [ingresos]
-  Automotriz: [ingresos, resultado_operativo]
+  Automotriz: [ingresos]
