@@ -8,14 +8,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import structlog
-from sqlalchemy import or_, select
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from brujula.core.http import FetchError
 from brujula.features.documents.sources.sec import SecClient
 from brujula.features.financials.catalog import MetricCatalog, SecXbrlMapping
-from brujula.features.financials.models import FinancialFact
+from brujula.features.financials.store import upsert_facts
 from brujula.features.financials.xbrl import XbrlFact, extract_facts
 from brujula.features.universe.catalog import Universe
 from brujula.features.universe.models import Company
@@ -23,16 +22,6 @@ from brujula.features.universe.models import Company
 logger = structlog.get_logger(__name__)
 
 EXTRACTOR_VERSION = "sec_xbrl@1"
-UPSERT_BATCH = 500
-UPDATED_COLUMNS = (
-    "valor",
-    "moneda",
-    "unidad",
-    "referencia",
-    "formulario",
-    "fecha_presentacion",
-    "extractor_version",
-)
 
 
 @dataclass
@@ -59,27 +48,6 @@ def _row(company_id: Any, fact: XbrlFact) -> dict[str, Any]:
         "fecha_presentacion": fact.fecha_presentacion,
         "extractor_version": EXTRACTOR_VERSION,
     }
-
-
-async def _upsert(session: AsyncSession, rows: list[dict[str, Any]]) -> int:
-    if not rows:
-        return 0
-    written = 0
-    table = FinancialFact.__table__
-    for start in range(0, len(rows), UPSERT_BATCH):
-        insert_rows = insert(FinancialFact).values(rows[start : start + UPSERT_BATCH])
-        statement = insert_rows.on_conflict_do_update(
-            constraint="uq_financial_facts_metrica_periodo_fuente",
-            set_={name: insert_rows.excluded[name] for name in UPDATED_COLUMNS},
-            where=or_(
-                *(
-                    table.c[name].is_distinct_from(insert_rows.excluded[name])
-                    for name in UPDATED_COLUMNS
-                )
-            ),
-        ).returning(table.c.id)
-        written += len((await session.execute(statement)).all())
-    return written
 
 
 async def update_sec_facts(
@@ -116,7 +84,7 @@ async def update_sec_facts(
         facts = extract_facts(data, mapping, catalog)
         report.cifras = len(facts)
         async with session_factory() as session, session.begin():
-            report.escritas = await _upsert(session, [_row(company_id, f) for f in facts])
+            report.escritas = await upsert_facts(session, [_row(company_id, f) for f in facts])
         logger.info(
             "sec_xbrl_empresa",
             empresa=company.clave,
