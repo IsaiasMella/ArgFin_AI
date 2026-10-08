@@ -15,7 +15,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 
 import httpx2
 
-from brujula.core.http import FetchError, fetch
+from brujula.core.http import FormatError, fetch
 from brujula.features.universe.catalog import InvestorSite
 
 # Identificación honesta del sistema frente a los sitios.
@@ -88,7 +88,7 @@ class InvestorSiteClient:
                     published = datetime.fromisoformat(item["date"]).date()
                     documents.append(SiteDocument(url=url, nombre=name, fecha=published))
         except (ValueError, KeyError, TypeError):
-            raise FetchError("wordpress_formato_inesperado") from None
+            raise FormatError("wordpress_formato_inesperado") from None
         return documents
 
     async def download(self, url: str) -> bytes:

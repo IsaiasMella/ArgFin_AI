@@ -18,7 +18,7 @@ import httpx2
 from defusedxml import ElementTree
 
 from brujula.core.config import Settings
-from brujula.core.http import FetchError, fetch
+from brujula.core.http import FormatError, fetch
 
 MONTHS = {
     "ene": 1,
@@ -46,7 +46,7 @@ PERIODICITY = {"3": "trimestral", "1": "anual"}
 FormType = Literal["INFOFI", "HECHOR"]
 
 
-class CnvFormatError(Exception):
+class CnvFormatError(FormatError):
     """La CNV respondió con un formato distinto del esperado (posible cambio del sitio)."""
 
 
@@ -213,7 +213,7 @@ class CnvClient:
         try:
             valet_key = key_response.json()["valetKeyData"]
         except (ValueError, KeyError, TypeError):
-            raise FetchError("clave_de_descarga_invalida") from None
+            raise FormatError("clave_de_descarga_invalida") from None
         response = await fetch(
             self._http,
             "POST",
