@@ -21,6 +21,7 @@ from brujula.features.financials.llm_extractor import LLMStatementExtractor, Sta
 from brujula.features.financials.pipeline import StatementVerifier, VerificationReport
 from brujula.features.financials.sec_facts import SecFactsReport, update_sec_facts
 from brujula.features.financials.verification import load_extraction_config
+from brujula.features.integrations.reporting import report_runs_safely
 from brujula.features.universe.catalog import UNIVERSE_FILE, load_universe
 
 NAMESPACE = "cifras"
@@ -102,7 +103,9 @@ async def verify_statements(
 
 async def sec_facts(timestamp: int) -> None:
     """La agenda Procrastinate con `timestamp` (momento programado); no se usa."""
-    await refresh_sec_facts(get_settings())
+    settings = get_settings()
+    reports = await refresh_sec_facts(settings)
+    await report_runs_safely(settings, [r.corrida for r in reports if r.corrida is not None])
 
 
 async def verify_pending(timestamp: int) -> None:

@@ -49,6 +49,7 @@ VALID_ENV: dict[str, str] = {
     "CRON_FILINGS_CHECK": "0 */6 * * *",
     "CRON_NEWS_INGEST": "*/30 * * * *",
     "CRON_WEEKLY_DIGEST": "0 8 * * 6",
+    "RESEND_API_BASE_URL": "https://resend.example.invalid",
     "RESEND_API_KEY": "resend-key",
     "EMAIL_FROM": "Brujula <hola@ejemplo.com>",
     "RESEND_WEBHOOK_SECRET": "resend-webhook-secret",

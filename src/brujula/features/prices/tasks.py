@@ -9,7 +9,14 @@ from procrastinate import Blueprint, RetryStrategy
 from brujula.core.config import Settings, get_settings
 from brujula.core.db import create_engine, create_session_factory
 from brujula.core.queue import BLUEPRINTS, PERIODIC_JOBS, PeriodicJob
-from brujula.features.prices.daily import FX_FILE, DailyRunReport, load_fx_config, run_daily_prices
+from brujula.features.integrations.reporting import report_runs_safely
+from brujula.features.prices.daily import (
+    FX_FILE,
+    DailyRunReport,
+    PricesUnavailableError,
+    load_fx_config,
+    run_daily_prices,
+)
 from brujula.features.prices.providers import BymaOpenData, Data912
 
 NAMESPACE = "precios"
@@ -53,7 +60,12 @@ async def update_daily(timestamp: int) -> None:
     """La agenda Procrastinate con `timestamp`: el momento programado (epoch)."""
     settings = get_settings()
     start, end = window_ending(timestamp, settings.app_timezone)
-    await update_prices(settings, start=start, end=end)
+    try:
+        report = await update_prices(settings, start=start, end=end)
+    except PricesUnavailableError as exc:
+        await report_runs_safely(settings, exc.corridas)
+        raise
+    await report_runs_safely(settings, report.corridas)
 
 
 def build_blueprint() -> Blueprint:

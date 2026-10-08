@@ -1,0 +1,19 @@
+# Monitor de integraciones (T3.7, docs/adr/019). Los avisos van solo a ADMIN_EMAILS.
+
+version: 1
+
+# Fallas seguidas de una fuente (para la misma empresa o proveedor) antes de avisar. Una falla
+# suelta suele ser transitoria; un cambio de formato se avisa a la primera.
+fallas_consecutivas: 3
+
+# Plazos de presentación de estados contables a la CNV, en días corridos desde el cierre
+# (Normas de la CNV, T.O. 2013, Título IV, Capítulo I): 70 para el anual y 42 para los
+# intermedios. El margen cubre feriados y demoras de publicación de la AIF antes de avisar
+# que falta un estado.
+plazos_cnv:
+  anual_dias: 70
+  trimestral_dias: 42
+  margen_dias: 5
+
+# Las corridas más viejas que esto se borran (el historial de incidentes se conserva).
+retencion_corridas_dias: 90

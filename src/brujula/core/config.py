@@ -219,6 +219,7 @@ class Settings(BaseSettings):
     cron_weekly_digest: CronExpression
 
     # Email
+    resend_api_base_url: HttpUrl
     resend_api_key: SecretStr
     email_from: EmailLike
     resend_webhook_secret: SecretStr

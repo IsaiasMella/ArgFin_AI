@@ -14,6 +14,7 @@ from brujula.features.documents.sources.cnv import CnvClient
 from brujula.features.documents.sources.investor_sites import InvestorSiteClient
 from brujula.features.documents.sources.sec import SecClient
 from brujula.features.documents.storage import DiskStorage
+from brujula.features.integrations.reporting import report_runs_safely
 from brujula.features.universe.catalog import UNIVERSE_FILE, load_universe
 
 NAMESPACE = "documentos"
@@ -51,8 +52,15 @@ async def ingest_documents(
 
 
 async def check_filings(timestamp: int) -> None:
-    """La agenda Procrastinate con `timestamp` (momento programado); no se usa."""
-    await ingest_documents(get_settings())
+    """La agenda Procrastinate con `timestamp` (momento programado); no se usa.
+
+    Después de la ingesta, el monitor (T3.7) registra cada fuente consultada y revisa si
+    falta algún estado contable vencido.
+    """
+    settings = get_settings()
+    reports = await ingest_documents(settings)
+    runs = [run for report in reports for run in report.corridas]
+    await report_runs_safely(settings, runs, check_statements=True)
 
 
 def build_blueprint() -> Blueprint:
