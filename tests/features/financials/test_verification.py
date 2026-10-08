@@ -365,10 +365,10 @@ def test_ingresos_negativos(
     assert not result.ok
 
 
-def test_cnv_en_pesos_y_pdf_en_miles_como_aluar(
+def test_cnv_en_pesos_y_pdf_en_miles(
     accounts: CnvAccountMap, catalog: MetricCatalog, config: ExtractionConfig
 ) -> None:
-    # Aluar carga la CNV en pesos; su PDF está en miles y redondea.
+    # Una empresa que carga la CNV en pesos y publica el PDF en miles, redondeado.
     cuentas = [
         {"nro": "1999999", "rubro": "TOTAL DEL ACTIVO", "monto": "3898429619145.00"},
         {"nro": "2399999", "rubro": "TOTAL DEL PASIVO", "monto": "1518866776678.00"},

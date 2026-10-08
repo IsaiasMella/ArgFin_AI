@@ -112,7 +112,7 @@ def test_una_cifra_que_no_esta_impresa_no_se_precarga(
 
 
 def test_cnv_en_pesos_y_pdf_en_miles(accounts: CnvAccountMap, catalog: MetricCatalog) -> None:
-    # Como Aluar: la CNV en pesos con centavos, el PDF en miles redondeados.
+    # La CNV en pesos con centavos y el PDF en miles redondeados.
     cuentas = [
         {"nro": "1999999", "rubro": "TOTAL DEL ACTIVO", "monto": "3898429619145.00"},
         {"nro": "3049999", "rubro": "GANANCIA (PERDIDA) DEL PERIODO / EJERCICIO", "monto": "-512"},
