@@ -2,6 +2,7 @@
 
 import httpx2
 from procrastinate import Blueprint, RetryStrategy
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from brujula.core.config import Settings, get_settings
 from brujula.core.db import create_engine, create_session_factory
@@ -16,7 +17,7 @@ from brujula.features.financials.catalog import (
     load_sector_metrics,
 )
 from brujula.features.financials.cnv_mapping import load_cnv_accounts
-from brujula.features.financials.llm_extractor import LLMStatementExtractor
+from brujula.features.financials.llm_extractor import LLMStatementExtractor, StatementExtractor
 from brujula.features.financials.pipeline import StatementVerifier, VerificationReport
 from brujula.features.financials.sec_facts import SecFactsReport, update_sec_facts
 from brujula.features.financials.verification import load_extraction_config
@@ -51,6 +52,38 @@ async def refresh_sec_facts(
         await engine.dispose()
 
 
+def build_statement_verifier(
+    settings: Settings,
+    engine: AsyncEngine,
+    *,
+    model: str | None = None,
+    extractor: StatementExtractor | None = None,
+) -> StatementVerifier:
+    """El verificador con su extractor LLM (`model` reemplaza a `LLM_EXTRACTION_MODEL`)."""
+    universe = load_universe(settings.config_dir / UNIVERSE_FILE)
+    catalog = load_metric_catalog(settings.config_dir)
+    config = load_extraction_config(settings.config_dir)
+    if extractor is None:
+        extractor = LLMStatementExtractor(
+            create_llm_client(settings, engine),
+            PromptRegistry(settings.prompts_dir).get(config.prompt),
+            catalog,
+            model=model,
+        )
+    return StatementVerifier(
+        create_session_factory(engine),
+        DiskStorage(settings.document_storage_dir),
+        extractor,
+        universe=universe,
+        catalog=catalog,
+        accounts=load_cnv_accounts(settings.config_dir, catalog),
+        sectors=load_sector_metrics(
+            settings.config_dir, catalog, {c.sector for c in universe.empresas}
+        ),
+        config=config,
+    )
+
+
 async def verify_statements(
     settings: Settings,
     *,
@@ -59,29 +92,9 @@ async def verify_statements(
     model: str | None = None,
 ) -> list[VerificationReport]:
     """Verificación triple de los estados contables pendientes (T3.5)."""
-    universe = load_universe(settings.config_dir / UNIVERSE_FILE)
-    catalog = load_metric_catalog(settings.config_dir)
-    config = load_extraction_config(settings.config_dir)
     engine = create_engine(settings)
     try:
-        extractor = LLMStatementExtractor(
-            create_llm_client(settings, engine),
-            PromptRegistry(settings.prompts_dir).get(config.prompt),
-            catalog,
-            model=model,
-        )
-        verifier = StatementVerifier(
-            create_session_factory(engine),
-            DiskStorage(settings.document_storage_dir),
-            extractor,
-            universe=universe,
-            catalog=catalog,
-            accounts=load_cnv_accounts(settings.config_dir, catalog),
-            sectors=load_sector_metrics(
-                settings.config_dir, catalog, {c.sector for c in universe.empresas}
-            ),
-            config=config,
-        )
+        verifier = build_statement_verifier(settings, engine, model=model)
         return await verifier.run(only=only, limit=limit)
     finally:
         await engine.dispose()

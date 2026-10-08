@@ -34,11 +34,16 @@ from brujula.features.financials.catalog import MetricCatalog, SectorMetrics
 from brujula.features.financials.cnv_mapping import (
     AmountError,
     CnvAccountMap,
+    CnvMapping,
     fiscal_year_start,
     map_statement,
     unit_multiplier,
 )
-from brujula.features.financials.llm_extractor import PagePayload, StatementExtractor
+from brujula.features.financials.llm_extractor import (
+    ExtractionOutcome,
+    PagePayload,
+    StatementExtractor,
+)
 from brujula.features.financials.models import FinancialFact, VerificationIssue
 from brujula.features.financials.store import upsert_facts
 from brujula.features.financials.verification import (
@@ -63,6 +68,17 @@ class PendingStatement:
     document: Document
     clave: str
     sector: str
+
+
+@dataclass(frozen=True)
+class PreparedStatement:
+    """Lo que necesita la extracción: el texto de cada página (con OCR) y lo que va al LLM."""
+
+    pages: list[str]
+    payload: list[PagePayload]
+    mapped: CnvMapping
+    context: StatementContext
+    inicio_ejercicio: date
 
 
 @dataclass
@@ -108,6 +124,12 @@ class StatementVerifier:
 
     async def pending(self, *, only: str | None = None) -> list[PendingStatement]:
         """La última presentación de cada período con su PDF aún sin verificar."""
+        return await self.latest(only=only, estado="descargado")
+
+    async def latest(
+        self, *, only: str | None = None, estado: str | None = None
+    ) -> list[PendingStatement]:
+        """La última presentación de cada período (las anteriores quedan reemplazadas)."""
         latest = (
             select(CnvStatement)
             .ext(
@@ -128,9 +150,10 @@ class StatementVerifier:
             .join(latest, latest.c.presentacion_id == CnvStatement.presentacion_id)
             .join(Document, Document.id == CnvStatement.document_id)
             .join(Company, Company.id == CnvStatement.company_id)
-            .where(Document.estado == "descargado")
             .order_by(Company.clave, CnvStatement.fecha_cierre)
         )
+        if estado is not None:
+            query = query.where(Document.estado == estado)
         if only is not None:
             query = query.where(Company.clave == only)
         async with self._sessions() as session:
@@ -171,10 +194,9 @@ class StatementVerifier:
             )
             return {metric: value for metric, value in rows}
 
-    async def verify_one(self, item: PendingStatement) -> VerificationReport:
-        statement, document = item.statement, item.document
-        report = VerificationReport(item.clave, statement.fecha_cierre, document.id)
-        content = await self._storage.read(document.ruta_almacenada)
+    async def prepare(self, item: PendingStatement) -> PreparedStatement:
+        statement = item.statement
+        content = await self._storage.read(item.document.ruta_almacenada)
         pages = pdf_pages(content)
         # Páginas escaneadas (sin texto): se leen con OCR y además van como imagen al LLM.
         ocr = self._config.ocr
@@ -213,24 +235,41 @@ class StatementVerifier:
         # Se decide con el texto original: después del OCR la página ya tiene texto.
         as_image = [n for n in selected if n in scanned]
         images = _page_images(content, as_image) if as_image else {}
-        payload = [PagePayload(n, pages[n - 1], images.get(n)) for n in selected]
+        return PreparedStatement(
+            pages=pages,
+            payload=[PagePayload(n, pages[n - 1], images.get(n)) for n in selected],
+            mapped=mapped,
+            context=context,
+            inicio_ejercicio=fiscal_year_start(statement.fecha_cierre, fiscal_end),
+        )
+
+    async def extract(
+        self, item: PendingStatement, prepared: PreparedStatement
+    ) -> ExtractionOutcome:
+        """La extracción del LLM, igual en la verificación y en las evals (T3.6)."""
+        return await self._extractor.extract(
+            pages=prepared.payload,
+            metrics=[fact.metrica for fact in prepared.mapped.facts],
+            fecha_cierre=item.statement.fecha_cierre,
+            inicio_ejercicio=prepared.inicio_ejercicio,
+            tipo_balance=item.statement.tipo_balance,
+        )
+
+    async def verify_one(self, item: PendingStatement) -> VerificationReport:
+        statement, document = item.statement, item.document
+        report = VerificationReport(item.clave, statement.fecha_cierre, document.id)
+        prepared = await self.prepare(item)
         try:
-            outcome = await self._extractor.extract(
-                pages=payload,
-                metrics=[fact.metrica for fact in mapped.facts],
-                fecha_cierre=statement.fecha_cierre,
-                inicio_ejercicio=fiscal_year_start(statement.fecha_cierre, fiscal_end),
-                tipo_balance=statement.tipo_balance,
-            )
+            outcome = await self.extract(item, prepared)
         except LLMError as exc:
             report.error = f"{type(exc).__name__}: {exc}"
             return report
         result = verify(
-            mapped.facts,
-            mapped.errores,
-            pages,
+            prepared.mapped.facts,
+            prepared.mapped.errores,
+            prepared.pages,
             outcome.extraction,
-            context,
+            prepared.context,
             self._catalog,
             self._config,
         )
