@@ -24,11 +24,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from brujula.core.http import FetchError
+from brujula.core.integrations import SourceRun
 from brujula.features.documents.models import CnvStatement, Document, DocumentCheck
 from brujula.features.documents.settings import DocumentsConfig, DocumentType
 from brujula.features.documents.sources.cnv import (
     CnvClient,
-    CnvFormatError,
     Listing,
     StatementRef,
     own_statement,
@@ -44,7 +44,7 @@ from brujula.features.universe.models import Company
 logger = structlog.get_logger(__name__)
 
 CONTENT_TYPES = {".pdf": "application/pdf", ".htm": "text/html", ".html": "text/html"}
-SOURCE_ERRORS = (FetchError, CnvFormatError)
+SOURCE_ERRORS = (FetchError,)  # incluye FormatError y CnvFormatError
 # Un comunicado se publica hasta ~70 días después del cierre (el anual): se aceptan períodos
 # que cerraron hasta un trimestre antes de la fecha desde la que se busca.
 SITE_PERIOD_MARGIN = timedelta(days=92)
@@ -67,8 +67,10 @@ class CompanyReport:
     clave: str
     nuevos: Counter[str] = field(default_factory=Counter)
     estados_estructurados: int = 0
-    # fuente -> motivo (para el monitor de integraciones)
+    # fuente -> motivo
     errores: list[tuple[str, str]] = field(default_factory=list)
+    # Cada fuente consultada, bien o con error (monitor de integraciones, T3.7).
+    corridas: list[SourceRun] = field(default_factory=list)
 
 
 Step = Callable[[CompanyEntry, UUID, date, CompanyReport], Awaitable[None]]
@@ -135,11 +137,13 @@ class Ingestor:
             try:
                 await step(company, company_id, since, report)
             except SOURCE_ERRORS as exc:
-                reason = getattr(exc, "reason", None) or str(exc)
-                report.errores.append((name, reason))
+                report.errores.append((name, exc.reason))
+                report.corridas.append(SourceRun.from_error(name, company.clave, exc))
                 logger.warning(
-                    "fuente_con_error", empresa=company.clave, fuente=name, motivo=reason
+                    "fuente_con_error", empresa=company.clave, fuente=name, motivo=exc.reason
                 )
+            else:
+                report.corridas.append(SourceRun(name, company.clave))
         return report
 
     # --- Persistencia ---------------------------------------------------------------------
