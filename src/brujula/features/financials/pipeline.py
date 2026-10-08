@@ -178,14 +178,15 @@ class StatementVerifier:
         pages = pdf_pages(content)
         # Páginas escaneadas (sin texto): se leen con OCR y además van como imagen al LLM.
         ocr = self._config.ocr
-        scanned = [
+        scanned = {
             number
-            for number, text in enumerate(pages[: ocr.max_paginas], start=1)
+            for number, text in enumerate(pages, start=1)
             if len(text.strip()) < self._config.min_caracteres_texto
-        ]
-        if scanned:
+        }
+        to_read = sorted(n for n in scanned if n <= ocr.max_paginas)
+        if to_read:
             texts = await anyio.to_thread.run_sync(
-                partial(ocr_pages, content, scanned, language=ocr.idioma, dpi=ocr.dpi)
+                partial(ocr_pages, content, to_read, language=ocr.idioma, dpi=ocr.dpi)
             )
             pages = [texts.get(number, text) for number, text in enumerate(pages, start=1)]
         fiscal_end = self._fiscal_ends.get(item.clave, "12-31")
@@ -209,10 +210,9 @@ class StatementVerifier:
             previous=await self._previous_balances(statement.company_id, statement.fecha_cierre),
         )
         selected = pages_for_llm(pages, mapped.facts, context, self._catalog, self._config)
-        scanned = [
-            n for n in selected if len(pages[n - 1].strip()) < self._config.min_caracteres_texto
-        ]
-        images = _page_images(content, scanned) if scanned else {}
+        # Se decide con el texto original: después del OCR la página ya tiene texto.
+        as_image = [n for n in selected if n in scanned]
+        images = _page_images(content, as_image) if as_image else {}
         payload = [PagePayload(n, pages[n - 1], images.get(n)) for n in selected]
         try:
             outcome = await self._extractor.extract(

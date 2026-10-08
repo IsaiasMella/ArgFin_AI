@@ -44,7 +44,13 @@ class FakeExtractor:
     calls: list[dict[str, Any]] = field(default_factory=list)
 
     async def extract(self, *, pages: Sequence[PagePayload], **kwargs: Any) -> ExtractionOutcome:
-        self.calls.append({"pages": [p.numero for p in pages], **kwargs})
+        self.calls.append(
+            {
+                "pages": [p.numero for p in pages],
+                "images": [p.numero for p in pages if p.imagen is not None],
+                **kwargs,
+            }
+        )
         if isinstance(self.result, Exception):
             raise self.result
         return ExtractionOutcome(self.result, "modelo-de-prueba", Decimal("0.0421"))
@@ -106,7 +112,8 @@ async def verifier_factory(scenario: Scenario) -> AsyncIterator[Any]:
             catalog=catalog,
             accounts=load_cnv_accounts(CONFIG, catalog),
             sectors=load_sector_metrics(CONFIG, catalog, {c.sector for c in universe.empresas}),
-            config=load_extraction_config(CONFIG),
+            # Las páginas de prueba son cortas: con el umbral real parecerían escaneadas.
+            config=load_extraction_config(CONFIG).model_copy(update={"min_caracteres_texto": 20}),
         )
 
     yield build
@@ -134,6 +141,7 @@ async def test_si_todo_coincide_publica_las_cifras(
     assert state(superuser, scenario.old_document_id)[0] == "descargado"  # type: ignore[index]
     [call] = extractor.calls
     assert call["pages"] == [2, 3]  # las de los estados, no la portada
+    assert call["images"] == []  # páginas con texto: no hace falta la imagen
     assert call["inicio_ejercicio"] == date(2026, 1, 1)
     assert sorted(call["metrics"]) == sorted(
         [
@@ -200,3 +208,33 @@ async def test_si_el_llm_falla_queda_pendiente_para_reintentar(
     assert report.error == "LLMUnavailableError: modelo: Timeout"
     assert state(superuser, scenario.document_id) == ("descargado", None, False)
     assert superuser.execute("SELECT count(*) FROM verification_issues").fetchone() == (0,)
+
+
+async def test_una_pagina_escaneada_se_lee_con_ocr_y_va_como_imagen(
+    scenario: Scenario,
+    verifier_factory: Any,
+    superuser: psycopg.Connection,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # La página 2 (situación financiera) es una imagen: no tiene texto.
+    scanned = pdf([PAGES[0], "", PAGES[2]])
+    stored = await scenario.storage.save(scanned, ".pdf")
+    superuser.execute(
+        "UPDATE documents SET ruta_almacenada = %s WHERE id = %s",
+        (stored.path, scenario.document_id),
+    )
+    read: list[list[int]] = []
+
+    def fake_ocr(content: bytes, numbers: Sequence[int], **_: Any) -> dict[int, str]:
+        read.append(list(numbers))
+        return {2: PAGES[1]}
+
+    monkeypatch.setattr("brujula.features.financials.pipeline.ocr_pages", fake_ocr)
+    extractor = FakeExtractor(extraction())
+
+    [report] = await verifier_factory(extractor).run()
+
+    assert read == [[2]]
+    [call] = extractor.calls
+    assert (call["pages"], call["images"]) == ([2, 3], [2])
+    assert report.estado == "validado"  # el número impreso se encontró en el texto del OCR
