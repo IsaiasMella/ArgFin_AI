@@ -1,0 +1,46 @@
+# Verificación triple de los estados contables argentinos (T3.5, docs/adr/017).
+# Una cifra se publica solo si coinciden los datos estructurados de la CNV, el texto del PDF
+# firmado y la extracción del LLM, y el estado pasa las validaciones contables.
+
+version: 1
+
+prompt: extraer_estado_contable@1
+
+# Diferencia máxima entre la cifra de la CNV y la del LLM, ya llevadas a unidades: la mayor
+# entre la unidad del documento (por redondeo: un PDF en miles redondea a mil) y este
+# porcentaje de la cifra. En 0: solo se admite el redondeo, nunca un dígito distinto (un
+# porcentaje, por chico que sea, dejaría pasar "450.132" por "450.123").
+tolerancia_relativa_pct: 0
+
+# Activo = pasivo + patrimonio, con esta diferencia máxima (porcentaje del activo).
+tolerancia_identidad_pct: 0.0001
+
+# Un saldo que se multiplica o divide por más que esto respecto del período anterior
+# verificado se considera un salto absurdo (va a revisión).
+factor_salto_maximo: 10
+
+# Páginas que se envían al LLM: las de los estados principales (por estos títulos) y las
+# páginas donde aparecen las cifras de la CNV, hasta este máximo.
+max_paginas_llm: 20
+titulos_de_estados:
+  - ESTADO DE SITUACION FINANCIERA
+  - ESTADO DE SITUACION PATRIMONIAL
+  - ESTADO DE RESULTADOS
+  - ESTADO DEL RESULTADO
+  - ESTADO DE FLUJO DE EFECTIVO
+  - ESTADO DE FLUJOS DE EFECTIVO
+  - ESTADO DE CAMBIOS EN EL PATRIMONIO
+  - ESTADO DE EVOLUCION DEL PATRIMONIO
+
+# Una página con menos caracteres de texto que esto se considera escaneada: se lee con OCR
+# (Tesseract) y además va como imagen al LLM. Solo las primeras `max_paginas`, donde están los
+# estados principales (el OCR tarda unos segundos por página).
+min_caracteres_texto: 200
+ocr:
+  idioma: spa
+  dpi: 300
+  max_paginas: 25
+
+# Códigos de moneda del formulario de la CNV (relevados en las presentaciones reales).
+monedas_cnv:
+  "7": ARS

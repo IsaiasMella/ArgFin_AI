@@ -70,3 +70,24 @@ class FinancialFact(Base):
     actualizado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class VerificationIssue(Base):
+    """Una diferencia de la verificación triple: deja el documento en revisión manual."""
+
+    __tablename__ = "verification_issues"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, server_default=text("gen_random_uuid()"))
+    document_id: Mapped[UUID] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), index=True
+    )
+    metrica: Mapped[str | None] = mapped_column(Text)
+    motivo: Mapped[str] = mapped_column(Text)
+    detalle: Mapped[str] = mapped_column(Text)
+    valor_cnv: Mapped[Decimal | None] = mapped_column(Numeric(30, 6))
+    valor_llm: Mapped[Decimal | None] = mapped_column(Numeric(30, 6))
+    pagina: Mapped[int | None]
+    # Bloqueante: el documento quedó en revisión. No bloqueante: solo esa métrica no se publicó.
+    bloqueante: Mapped[bool] = mapped_column(server_default=text("true"))
+    modelo: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

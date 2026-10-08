@@ -5,10 +5,21 @@ from procrastinate import Blueprint, RetryStrategy
 
 from brujula.core.config import Settings, get_settings
 from brujula.core.db import create_engine, create_session_factory
+from brujula.core.llm.client import create_llm_client
+from brujula.core.llm.prompts import PromptRegistry
 from brujula.core.queue import BLUEPRINTS, PERIODIC_JOBS, PeriodicJob
 from brujula.features.documents.sources.sec import SecClient
-from brujula.features.financials.catalog import load_metric_catalog, load_sec_mapping
+from brujula.features.documents.storage import DiskStorage
+from brujula.features.financials.catalog import (
+    load_metric_catalog,
+    load_sec_mapping,
+    load_sector_metrics,
+)
+from brujula.features.financials.cnv_mapping import load_cnv_accounts
+from brujula.features.financials.llm_extractor import LLMStatementExtractor
+from brujula.features.financials.pipeline import StatementVerifier, VerificationReport
 from brujula.features.financials.sec_facts import SecFactsReport, update_sec_facts
+from brujula.features.financials.verification import load_extraction_config
 from brujula.features.universe.catalog import UNIVERSE_FILE, load_universe
 
 NAMESPACE = "cifras"
@@ -40,14 +51,56 @@ async def refresh_sec_facts(
         await engine.dispose()
 
 
+async def verify_statements(
+    settings: Settings,
+    *,
+    only: str | None = None,
+    limit: int | None = None,
+    model: str | None = None,
+) -> list[VerificationReport]:
+    """Verificación triple de los estados contables pendientes (T3.5)."""
+    universe = load_universe(settings.config_dir / UNIVERSE_FILE)
+    catalog = load_metric_catalog(settings.config_dir)
+    config = load_extraction_config(settings.config_dir)
+    engine = create_engine(settings)
+    try:
+        extractor = LLMStatementExtractor(
+            create_llm_client(settings, engine),
+            PromptRegistry(settings.prompts_dir).get(config.prompt),
+            catalog,
+            model=model,
+        )
+        verifier = StatementVerifier(
+            create_session_factory(engine),
+            DiskStorage(settings.document_storage_dir),
+            extractor,
+            universe=universe,
+            catalog=catalog,
+            accounts=load_cnv_accounts(settings.config_dir, catalog),
+            sectors=load_sector_metrics(
+                settings.config_dir, catalog, {c.sector for c in universe.empresas}
+            ),
+            config=config,
+        )
+        return await verifier.run(only=only, limit=limit)
+    finally:
+        await engine.dispose()
+
+
 async def sec_facts(timestamp: int) -> None:
     """La agenda Procrastinate con `timestamp` (momento programado); no se usa."""
     await refresh_sec_facts(get_settings())
 
 
+async def verify_pending(timestamp: int) -> None:
+    """La agenda Procrastinate con `timestamp` (momento programado); no se usa."""
+    await verify_statements(get_settings())
+
+
 def build_blueprint() -> Blueprint:
     blueprint = Blueprint()
     blueprint.task(name="sec", retry=RetryStrategy(max_attempts=3, wait=900))(sec_facts)
+    blueprint.task(name="verificar", retry=RetryStrategy(max_attempts=3, wait=900))(verify_pending)
     return blueprint
 
 
@@ -56,6 +109,13 @@ PERIODIC_JOBS.append(
     PeriodicJob(
         task_name=f"{NAMESPACE}:sec",
         periodic_id="sec",
+        cron=lambda settings: settings.cron_filings_check,
+    )
+)
+PERIODIC_JOBS.append(
+    PeriodicJob(
+        task_name=f"{NAMESPACE}:verificar",
+        periodic_id="verificar",
         cron=lambda settings: settings.cron_filings_check,
     )
 )

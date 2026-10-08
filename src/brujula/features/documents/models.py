@@ -1,10 +1,20 @@
 """Documentos descargados y datos estructurados de la CNV (tablas compartidas)."""
 
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Text, UniqueConstraint, func, text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Numeric,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -51,6 +61,9 @@ class Document(Base):
     fecha_publicacion: Mapped[date | None]
     estado: Mapped[str] = mapped_column(Text, server_default=text("'descargado'"))
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # Verificación triple (T3.5): cuándo se hizo y cuánto costó el LLM.
+    verificado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    costo_verificacion_usd: Mapped[Decimal | None] = mapped_column(Numeric(12, 6))
 
 
 class CnvStatement(Base):
