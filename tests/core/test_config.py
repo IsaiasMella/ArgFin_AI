@@ -29,6 +29,10 @@ OPTIONAL = {
     "VALIDATION_THRESHOLD_PCT",
     "MERCADOPAGO_ACCESS_TOKEN",
     "MERCADOPAGO_WEBHOOK_SECRET",
+    # Solo las de los proveedores en uso (las valida el cliente LLM al arrancar).
+    "ANTHROPIC_API_KEY",
+    "OPENAI_API_KEY",
+    "GEMINI_API_KEY",
 }
 
 
@@ -59,13 +63,23 @@ def test_los_secretos_no_aparecen_en_repr(env: pytest.MonkeyPatch) -> None:
     assert "clave-app" not in rendered  # la clave dentro de DATABASE_URL
 
 
-@pytest.mark.parametrize("name", sorted(VALID_ENV))
+@pytest.mark.parametrize("name", sorted(set(VALID_ENV) - OPTIONAL))
 def test_falta_variable_obligatoria(env: pytest.MonkeyPatch, name: str) -> None:
     env.delenv(name)
 
     with pytest.raises(ConfigError, match="Faltan variables obligatorias") as exc_info:
         load_settings(env_file=None)
     assert re.search(rf"\b{name}\b", str(exc_info.value))
+
+
+def test_las_claves_de_proveedores_de_llm_son_opcionales(env: pytest.MonkeyPatch) -> None:
+    env.setenv("ANTHROPIC_API_KEY", "")
+    env.delenv("OPENAI_API_KEY")
+
+    settings = load_settings(env_file=None)
+
+    assert (settings.anthropic_api_key, settings.openai_api_key) == (None, None)
+    assert settings.gemini_api_key is not None
 
 
 def test_variable_vacia_cuenta_como_faltante(env: pytest.MonkeyPatch) -> None:

@@ -120,6 +120,7 @@ def llm_settings(settings: Settings) -> Settings:
             "llm_judge_model": "anthropic/claude-opus-5-5",
             "llm_monthly_budget_usd": Decimal("10"),
             "anthropic_api_key": SecretStr("clave-anthropic-de-prueba"),
+            "gemini_api_key": None,  # proveedor sin clave en estos tests
         }
     )
 
@@ -290,6 +291,35 @@ def test_rechaza_proveedor_sin_clave(llm_settings: Settings) -> None:
 
     with pytest.raises(LLMConfigError, match="proveedor sin clave"):
         LLMClient(gemini, FakeRecorder(), FakeTracer())
+
+
+async def test_sin_anthropic_con_openai_y_gemini(llm_settings: Settings) -> None:
+    # La configuración elegida para el MVP: ningún modelo de Anthropic, sin su clave.
+    only_two = llm_settings.model_copy(
+        update={
+            "llm_extraction_model": "gemini/gemini-2.5-pro",
+            "llm_classification_model": "gemini/gemini-2.5-flash-lite",
+            "llm_writer_model": "openai/gpt-5",
+            "llm_judge_model": "gemini/gemini-2.5-pro",
+            "anthropic_api_key": None,
+            "gemini_api_key": SecretStr("clave-gemini-de-prueba"),
+        }
+    )
+    provider = FakeProvider([VALID])
+    client = LLMClient(
+        only_two, FakeRecorder(), FakeTracer(), completion=provider, cost=lambda **_: COST_PER_CALL
+    )
+
+    await client.complete(
+        purpose=LLMPurpose.CLASSIFICATION,
+        prompt=PROMPT,
+        variables={"titulo": "YPF"},
+        output_type=Classification,
+    )
+
+    [request] = provider.requests
+    assert request["model"] == "gemini/gemini-2.5-flash-lite"
+    assert request["api_key"] == "clave-gemini-de-prueba"
 
 
 def test_rechaza_modelo_sin_precio_conocido(llm_settings: Settings) -> None:
