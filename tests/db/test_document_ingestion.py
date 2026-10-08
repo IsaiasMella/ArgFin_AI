@@ -9,6 +9,7 @@ import psycopg
 import pytest
 
 from brujula.core.config import Settings
+from brujula.core.integrations import SourceRun
 from brujula.features.documents.ingest import CompanyReport
 from brujula.features.documents.tasks import ingest_documents
 from brujula.features.universe.catalog import UNIVERSE_FILE, Universe, load_universe
@@ -123,6 +124,12 @@ async def test_ingesta_completa_de_una_empresa_con_cnv_hechos_y_sec(
     report = (await run(settings_with_universe, FakeSources(), only="GGAL"))["GGAL"]
 
     assert report.errores == []
+    # Cada fuente consultada queda para el monitor de integraciones (T3.7).
+    assert report.corridas == [
+        SourceRun("cnv", "GGAL"),
+        SourceRun("cnv_hechos", "GGAL"),
+        SourceRun("sec", "GGAL"),
+    ]
     assert report.estados_estructurados == 2  # consolidados al 31/03 y al 30/06/2026
     rows = documents(superuser, "GGAL")
     assert [(r[0], r[1], r[3]) for r in rows] == [
@@ -194,6 +201,7 @@ async def test_una_fuente_caida_no_corta_a_las_demas(
     report = (await run(settings_with_universe, sources, only="GGAL"))["GGAL"]
 
     assert report.errores == [("sec", "http_503")]
+    assert SourceRun("sec", "GGAL", "http_503", formato=False) in report.corridas
     assert report.nuevos["estado_contable"] == 2
     assert [r for r in documents(superuser, "GGAL") if r[1] == "sec"] == []
 
@@ -206,6 +214,7 @@ async def test_un_cambio_de_formato_de_la_cnv_se_informa_como_error(
     report = (await run(settings_with_universe, sources, only="GGAL"))["GGAL"]
 
     assert ("cnv", "presentacion_sin_xml") in report.errores
+    assert SourceRun("cnv", "GGAL", "presentacion_sin_xml", formato=True) in report.corridas
     # El hecho relevante y la SEC se procesan igual.
     assert report.nuevos["comunicado_resultados"] == 2
 

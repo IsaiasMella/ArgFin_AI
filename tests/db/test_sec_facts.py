@@ -8,6 +8,7 @@ import psycopg
 import pytest
 
 from brujula.core.config import Settings
+from brujula.core.integrations import SourceRun
 from brujula.features.financials.tasks import refresh_sec_facts
 from brujula.features.universe.catalog import UNIVERSE_FILE, Universe, load_universe
 from tests.support.env import VALID_ENV
@@ -95,4 +96,5 @@ async def test_la_sec_caida_se_informa(
     [report] = await refresh_sec_facts(settings_with_apple, http_transport=transport(404))
 
     assert report.errores == [("sec_xbrl", "http_404")]
+    assert report.corrida == SourceRun("sec_xbrl", "APPLE", "http_404")
     assert superuser.execute("SELECT count(*) FROM financial_facts").fetchone() == (0,)
