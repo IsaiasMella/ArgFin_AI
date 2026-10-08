@@ -12,7 +12,8 @@ import asyncio
 import json
 import random
 import time
-from collections.abc import Awaitable, Callable, Mapping
+from base64 import b64encode
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -157,11 +158,31 @@ class LLMClient:
         prompt: Prompt,
         variables: Mapping[str, str],
         output_type: type[T],
+        model: str | None = None,
+        images: Sequence[bytes] = (),
     ) -> LLMResult[T]:
-        model = self._models[purpose]
+        """`model` reemplaza al del propósito (p. ej. para comparar modelos en las evals).
+        `images` son PNG que se envían junto al texto (páginas escaneadas)."""
+        if model is None:
+            model = self._models[purpose]
+        else:
+            self._check_model(model)
+        text = prompt.render_user(variables)
+        user_content: str | list[dict[str, Any]] = text
+        if images:
+            user_content = [
+                {"type": "text", "text": text},
+                *(
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{b64encode(img).decode()}"},
+                    }
+                    for img in images
+                ),
+            ]
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": prompt.system},
-            {"role": "user", "content": prompt.render_user(variables)},
+            {"role": "user", "content": user_content},
         ]
         log = logger.bind(proposito=purpose.value, modelo=model, prompt=prompt.ref)
         total_cost = Decimal(0)
