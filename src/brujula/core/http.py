@@ -17,6 +17,13 @@ class FetchError(Exception):
         self.reason = reason
 
 
+class FormatError(FetchError):
+    """La fuente respondió, pero con un formato distinto del esperado (posible cambio del sitio).
+
+    El monitor de integraciones (T3.7) lo avisa enseguida: no se arregla reintentando.
+    """
+
+
 async def fetch(
     http: httpx2.AsyncClient,
     method: str,

@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from brujula.core.http import FetchError
+from brujula.core.integrations import SourceRun
 from brujula.features.documents.sources.sec import SecClient
 from brujula.features.financials.catalog import MetricCatalog, SecXbrlMapping
 from brujula.features.financials.store import upsert_facts
@@ -30,6 +31,7 @@ class SecFactsReport:
     cifras: int = 0
     escritas: int = 0
     errores: list[tuple[str, str]] = field(default_factory=list)
+    corrida: SourceRun | None = None  # monitor de integraciones (T3.7)
 
 
 def _row(company_id: Any, fact: XbrlFact) -> dict[str, Any]:
@@ -79,8 +81,10 @@ async def update_sec_facts(
             data = await sec.company_facts(company.cik_sec)
         except FetchError as exc:
             report.errores.append(("sec_xbrl", exc.reason))
+            report.corrida = SourceRun.from_error("sec_xbrl", company.clave, exc)
             logger.warning("sec_xbrl_error", empresa=company.clave, motivo=exc.reason)
             continue
+        report.corrida = SourceRun("sec_xbrl", company.clave)
         facts = extract_facts(data, mapping, catalog)
         report.cifras = len(facts)
         async with session_factory() as session, session.begin():

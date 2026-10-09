@@ -14,6 +14,7 @@ import brujula.core.llm.records
 import brujula.features.auth.models
 import brujula.features.documents.models
 import brujula.features.financials.models
+import brujula.features.integrations.models
 import brujula.features.portfolios.models
 import brujula.features.prices.models
 import brujula.features.universe.models  # noqa: F401

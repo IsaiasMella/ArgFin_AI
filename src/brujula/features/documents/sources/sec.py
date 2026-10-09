@@ -13,7 +13,7 @@ from typing import Any
 import httpx2
 
 from brujula.core.config import Settings
-from brujula.core.http import FetchError, fetch
+from brujula.core.http import FormatError, fetch
 
 
 @dataclass(frozen=True)
@@ -57,7 +57,7 @@ class SecClient:
                 if f == form and date.fromisoformat(d) >= since
             ]
         except (KeyError, TypeError, ValueError):
-            raise FetchError("sec_formato_inesperado") from None
+            raise FormatError("sec_formato_inesperado") from None
 
     async def company_facts(self, cik: str) -> dict[str, Any]:
         """Todos los datos XBRL de la empresa (`companyfacts`), con decimales exactos."""
@@ -65,7 +65,7 @@ class SecClient:
         try:
             data: dict[str, Any] = json.loads(response.text, parse_float=Decimal)
         except json.JSONDecodeError:
-            raise FetchError("sec_formato_inesperado") from None
+            raise FormatError("sec_formato_inesperado") from None
         return data
 
     def _folder(self, cik: str, accession: str) -> str:
@@ -79,7 +79,7 @@ class SecClient:
         try:
             return [item["name"] for item in data["directory"]["item"]]
         except (KeyError, TypeError):
-            raise FetchError("sec_formato_inesperado") from None
+            raise FormatError("sec_formato_inesperado") from None
 
     async def download(self, cik: str, accession: str, name: str) -> bytes:
         return (await self._get(self.file_url(cik, accession, name))).content

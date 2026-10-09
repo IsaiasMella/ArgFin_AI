@@ -11,6 +11,7 @@
 Idempotente: cada corrida recalcula una ventana de días y hace upsert por clave natural.
 """
 
+from collections import Counter
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import date
@@ -27,6 +28,7 @@ from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from brujula.core.integrations import SourceRun
 from brujula.core.tickers import Ticker
 from brujula.features.prices.models import FxDaily, PriceDaily
 from brujula.features.prices.providers import (
@@ -50,6 +52,8 @@ FX_FILE = "fx.yaml"
 KIND_BY_COMPANY_TYPE = {"ar_equity": AssetKind.EQUITY, "cedear": AssetKind.CEDEAR}
 # psycopg admite hasta 65535 parámetros por sentencia: lotes holgados.
 UPSERT_BATCH = 1000
+# Motivos de falla de un proveedor que indican un cambio de formato de su respuesta.
+FORMAT_REASONS = frozenset({"formato_inesperado", "respuesta_no_json", "valor_no_numerico"})
 
 
 class PricesConfigError(Exception):
@@ -58,6 +62,10 @@ class PricesConfigError(Exception):
 
 class PricesUnavailableError(Exception):
     """Ninguna fuente devolvió datos y hubo errores: la corrida se reintenta más tarde."""
+
+    def __init__(self, message: str, corridas: list[SourceRun]) -> None:
+        super().__init__(message)
+        self.corridas = corridas
 
 
 class _CclPair(BaseModel):
@@ -95,6 +103,16 @@ class DailyRunReport:
     ccl_marcados: int = 0
     # proveedor -> ticker -> motivo
     errores: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Una por proveedor (monitor de integraciones, T3.7).
+    corridas: list[SourceRun] = field(default_factory=list)
+
+
+def provider_run(name: str, result: FetchResult) -> SourceRun:
+    """Falla del proveedor: no trajo ninguna especie (una especie suelta no es una falla)."""
+    if any(result.bars.values()) or not result.errors:
+        return SourceRun(f"precios:{name}")
+    reason, _ = Counter(result.errors.values()).most_common(1)[0]
+    return SourceRun(f"precios:{name}", motivo=reason, formato=reason in FORMAT_REASONS)
 
 
 def _by_date(bars: Iterable[DailyBar]) -> dict[date, DailyBar]:
@@ -245,8 +263,11 @@ async def run_daily_prices(
     main, spare = results[primary.name], results[backup.name]
     report = DailyRunReport(desde=start, hasta=end)
     report.errores = {name: r.errors for name, r in results.items() if r.errors}
+    report.corridas = [provider_run(name, result) for name, result in results.items()]
     if report.errores and not any(main.bars.values()) and not any(spare.bars.values()):
-        raise PricesUnavailableError(f"sin datos de ninguna fuente: {report.errores}")
+        raise PricesUnavailableError(
+            f"sin datos de ninguna fuente: {report.errores}", report.corridas
+        )
 
     names = (primary.name, backup.name)
     price_rows = []
