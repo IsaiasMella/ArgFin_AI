@@ -191,8 +191,11 @@ class Settings(BaseSettings):
     llm_embedding_model: NonEmptyStr
     llm_embedding_dimensions: Annotated[int, Field(gt=0, le=PGVECTOR_MAX_INDEXED_DIMENSIONS)]
     llm_judge_model: NonEmptyStr
-    anthropic_api_key: SecretStr
-    openai_api_key: SecretStr
+    # Solo hacen falta las claves de los proveedores de los modelos configurados: el cliente
+    # LLM rechaza al arrancar un modelo cuyo proveedor no tiene clave.
+    anthropic_api_key: SecretStr | None = None
+    openai_api_key: SecretStr | None = None
+    gemini_api_key: SecretStr | None = None
     llm_monthly_budget_usd: PositiveDecimal
 
     # Observabilidad

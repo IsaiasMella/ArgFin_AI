@@ -32,6 +32,7 @@ VALID_ENV: dict[str, str] = {
     "LLM_JUDGE_MODEL": "modelo-juez",
     "ANTHROPIC_API_KEY": "anthropic-key",
     "OPENAI_API_KEY": "openai-key",
+    "GEMINI_API_KEY": "gemini-key",
     "LLM_MONTHLY_BUDGET_USD": "50",
     "LANGFUSE_PUBLIC_KEY": "pk-test",
     "LANGFUSE_SECRET_KEY": "sk-test",

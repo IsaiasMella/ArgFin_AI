@@ -14,7 +14,8 @@ un pipeline fijo, no un agente: no se necesita un framework de orquestación.
 1. **Un solo punto de entrada,** `core/llm/client.py`, sobre **LiteLLM**. El modelo se elige
    por propósito (`extraccion`, `clasificacion`, `redaccion`, `juez`) desde `Settings`, así
    que cambiar de proveedor es cambiar el `.env`. La clave se pasa por llamada según el
-   prefijo del modelo (`anthropic/`, `openai/`).
+   prefijo del modelo (`anthropic/`, `openai/`, `gemini/`). Las claves son opcionales: solo
+   hacen falta las de los proveedores de los modelos configurados.
 2. **Al arrancar** se rechaza un modelo sin clave configurada o sin precio conocido en
    LiteLLM: sin precio no se puede controlar el presupuesto.
 3. **Salida estructurada** con `response_format=<modelo Pydantic>` (LiteLLM usa el modo
@@ -53,4 +54,22 @@ un pipeline fijo, no un agente: no se necesita un framework de orquestación.
 - Los precios salen del mapa de LiteLLM; al actualizar la librería pueden cambiar.
 - Los procesos que usen el cliente deben llamar a `flush()` de Langfuse al terminar (se
   conecta cuando el worker ejecute las primeras tareas con LLM, en la fase 3).
-- La salida estructurada nativa con Claude 5.x se verifica con claves reales en T3.5.
+- La salida estructurada nativa de cada proveedor se verifica con claves reales en las evals
+  de T3.6.
+
+## Actualización (2026-10-08): proveedores del MVP
+
+El responsable del proyecto decidió no usar Anthropic. Los modelos del MVP son de **OpenAI y
+Google (Gemini)**; los nombres están en `.env`, no en el código:
+
+| Propósito | Modelo | Por qué |
+|---|---|---|
+| Extracción | `gemini/gemini-2.5-pro` | Fuerte con tablas de PDF, incluso escaneados; el volumen (unos 80 estados por año) hace que el costo no pese. |
+| Respaldo de extracción | `openai/gpt-5` | Otro proveedor: respaldo real y competidor en las evals. |
+| Clasificación | `gemini/gemini-2.5-flash-lite` | El de más volumen (noticias): tiene que ser barato. |
+| Redacción | `openai/gpt-5` | Calidad en español para el texto que lee el cliente. |
+| Juez | `gemini/gemini-2.5-pro` | De otra familia que el redactor, para que no apruebe por afinidad. |
+| Embeddings | `openai/text-embedding-3-large` | El del plan (sección 2). |
+
+Se agrega `GEMINI_API_KEY` y las tres claves pasan a ser opcionales. La extracción es una
+hipótesis: la decide la eval de T3.6 (el más barato que cumpla el umbral).
