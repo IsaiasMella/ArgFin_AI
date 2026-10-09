@@ -10,10 +10,12 @@ ingestar-documentos     Busca y descarga documentos nuevos de las empresas argen
                         (docs/adr/014). Opcional: --empresa CLAVE y --desde AAAA-MM-DD.
 actualizar-sec          Actualiza las cifras XBRL de la SEC de los subyacentes de CEDEARs
                         (docs/adr/015). Opcional: --empresa CLAVE.
+verificar-estados       Verificación triple de los estados contables descargados
+                        (docs/adr/017). Opcional: --empresa CLAVE, --limite N y --modelo.
 
 `recifrar` y `sincronizar-universo` usan el rol de migraciones (dueño de las tablas);
-`actualizar-precios`, `ingestar-documentos` y `actualizar-sec`, el de la app, igual que el
-worker.
+`actualizar-precios`, `ingestar-documentos`, `actualizar-sec` y `verificar-estados`, el de
+la app, igual que el worker.
 """
 
 import argparse
@@ -33,7 +35,7 @@ from brujula.features.documents.ingest import CompanyReport
 from brujula.features.documents.settings import DocumentsConfigError
 from brujula.features.documents.tasks import ingest_documents
 from brujula.features.financials.catalog import FinancialsConfigError
-from brujula.features.financials.tasks import refresh_sec_facts
+from brujula.features.financials.tasks import refresh_sec_facts, verify_statements
 from brujula.features.portfolios.maintenance import link_free_tickers
 from brujula.features.portfolios.models import PRICE_CONTEXT, QUANTITY_CONTEXT
 from brujula.features.prices.daily import (
@@ -177,6 +179,27 @@ def _run_sec(settings: Settings, only: str | None) -> None:
             print(f"  error en {fuente}: {motivo}")
 
 
+def _run_verification(
+    settings: Settings, only: str | None, limit: int | None, model: str | None
+) -> None:
+    loop_factory = asyncio.SelectorEventLoop if sys.platform == "win32" else None
+    try:
+        reports = asyncio.run(
+            verify_statements(settings, only=only, limit=limit, model=model),
+            loop_factory=loop_factory,
+        )
+    except (FinancialsConfigError, UniverseError) as exc:
+        raise SystemExit(f"error: {exc}") from None
+    if not reports:
+        print("No hay estados contables pendientes de verificar.")
+    for report in reports:
+        status = report.error or report.estado
+        print(f"{report.clave} al {report.fecha_cierre}: {status} (USD {report.costo_usd})")
+        for issue in report.diferencias:
+            values = f" CNV={issue.valor_cnv} LLM={issue.valor_llm}" if issue.valor_cnv else ""
+            print(f"  {issue.motivo} {issue.metrica or ''} {issue.detalle}{values}".rstrip())
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="brujula.cli")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -191,9 +214,16 @@ def main(argv: list[str] | None = None) -> None:
     documents.add_argument("--desde", type=date.fromisoformat, help="AAAA-MM-DD")
     sec = commands.add_parser("actualizar-sec", help="cifras XBRL de los CEDEARs")
     sec.add_argument("--empresa", help="clave de la empresa en universe.yaml")
+    check = commands.add_parser("verificar-estados", help="verificación triple de estados")
+    check.add_argument("--empresa", help="clave de la empresa en universe.yaml")
+    check.add_argument("--limite", type=int, help="máximo de estados a verificar")
+    check.add_argument("--modelo", help="modelo LLM a usar en lugar de LLM_EXTRACTION_MODEL")
     args = parser.parse_args(argv)
 
     settings = get_settings()
+    if args.command == "verificar-estados":
+        _run_verification(settings, args.empresa, args.limite, args.modelo)
+        return
     if args.command == "actualizar-sec":
         _run_sec(settings, args.empresa)
         return

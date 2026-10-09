@@ -297,3 +297,47 @@ def test_rechaza_modelo_sin_precio_conocido(llm_settings: Settings) -> None:
 
     with pytest.raises(LLMConfigError, match="precio"):
         LLMClient(unknown, FakeRecorder(), FakeTracer())
+
+
+async def test_puede_usar_otro_modelo_para_comparar(harness: Harness) -> None:
+    provider = FakeProvider([VALID])
+
+    result = await harness.build(provider).complete(
+        purpose=LLMPurpose.CLASSIFICATION,
+        prompt=PROMPT,
+        variables={"titulo": "YPF"},
+        output_type=Classification,
+        model="openai/gpt-4o-mini",
+    )
+
+    assert provider.requests[0]["model"] == "openai/gpt-4o-mini"
+    assert result.model == "openai/gpt-4o-mini"
+    assert harness.recorder.calls[0].model == "openai/gpt-4o-mini"
+
+
+async def test_otro_modelo_sin_clave_se_rechaza(harness: Harness) -> None:
+    with pytest.raises(LLMConfigError, match="sin clave"):
+        await harness.build(FakeProvider([VALID])).complete(
+            purpose=LLMPurpose.CLASSIFICATION,
+            prompt=PROMPT,
+            variables={"titulo": "YPF"},
+            output_type=Classification,
+            model="gemini/gemini-2.5-flash",
+        )
+
+
+async def test_envia_imagenes_junto_al_texto(harness: Harness) -> None:
+    provider = FakeProvider([VALID])
+
+    await harness.build(provider).complete(
+        purpose=LLMPurpose.CLASSIFICATION,
+        prompt=PROMPT,
+        variables={"titulo": "YPF"},
+        output_type=Classification,
+        images=[b"\x89PNG-pagina-3"],
+    )
+
+    content = provider.requests[0]["messages"][1]["content"]
+    assert content[0] == {"type": "text", "text": "Título: YPF"}
+    assert content[1]["type"] == "image_url"
+    assert content[1]["image_url"]["url"].startswith("data:image/png;base64,iVBORy1wYWdpbmEtMw")
