@@ -1,0 +1,2633 @@
+# Dataset de referencia de la extracción de estados contables (T3.6, docs/adr/018).
+# Precargado con `python -m evals.runners.extraction preparar`: cifras de la CNV que también
+# están impresas en el PDF. PENDIENTE DE VERIFICACIÓN HUMANA: para cada caso, abrir el PDF
+# (documents.hash_sha256 = documento_sha256), comprobar cada cifra en su página, corregir lo
+# que haga falta y completar `verificado_por: "Nombre, AAAA-MM-DD"`. El GATE de T3.6 solo se
+# evalúa cuando todos los casos están verificados. `preparar` nunca pisa un caso verificado.
+
+version: 1
+casos:
+- empresa: ALUAR
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 1c4cf1130ef484d5d25a854a49cfda393733c2c8f9005ea07f7a89af854c04c5
+  moneda: ARS
+  unidad: unidades
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    pasivo_corriente:
+      valor: '734640344104.00'
+      pagina: 4
+      impreso: 734.640.344.104
+    ganancia_por_accion_basica:
+      valor: '-7.85'
+      pagina: 5
+      impreso: 7,85
+    ganancia_por_accion_diluida:
+      valor: '-7.85'
+      pagina: 5
+      impreso: 7,85
+- empresa: ALUAR
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 80ae9ce5e9962dc8529e6a3dca44390ea4cfee2a0cc7c130ac96f8f73427a99b
+  moneda: ARS
+  unidad: unidades
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '3247183794585.00'
+      pagina: 4
+      impreso: 3.247.183.794.585
+    activo_corriente:
+      valor: '1672257407049.00'
+      pagina: 4
+      impreso: 1.672.257.407.049
+    pasivo_total:
+      valor: '1401582662637.00'
+      pagina: 4
+      impreso: 1.401.582.662.637
+    pasivo_corriente:
+      valor: '745184004313.00'
+      pagina: 4
+      impreso: 745.184.004.313
+    patrimonio_neto:
+      valor: '1845601131948.00'
+      pagina: 4
+      impreso: 1.845.601.131.948
+    caja_y_equivalentes:
+      valor: '101435234162.00'
+      pagina: 13
+      impreso: 101.435.234.162
+    ingresos:
+      valor: '1234354403132.00'
+      pagina: 12
+      impreso: 1.234.354.403.132
+    resultado_operativo:
+      valor: '130129011003.00'
+      pagina: 5
+      impreso: 130.129.011.003
+    impuesto_a_las_ganancias:
+      valor: '-23171525650.00'
+      pagina: 5
+      impreso: 23.171.525.650
+    resultado_neto:
+      valor: '39782697896.00'
+      pagina: 5
+      impreso: 39.782.697.896
+    ganancia_por_accion_basica:
+      valor: '9.79'
+      pagina: 5
+      impreso: 9,79
+    ganancia_por_accion_diluida:
+      valor: '9.79'
+      pagina: 5
+      impreso: 9,79
+- empresa: ALUAR
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 146bc8be485a11f9d853a2d33dda784a6e1259b8479a0bfa31b77417c5997307
+  moneda: ARS
+  unidad: unidades
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    pasivo_corriente:
+      valor: '870301548979.00'
+      pagina: 4
+      impreso: 870.301.548.979
+    resultado_neto:
+      valor: '160035117226.00'
+      pagina: 6
+      impreso: 160.035.117.226
+- empresa: ALUAR
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 8aafce5b5770ef76acfd6d54fe21f869a414ea6e6ee495e3abae2e6e1b00914b
+  moneda: ARS
+  unidad: unidades
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '3898429619145.00'
+      pagina: 3
+      impreso: 3.898.429.619.145
+    activo_corriente:
+      valor: '1944071424022.00'
+      pagina: 3
+      impreso: 1.944.071.424.022
+    pasivo_total:
+      valor: '1518866776678.00'
+      pagina: 3
+      impreso: 1.518.866.776.678
+    pasivo_corriente:
+      valor: '965414048997.00'
+      pagina: 3
+      impreso: 965.414.048.997
+    patrimonio_neto:
+      valor: '2379562842467.00'
+      pagina: 3
+      impreso: 2.379.562.842.467
+    caja_y_equivalentes:
+      valor: '239831122449.00'
+      pagina: 3
+      impreso: 239.831.122.449
+    ingresos:
+      valor: '2908558884167.00'
+      pagina: 4
+      impreso: 2.908.558.884.167
+    resultado_operativo:
+      valor: '487131251638.00'
+      pagina: 4
+      impreso: 487.131.251.638
+    resultado_antes_de_impuestos:
+      valor: '472485010388.00'
+      pagina: 4
+      impreso: 472.485.010.388
+    impuesto_a_las_ganancias:
+      valor: '-198479017149.00'
+      pagina: 4
+      impreso: 198.479.017.149
+    resultado_neto:
+      valor: '274005993239.00'
+      pagina: 4
+      impreso: 274.005.993.239
+    ganancia_por_accion_basica:
+      valor: '92.39'
+      pagina: 4
+      impreso: 92,39
+    ganancia_por_accion_diluida:
+      valor: '92.39'
+      pagina: 4
+      impreso: 92,39
+    flujo_inversion:
+      valor: '-408038481739.00'
+      pagina: 7
+      impreso: 408.038.481.739
+    flujo_financiacion:
+      valor: '-258189832382.00'
+      pagina: 7
+      impreso: 258.189.832.382
+- empresa: BYMA
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: a8811952ce00447c01b4506a487f9392b1911c0e22863347a1b7e9bfece5f96f
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2403783639000.00'
+      pagina: 5
+      impreso: 2.403.783.639
+    activo_corriente:
+      valor: '2203930787000.00'
+      pagina: 5
+      impreso: 2.203.930.787
+    pasivo_total:
+      valor: '1856455761000.00'
+      pagina: 5
+      impreso: 1.856.455.761
+    pasivo_corriente:
+      valor: '1832180937000.00'
+      pagina: 5
+      impreso: 1.832.180.937
+    patrimonio_neto:
+      valor: '547327878000.00'
+      pagina: 5
+      impreso: 547.327.878
+    caja_y_equivalentes:
+      valor: '818081378000.00'
+      pagina: 5
+      impreso: 818.081.378
+    resultado_antes_de_impuestos:
+      valor: '143729345000.00'
+      pagina: 4
+      impreso: 143.729.345
+    impuesto_a_las_ganancias:
+      valor: '-43969294000.00'
+      pagina: 4
+      impreso: 43.969.294
+    resultado_neto:
+      valor: '99760051000.00'
+      pagina: 4
+      impreso: 99.760.051
+    ganancia_por_accion_basica:
+      valor: '17.90'
+      pagina: 4
+      impreso: 17,90
+    ganancia_por_accion_diluida:
+      valor: '17.90'
+      pagina: 4
+      impreso: 17,90
+    flujo_inversion:
+      valor: '57138780000.00'
+      pagina: 8
+      impreso: 57.138.780
+    flujo_financiacion:
+      valor: '-214429923000.00'
+      pagina: 8
+      impreso: 214.429.923
+- empresa: BYMA
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 25e41da80205f8b315c9aeb617b513e50e1fd755793c90790246fe0dc282ef97
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2549375311000.00'
+      pagina: 81
+      impreso: 2.549.375.311
+    activo_corriente:
+      valor: '2204560360000.00'
+      pagina: 81
+      impreso: 2.204.560.360
+    pasivo_total:
+      valor: '1895285781000.00'
+      pagina: 81
+      impreso: 1.895.285.781
+    pasivo_corriente:
+      valor: '1868750582000.00'
+      pagina: 81
+      impreso: 1.868.750.582
+    patrimonio_neto:
+      valor: '654089530000.00'
+      pagina: 81
+      impreso: 654.089.530
+    caja_y_equivalentes:
+      valor: '692866745000.00'
+      pagina: 81
+      impreso: 692.866.745
+    resultado_antes_de_impuestos:
+      valor: '251083703000.00'
+      pagina: 80
+      impreso: 251.083.703
+    impuesto_a_las_ganancias:
+      valor: '-78645186000.00'
+      pagina: 80
+      impreso: 78.645.186
+    resultado_neto:
+      valor: '172438517000.00'
+      pagina: 80
+      impreso: 172.438.517
+    ganancia_por_accion_basica:
+      valor: '28.31'
+      pagina: 80
+      impreso: 28,31
+    ganancia_por_accion_diluida:
+      valor: '28.31'
+      pagina: 80
+      impreso: 28,31
+    flujo_inversion:
+      valor: '-146209716000.00'
+      pagina: 84
+      impreso: 146.209.716
+    flujo_financiacion:
+      valor: '-232357701000.00'
+      pagina: 84
+      impreso: 232.357.701
+- empresa: BYMA
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 0838270a080126f8e9b2a75bd0f9059f6464e1190b09493ff732bf53911bb326
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2756963412000.00'
+      pagina: 5
+      impreso: 2.756.963.412
+    activo_corriente:
+      valor: '2515465374000.00'
+      pagina: 5
+      impreso: 2.515.465.374
+    pasivo_total:
+      valor: '2019850932000.00'
+      pagina: 5
+      impreso: 2.019.850.932
+    pasivo_corriente:
+      valor: '1994432431000.00'
+      pagina: 5
+      impreso: 1.994.432.431
+    patrimonio_neto:
+      valor: '737112480000.00'
+      pagina: 5
+      impreso: 737.112.480
+    caja_y_equivalentes:
+      valor: '762792513000.00'
+      pagina: 5
+      impreso: 762.792.513
+    resultado_antes_de_impuestos:
+      valor: '36213283000.00'
+      pagina: 4
+      impreso: 36.213.283
+    impuesto_a_las_ganancias:
+      valor: '-14950948000.00'
+      pagina: 4
+      impreso: 14.950.948
+    resultado_neto:
+      valor: '21262335000.00'
+      pagina: 4
+      impreso: 21.262.335
+    ganancia_por_accion_basica:
+      valor: '2.79'
+      pagina: 4
+      impreso: 2,79
+    ganancia_por_accion_diluida:
+      valor: '2.79'
+      pagina: 4
+      impreso: 2,79
+    flujo_inversion:
+      valor: '48982106000.00'
+      pagina: 7
+      impreso: 48.982.106
+- empresa: BYMA
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 752c0a9798b993563e660e5c57736991627e8b0202931bc9710ad2a5b3f3b682
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2679884268000.00'
+      pagina: 5
+      impreso: 2.679.884.268
+    activo_corriente:
+      valor: '2419594152000.00'
+      pagina: 5
+      impreso: 2.419.594.152
+    pasivo_total:
+      valor: '2012360967000.00'
+      pagina: 5
+      impreso: 2.012.360.967
+    pasivo_corriente:
+      valor: '1985085697000.00'
+      pagina: 5
+      impreso: 1.985.085.697
+    patrimonio_neto:
+      valor: '667523301000.00'
+      pagina: 5
+      impreso: 667.523.301
+    caja_y_equivalentes:
+      valor: '1028518495000.00'
+      pagina: 5
+      impreso: 1.028.518.495
+    resultado_antes_de_impuestos:
+      valor: '114688061000.00'
+      pagina: 4
+      impreso: 114.688.061
+    impuesto_a_las_ganancias:
+      valor: '-32731536000.00'
+      pagina: 4
+      impreso: 32.731.536
+    resultado_neto:
+      valor: '81956525000.00'
+      pagina: 4
+      impreso: 81.956.525
+    ganancia_por_accion_basica:
+      valor: '10.75'
+      pagina: 4
+      impreso: 10,75
+    ganancia_por_accion_diluida:
+      valor: '10.75'
+      pagina: 4
+      impreso: 10,75
+    flujo_inversion:
+      valor: '426224077000.00'
+      pagina: 8
+      impreso: 426.224.077
+    flujo_financiacion:
+      valor: '-178387582000.00'
+      pagina: 8
+      impreso: 178.387.582
+- empresa: COMERCIAL_DEL_PLATA
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 934f68f40ca865ec193bef692c30e10ccebedbf168435a750d4e8d82bc65a52f
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '759962434000.00'
+      pagina: 5
+      impreso: 759.962.434
+    activo_corriente:
+      valor: '200378016000.00'
+      pagina: 5
+      impreso: 200.378.016
+    pasivo_total:
+      valor: '223328202000.00'
+      pagina: 5
+      impreso: 223.328.202
+    pasivo_corriente:
+      valor: '127091673000.00'
+      pagina: 5
+      impreso: 127.091.673
+    patrimonio_neto:
+      valor: '536634232000.00'
+      pagina: 5
+      impreso: 536.634.232
+    caja_y_equivalentes:
+      valor: '8118999000.00'
+      pagina: 5
+      impreso: 8.118.999
+    ingresos:
+      valor: '447985955000.00'
+      pagina: 6
+      impreso: 447.985.955
+    resultado_antes_de_impuestos:
+      valor: '-37746550000.00'
+      pagina: 6
+      impreso: 37.746.550
+    impuesto_a_las_ganancias:
+      valor: '6124669000.00'
+      pagina: 6
+      impreso: 6.124.669
+    resultado_neto:
+      valor: '-31621881000.00'
+      pagina: 6
+      impreso: 31.621.881
+    depreciaciones_y_amortizaciones:
+      valor: '-17712029000.00'
+      pagina: 9
+      impreso: 17.712.029
+    ganancia_por_accion_basica:
+      valor: '-5.86'
+      pagina: 6
+      impreso: 5,86
+    flujo_inversion:
+      valor: '-10538380000.00'
+      pagina: 9
+      impreso: 10.538.380
+    flujo_financiacion:
+      valor: '-7852074000.00'
+      pagina: 9
+      impreso: 7.852.074
+- empresa: COMERCIAL_DEL_PLATA
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 13469187ef6297e591419f73201f9bef59f2364a0b30ebcd3c02c36a418b2bbc
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '787361020000.00'
+      pagina: 5
+      impreso: 787.361.020
+    activo_corriente:
+      valor: '207066869000.00'
+      pagina: 5
+      impreso: 207.066.869
+    pasivo_total:
+      valor: '228306818000.00'
+      pagina: 5
+      impreso: 228.306.818
+    pasivo_corriente:
+      valor: '126503328000.00'
+      pagina: 5
+      impreso: 126.503.328
+    patrimonio_neto:
+      valor: '559054202000.00'
+      pagina: 5
+      impreso: 559.054.202
+    caja_y_equivalentes:
+      valor: '9157994000.00'
+      pagina: 5
+      impreso: 9.157.994
+    ingresos:
+      valor: '655953911000.00'
+      pagina: 6
+      impreso: 655.953.911
+    resultado_antes_de_impuestos:
+      valor: '-62823143000.00'
+      pagina: 6
+      impreso: 62.823.143
+    impuesto_a_las_ganancias:
+      valor: '5033702000.00'
+      pagina: 6
+      impreso: 5.033.702
+    resultado_neto:
+      valor: '-57789441000.00'
+      pagina: 6
+      impreso: 57.789.441
+    depreciaciones_y_amortizaciones:
+      valor: '-25561383000.00'
+      pagina: 9
+      impreso: 25.561.383
+    ganancia_por_accion_basica:
+      valor: '-9.97'
+      pagina: 6
+      impreso: 9,97
+    flujo_inversion:
+      valor: '-24480350000.00'
+      pagina: 9
+      impreso: 24.480.350
+    flujo_financiacion:
+      valor: '-7566381000.00'
+      pagina: 9
+      impreso: 7.566.381
+- empresa: COMERCIAL_DEL_PLATA
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 2008d4786c5267699cebed75bd16a913a1ea957735b1236aa90e821f50bcf82a
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '858474198000.00'
+      pagina: 5
+      impreso: 858.474.198
+    activo_corriente:
+      valor: '211590399000.00'
+      pagina: 5
+      impreso: 211.590.399
+    pasivo_total:
+      valor: '243597907000.00'
+      pagina: 5
+      impreso: 243.597.907
+    pasivo_corriente:
+      valor: '137085851000.00'
+      pagina: 5
+      impreso: 137.085.851
+    patrimonio_neto:
+      valor: '614876291000.00'
+      pagina: 5
+      impreso: 614.876.291
+    caja_y_equivalentes:
+      valor: '7078988000.00'
+      pagina: 5
+      impreso: 7.078.988
+    ingresos:
+      valor: '168389503000.00'
+      pagina: 6
+      impreso: 168.389.503
+    resultado_antes_de_impuestos:
+      valor: '19102729000.00'
+      pagina: 6
+      impreso: 19.102.729
+    impuesto_a_las_ganancias:
+      valor: '1254697000.00'
+      pagina: 6
+      impreso: 1.254.697
+    resultado_neto:
+      valor: '20357426000.00'
+      pagina: 6
+      impreso: 20.357.426
+    depreciaciones_y_amortizaciones:
+      valor: '-7021349000.00'
+      pagina: 9
+      impreso: 7.021.349
+    ganancia_por_accion_basica:
+      valor: '2.91'
+      pagina: 6
+      impreso: 2,91
+    flujo_inversion:
+      valor: '8850197000.00'
+      pagina: 9
+      impreso: 8.850.197
+    flujo_financiacion:
+      valor: '5537850000.00'
+      pagina: 9
+      impreso: 5.537.850
+- empresa: COMERCIAL_DEL_PLATA
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 8ac22853417e93400cfcc9acefcd1e07cb899b0c1129e560c725f64f98dce446
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '923165828000.00'
+      pagina: 5
+      impreso: 923.165.828
+    activo_corriente:
+      valor: '238144082000.00'
+      pagina: 5
+      impreso: 238.144.082
+    pasivo_total:
+      valor: '264322471000.00'
+      pagina: 5
+      impreso: 264.322.471
+    pasivo_corriente:
+      valor: '151985248000.00'
+      pagina: 5
+      impreso: 151.985.248
+    patrimonio_neto:
+      valor: '658843357000.00'
+      pagina: 5
+      impreso: 658.843.357
+    caja_y_equivalentes:
+      valor: '8277478000.00'
+      pagina: 5
+      impreso: 8.277.478
+    ingresos:
+      valor: '387723020000.00'
+      pagina: 6
+      impreso: 387.723.020
+    impuesto_a_las_ganancias:
+      valor: '2523682000.00'
+      pagina: 6
+      impreso: 2.523.682
+    depreciaciones_y_amortizaciones:
+      valor: '-15399833000.00'
+      pagina: 9
+      impreso: 15.399.833
+    ganancia_por_accion_basica:
+      valor: '3.37'
+      pagina: 6
+      impreso: 3,37
+    flujo_inversion:
+      valor: '-5004327000.00'
+      pagina: 9
+      impreso: 5.004.327
+    flujo_financiacion:
+      valor: '10702150000.00'
+      pagina: 9
+      impreso: 10.702.150
+- empresa: GGAL
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 0bdab0a5588fad535006928f6dbe9199fc0f820e7adeab0da02b99f4356dc635
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '41995958490000.00'
+      pagina: 4
+      impreso: 41.995.958.490
+    pasivo_total:
+      valor: '34903389359000.00'
+      pagina: 5
+      impreso: 34.903.389.359
+    patrimonio_neto:
+      valor: '7092569131000.00'
+      pagina: 5
+      impreso: 7.092.569.131
+    caja_y_equivalentes:
+      valor: '8694158508000.00'
+      pagina: 4
+      impreso: 8.694.158.508
+    resultado_antes_de_impuestos:
+      valor: '362991247000.00'
+      pagina: 6
+      impreso: 362.991.247
+    impuesto_a_las_ganancias:
+      valor: '-103684134000.00'
+      pagina: 6
+      impreso: 103.684.134
+    resultado_neto:
+      valor: '259307113000.00'
+      pagina: 6
+      impreso: 259.307.113
+    depreciaciones_y_amortizaciones:
+      valor: '-206764043000.00'
+      pagina: 6
+      impreso: 206.764.043
+    ganancia_por_accion_basica:
+      valor: '161.66'
+      pagina: 7
+      impreso: 161,66
+    ganancia_por_accion_diluida:
+      valor: '161.66'
+      pagina: 7
+      impreso: 161,66
+    ingresos_por_intereses:
+      valor: '6337102802000.00'
+      pagina: 6
+      impreso: 6.337.102.802
+    egresos_por_intereses:
+      valor: '-2611153690000.00'
+      pagina: 6
+      impreso: 2.611.153.690
+    depositos:
+      valor: '24540641235000.00'
+      pagina: 5
+      impreso: 24.540.641.235
+    prestamos:
+      valor: '22059871317000.00'
+      pagina: 4
+      impreso: 22.059.871.317
+    flujo_operativo:
+      valor: '1807733560000.00'
+      pagina: 11
+      impreso: 1.807.733.560
+    flujo_inversion:
+      valor: '-167062328000.00'
+      pagina: 12
+      impreso: 167.062.328
+    flujo_financiacion:
+      valor: '595483059000.00'
+      pagina: 12
+      impreso: 595.483.059
+- empresa: GGAL
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 268cff63ec4e6971ef5b55d0222c869bd6523f93f69a0939e7f983d9ef69638a
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '45779144019000.00'
+      pagina: 3
+      impreso: 45.779.144.019
+    pasivo_total:
+      valor: '38012312767000.00'
+      pagina: 3
+      impreso: 38.012.312.767
+    patrimonio_neto:
+      valor: '7766831252000.00'
+      pagina: 4
+      impreso: 7.766.831.252
+    caja_y_equivalentes:
+      valor: '9367222727000.00'
+      pagina: 3
+      impreso: 9.367.222.727
+    resultado_antes_de_impuestos:
+      valor: '288049360000.00'
+      pagina: 5
+      impreso: 288.049.360
+    impuesto_a_las_ganancias:
+      valor: '-91914867000.00'
+      pagina: 5
+      impreso: 91.914.867
+    resultado_neto:
+      valor: '196134493000.00'
+      pagina: 5
+      impreso: 196.134.493
+    depreciaciones_y_amortizaciones:
+      valor: '-304585252000.00'
+      pagina: 5
+      impreso: 304.585.252
+    ganancia_por_accion_basica:
+      valor: '122.21'
+      pagina: 5
+      impreso: 122,21
+    ganancia_por_accion_diluida:
+      valor: '122.21'
+      pagina: 5
+      impreso: 122,21
+    ingresos_por_intereses:
+      valor: '9464046932000.00'
+      pagina: 5
+      impreso: 9.464.046.932
+    egresos_por_intereses:
+      valor: '-3877496285000.00'
+      pagina: 5
+      impreso: 3.877.496.285
+    depositos:
+      valor: '27668939952000.00'
+      pagina: 3
+      impreso: 27.668.939.952
+    prestamos:
+      valor: '23376063187000.00'
+      pagina: 3
+      impreso: 23.376.063.187
+    flujo_operativo:
+      valor: '-982907709000.00'
+      pagina: 9
+      impreso: 982.907.709
+    flujo_inversion:
+      valor: '-586262592000.00'
+      pagina: 9
+      impreso: 586.262.592
+    flujo_financiacion:
+      valor: '873797984000.00'
+      pagina: 9
+      impreso: 873.797.984
+- empresa: GGAL
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 25a806c7815942c60692597ab663f10135c62bdcfa6944c9473fd6c237bdf852
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '45155161895000.00'
+      pagina: 4
+      impreso: 45.155.161.895
+    pasivo_total:
+      valor: '36566116662000.00'
+      pagina: 5
+      impreso: 36.566.116.662
+    patrimonio_neto:
+      valor: '8589045233000.00'
+      pagina: 5
+      impreso: 8.589.045.233
+    caja_y_equivalentes:
+      valor: '6648381584000.00'
+      pagina: 4
+      impreso: 6.648.381.584
+    resultado_antes_de_impuestos:
+      valor: '67938699000.00'
+      pagina: 6
+      impreso: 67.938.699
+    impuesto_a_las_ganancias:
+      valor: '-1430463000.00'
+      pagina: 6
+      impreso: 1.430.463
+    resultado_neto:
+      valor: '66508236000.00'
+      pagina: 6
+      impreso: 66.508.236
+    depreciaciones_y_amortizaciones:
+      valor: '-75148768000.00'
+      pagina: 6
+      impreso: 75.148.768
+    ganancia_por_accion_basica:
+      valor: '41.39'
+      pagina: 7
+      impreso: 41,39
+    ganancia_por_accion_diluida:
+      valor: '41.39'
+      pagina: 7
+      impreso: 41,39
+    ingresos_por_intereses:
+      valor: '2497014056000.00'
+      pagina: 6
+      impreso: 2.497.014.056
+    egresos_por_intereses:
+      valor: '-901677688000.00'
+      pagina: 6
+      impreso: 901.677.688
+    depositos:
+      valor: '25577481125000.00'
+      pagina: 5
+      impreso: 25.577.481.125
+    prestamos:
+      valor: '24455054145000.00'
+      pagina: 4
+      impreso: 24.455.054.145
+    flujo_operativo:
+      valor: '-2553900594000.00'
+      pagina: 11
+      impreso: 2.553.900.594
+    flujo_inversion:
+      valor: '-68451334000.00'
+      pagina: 12
+      impreso: 68.451.334
+    flujo_financiacion:
+      valor: '136899980000.00'
+      pagina: 12
+      impreso: 136.899.980
+- empresa: GGAL
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 95d391c77ea99b911886ebec0d1c3d878388764b2ff0ce6f67e3b0b491e495f9
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '50363210086000.00'
+      pagina: 4
+      impreso: 50.363.210.086
+    pasivo_total:
+      valor: '41165193962000.00'
+      pagina: 5
+      impreso: 41.165.193.962
+    patrimonio_neto:
+      valor: '9198016124000.00'
+      pagina: 5
+      impreso: 9.198.016.124
+    caja_y_equivalentes:
+      valor: '6240921215000.00'
+      pagina: 4
+      impreso: 6.240.921.215
+    resultado_antes_de_impuestos:
+      valor: '474249764000.00'
+      pagina: 6
+      impreso: 474.249.764
+    impuesto_a_las_ganancias:
+      valor: '-144900900000.00'
+      pagina: 6
+      impreso: 144.900.900
+    resultado_neto:
+      valor: '329348864000.00'
+      pagina: 6
+      impreso: 329.348.864
+    depreciaciones_y_amortizaciones:
+      valor: '-172503431000.00'
+      pagina: 6
+      impreso: 172.503.431
+    ganancia_por_accion_basica:
+      valor: '205.02'
+      pagina: 7
+      impreso: 205,02
+    ganancia_por_accion_diluida:
+      valor: '205.02'
+      pagina: 7
+      impreso: 205,02
+    ingresos_por_intereses:
+      valor: '5097272647000.00'
+      pagina: 6
+      impreso: 5.097.272.647
+    egresos_por_intereses:
+      valor: '-1722485231000.00'
+      pagina: 6
+      impreso: 1.722.485.231
+    depositos:
+      valor: '29034792928000.00'
+      pagina: 5
+      impreso: 29.034.792.928
+    prestamos:
+      valor: '27332243213000.00'
+      pagina: 4
+      impreso: 27.332.243.213
+    flujo_operativo:
+      valor: '-2090301128000.00'
+      pagina: 11
+      impreso: 2.090.301.128
+    flujo_inversion:
+      valor: '-127661924000.00'
+      pagina: 12
+      impreso: 127.661.924
+    flujo_financiacion:
+      valor: '-717832466000.00'
+      pagina: 12
+      impreso: 717.832.466
+- empresa: LOMA_NEGRA
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: bed0344f9ec0d9695cce999ff2f7a1117ad2a4cb375b8f5e54aec5d2c0d2fcad
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1848137867000.00'
+      pagina: 5
+      impreso: 1.848.137.867
+    activo_corriente:
+      valor: '464125957000.00'
+      pagina: 5
+      impreso: 464.125.957
+    pasivo_total:
+      valor: '865104212000.00'
+      pagina: 6
+      impreso: 865.104.212
+    pasivo_corriente:
+      valor: '375557864000.00'
+      pagina: 6
+      impreso: 375.557.864
+    patrimonio_neto:
+      valor: '983033655000.00'
+      pagina: 6
+      impreso: 983.033.655
+    caja_y_equivalentes:
+      valor: '115221529000.00'
+      pagina: 35
+      impreso: 115.221.529
+    ingresos:
+      valor: '577482992000.00'
+      pagina: 4
+      impreso: 577.482.992
+    resultado_antes_de_impuestos:
+      valor: '22548978000.00'
+      pagina: 4
+      impreso: 22.548.978
+    impuesto_a_las_ganancias:
+      valor: '-6856148000.00'
+      pagina: 9
+      impreso: 6.856.148
+    resultado_neto:
+      valor: '15692830000.00'
+      pagina: 4
+      impreso: 15.692.830
+    depreciaciones_y_amortizaciones:
+      valor: '-61313973000.00'
+      pagina: 9
+      impreso: 61.313.973
+    flujo_inversion:
+      valor: '-94208928000.00'
+      pagina: 9
+      impreso: 94.208.928
+    flujo_financiacion:
+      valor: '139421141000.00'
+      pagina: 9
+      impreso: 139.421.141
+- empresa: LOMA_NEGRA
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 85ab9499b713ffe643edf4068372d732b4472c1067a950868f7504276824014c
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1897943212000.00'
+      pagina: 5
+      impreso: 1.897.943.212
+    activo_corriente:
+      valor: '439773439000.00'
+      pagina: 5
+      impreso: 439.773.439
+    pasivo_total:
+      valor: '831780854000.00'
+      pagina: 6
+      impreso: 831.780.854
+    pasivo_corriente:
+      valor: '306101971000.00'
+      pagina: 6
+      impreso: 306.101.971
+    patrimonio_neto:
+      valor: '1066162358000.00'
+      pagina: 6
+      impreso: 1.066.162.358
+    caja_y_equivalentes:
+      valor: '31415663000.00'
+      pagina: 9
+      impreso: 31.415.663
+    ingresos:
+      valor: '848086622000.00'
+      pagina: 4
+      impreso: 848.086.622
+    resultado_antes_de_impuestos:
+      valor: '37365065000.00'
+      pagina: 4
+      impreso: 37.365.065
+    impuesto_a_las_ganancias:
+      valor: '-14544529000.00'
+      pagina: 9
+      impreso: 14.544.529
+    resultado_neto:
+      valor: '22820536000.00'
+      pagina: 4
+      impreso: 22.820.536
+    depreciaciones_y_amortizaciones:
+      valor: '-85527637000.00'
+      pagina: 9
+      impreso: 85.527.637
+    flujo_inversion:
+      valor: '-66711380000.00'
+      pagina: 9
+      impreso: 66.711.380
+    flujo_financiacion:
+      valor: '21398816000.00'
+      pagina: 9
+      impreso: 21.398.816
+- empresa: LOMA_NEGRA
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 852b69bb07f37db2b3b6fdf49a1fb25454ae716f29916ceb2e3e61837774a228
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2082446732000.00'
+      pagina: 5
+      impreso: 2.082.446.732
+    activo_corriente:
+      valor: '490863267000.00'
+      pagina: 5
+      impreso: 490.863.267
+    pasivo_total:
+      valor: '874987684000.00'
+      pagina: 6
+      impreso: 874.987.684
+    pasivo_corriente:
+      valor: '243607755000.00'
+      pagina: 6
+      impreso: 243.607.755
+    patrimonio_neto:
+      valor: '1207459048000.00'
+      pagina: 6
+      impreso: 1.207.459.048
+    ingresos:
+      valor: '218739220000.00'
+      pagina: 4
+      impreso: 218.739.220
+    resultado_antes_de_impuestos:
+      valor: '63507630000.00'
+      pagina: 4
+      impreso: 63.507.630
+    impuesto_a_las_ganancias:
+      valor: '-22881087000.00'
+      pagina: 9
+      impreso: 22.881.087
+    resultado_neto:
+      valor: '40626543000.00'
+      pagina: 4
+      impreso: 40.626.543
+    depreciaciones_y_amortizaciones:
+      valor: '-21171365000.00'
+      pagina: 9
+      impreso: 21.171.365
+    flujo_inversion:
+      valor: '-11982121000.00'
+      pagina: 9
+      impreso: 11.982.121
+    flujo_financiacion:
+      valor: '16041870000.00'
+      pagina: 9
+      impreso: 16.041.870
+- empresa: LOMA_NEGRA
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 01c431a2c691329c1144979b21a98649f82f6f4c6860054c93172d89d2c98b66
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '2192691056000.00'
+      pagina: 5
+      impreso: 2.192.691.056
+    activo_corriente:
+      valor: '506254476000.00'
+      pagina: 5
+      impreso: 506.254.476
+    pasivo_total:
+      valor: '896505488000.00'
+      pagina: 6
+      impreso: 896.505.488
+    pasivo_corriente:
+      valor: '224809714000.00'
+      pagina: 6
+      impreso: 224.809.714
+    patrimonio_neto:
+      valor: '1296185568000.00'
+      pagina: 6
+      impreso: 1.296.185.568
+    caja_y_equivalentes:
+      valor: '28854864000.00'
+      pagina: 35
+      impreso: 28.854.864
+    ingresos:
+      valor: '471589429000.00'
+      pagina: 4
+      impreso: 471.589.429
+    resultado_antes_de_impuestos:
+      valor: '78457656000.00'
+      pagina: 4
+      impreso: 78.457.656
+    impuesto_a_las_ganancias:
+      valor: '-28039372000.00'
+      pagina: 9
+      impreso: 28.039.372
+    resultado_neto:
+      valor: '50418284000.00'
+      pagina: 4
+      impreso: 50.418.284
+    depreciaciones_y_amortizaciones:
+      valor: '-51954489000.00'
+      pagina: 9
+      impreso: 51.954.489
+    flujo_inversion:
+      valor: '-22676191000.00'
+      pagina: 9
+      impreso: 22.676.191
+    flujo_financiacion:
+      valor: '-13113998000.00'
+      pagina: 9
+      impreso: 13.113.998
+- empresa: PAMPA
+  fecha_cierre: '2025-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 4d8d7d623d124bc3e53a59417d4743d63c776f147176aeada2f7111c081c81b5
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '7376431000000.00'
+      pagina: 10
+      impreso: 7.376.431
+    activo_corriente:
+      valor: '2119930000000.00'
+      pagina: 10
+      impreso: 2.119.930
+    pasivo_total:
+      valor: '3167066000000.00'
+      pagina: 11
+      impreso: 3.167.066
+    pasivo_corriente:
+      valor: '784722000000.00'
+      pagina: 11
+      impreso: '784.722'
+    patrimonio_neto:
+      valor: '4209365000000.00'
+      pagina: 11
+      impreso: 4.209.365
+    caja_y_equivalentes:
+      valor: '193570000000.00'
+      pagina: 10
+      impreso: '193.570'
+    ingresos:
+      valor: '1008884000000.00'
+      pagina: 8
+      impreso: 1.008.884
+    resultado_operativo:
+      valor: '269891000000.00'
+      pagina: 8
+      impreso: '269.891'
+    resultado_antes_de_impuestos:
+      valor: '335286000000.00'
+      pagina: 8
+      impreso: '335.286'
+    impuesto_a_las_ganancias:
+      valor: '-115125000000.00'
+      pagina: 8
+      impreso: '115.125'
+    resultado_neto:
+      valor: '220161000000.00'
+      pagina: 8
+      impreso: '220.161'
+    depreciaciones_y_amortizaciones:
+      valor: '-200769000000.00'
+      pagina: 30
+      impreso: '200.769'
+    ganancia_por_accion_basica:
+      valor: '162.18'
+      pagina: 9
+      impreso: 162,18
+    ganancia_por_accion_diluida:
+      valor: '162.18'
+      pagina: 9
+      impreso: 162,18
+    flujo_inversion:
+      valor: '-166452000000.00'
+      pagina: 13
+      impreso: '166.452'
+    flujo_financiacion:
+      valor: '-601226000000.00'
+      pagina: 13
+      impreso: '601.226'
+- empresa: PAMPA
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 32cf468dcbb3f9498a8d860f19b753adc9d7465e0de6a88689a37309f28adeff
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '8607764000000.00'
+      pagina: 10
+      impreso: 8.607.764
+    activo_corriente:
+      valor: '2692960000000.00'
+      pagina: 10
+      impreso: 2.692.960
+    pasivo_total:
+      valor: '3858965000000.00'
+      pagina: 11
+      impreso: 3.858.965
+    pasivo_corriente:
+      valor: '1005705000000.00'
+      pagina: 11
+      impreso: 1.005.705
+    patrimonio_neto:
+      valor: '4748799000000.00'
+      pagina: 11
+      impreso: 4.748.799
+    caja_y_equivalentes:
+      valor: '567726000000.00'
+      pagina: 10
+      impreso: '567.726'
+    ingresos:
+      valor: '1805519000000.00'
+      pagina: 8
+      impreso: 1.805.519
+    resultado_operativo:
+      valor: '497125000000.00'
+      pagina: 8
+      impreso: '497.125'
+    resultado_antes_de_impuestos:
+      valor: '527724000000.00'
+      pagina: 8
+      impreso: '527.724'
+    impuesto_a_las_ganancias:
+      valor: '-267280000000.00'
+      pagina: 8
+      impreso: '267.280'
+    resultado_neto:
+      valor: '260444000000.00'
+      pagina: 8
+      impreso: '260.444'
+    depreciaciones_y_amortizaciones:
+      valor: '-365949000000.00'
+      pagina: 33
+      impreso: '365.949'
+    ganancia_por_accion_basica:
+      valor: '191.75'
+      pagina: 9
+      impreso: 191,75
+    ganancia_por_accion_diluida:
+      valor: '191.75'
+      pagina: 9
+      impreso: 191,75
+    flujo_inversion:
+      valor: '-420749000000.00'
+      pagina: 13
+      impreso: '420.749'
+    flujo_financiacion:
+      valor: '-461988000000.00'
+      pagina: 13
+      impreso: '461.988'
+- empresa: PAMPA
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 9de45261119da9b8eb22f7c1c4ef0178448b987122cc71c3b4d8d9beef99937c
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '9595935000000.00'
+      pagina: 102
+      impreso: 9.595.935
+    activo_corriente:
+      valor: '2892377000000.00'
+      pagina: 102
+      impreso: 2.892.377
+    pasivo_total:
+      valor: '4351152000000.00'
+      pagina: 103
+      impreso: 4.351.152
+    pasivo_corriente:
+      valor: '929323000000.00'
+      pagina: 103
+      impreso: '929.323'
+    patrimonio_neto:
+      valor: '5244783000000.00'
+      pagina: 103
+      impreso: 5.244.783
+    caja_y_equivalentes:
+      valor: '1054459000000.00'
+      pagina: 102
+      impreso: 1.054.459
+    ingresos:
+      valor: '2541455000000.00'
+      pagina: 100
+      impreso: 2.541.455
+    resultado_operativo:
+      valor: '645263000000.00'
+      pagina: 100
+      impreso: '645.263'
+    resultado_antes_de_impuestos:
+      valor: '751074000000.00'
+      pagina: 100
+      impreso: '751.074'
+    impuesto_a_las_ganancias:
+      valor: '-253882000000.00'
+      pagina: 100
+      impreso: '253.882'
+    resultado_neto:
+      valor: '497192000000.00'
+      pagina: 100
+      impreso: '497.192'
+    depreciaciones_y_amortizaciones:
+      valor: '-522369000000.00'
+      pagina: 171
+      impreso: '522.369'
+    ganancia_por_accion_basica:
+      valor: '364.55'
+      pagina: 101
+      impreso: 364,55
+    ganancia_por_accion_diluida:
+      valor: '364.55'
+      pagina: 101
+      impreso: 364,55
+    flujo_inversion:
+      valor: '-466498000000.00'
+      pagina: 106
+      impreso: '466.498'
+    flujo_financiacion:
+      valor: '-394333000000.00'
+      pagina: 106
+      impreso: '394.333'
+- empresa: PAMPA
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 1057b7f56f85fd409420f7d139eb93bcf458fc44aa72bbf448f39cba88fbc51a
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '11484831000000.00'
+      pagina: 10
+      impreso: 11.484.831
+    activo_corriente:
+      valor: '3722573000000.00'
+      pagina: 10
+      impreso: 3.722.573
+    pasivo_total:
+      valor: '5497766000000.00'
+      pagina: 11
+      impreso: 5.497.766
+    pasivo_corriente:
+      valor: '1024904000000.00'
+      pagina: 11
+      impreso: 1.024.904
+    patrimonio_neto:
+      valor: '5987065000000.00'
+      pagina: 11
+      impreso: 5.987.065
+    caja_y_equivalentes:
+      valor: '1451006000000.00'
+      pagina: 10
+      impreso: 1.451.006
+    ingresos:
+      valor: '1873911000000.00'
+      pagina: 8
+      impreso: 1.873.911
+    resultado_operativo:
+      valor: '630462000000.00'
+      pagina: 8
+      impreso: '630.462'
+    resultado_antes_de_impuestos:
+      valor: '548684000000.00'
+      pagina: 8
+      impreso: '548.684'
+    impuesto_a_las_ganancias:
+      valor: '1702000000.00'
+      pagina: 8
+      impreso: '1.702'
+    resultado_neto:
+      valor: '550386000000.00'
+      pagina: 8
+      impreso: '550.386'
+    depreciaciones_y_amortizaciones:
+      valor: '-373263000000.00'
+      pagina: 31
+      impreso: '373.263'
+    ganancia_por_accion_basica:
+      valor: '403.22'
+      pagina: 9
+      impreso: 403,22
+    ganancia_por_accion_diluida:
+      valor: '403.22'
+      pagina: 9
+      impreso: 403,22
+    flujo_inversion:
+      valor: '-473724000000.00'
+      pagina: 13
+      impreso: '473.724'
+    flujo_financiacion:
+      valor: '858756000000.00'
+      pagina: 13
+      impreso: '858.756'
+- empresa: TELECOM
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 82a017d7beade0a363ad02aa27bdaef063bb1b12ad93a689715b5cf7a050fb66
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '15630443000000.00'
+      pagina: 5
+      impreso: 15.630.443
+    activo_corriente:
+      valor: '1738676000000.00'
+      pagina: 5
+      impreso: 1.738.676
+    pasivo_total:
+      valor: '9092118000000.00'
+      pagina: 5
+      impreso: 9.092.118
+    pasivo_corriente:
+      valor: '3325458000000.00'
+      pagina: 5
+      impreso: 3.325.458
+    patrimonio_neto:
+      valor: '6538325000000.00'
+      pagina: 5
+      impreso: 6.538.325
+    caja_y_equivalentes:
+      valor: '397893000000.00'
+      pagina: 5
+      impreso: '397.893'
+    ingresos:
+      valor: '5622561000000.00'
+      pagina: 6
+      impreso: 5.622.561
+    resultado_operativo:
+      valor: '352321000000.00'
+      pagina: 6
+      impreso: '352.321'
+    resultado_antes_de_impuestos:
+      valor: '-336952000000.00'
+      pagina: 6
+      impreso: '336.952'
+    impuesto_a_las_ganancias:
+      valor: '64409000000.00'
+      pagina: 6
+      impreso: '64.409'
+    resultado_neto:
+      valor: '-272543000000.00'
+      pagina: 6
+      impreso: '272.543'
+    ganancia_por_accion_basica:
+      valor: '-134.26'
+      pagina: 6
+      impreso: 134,26
+    ganancia_por_accion_diluida:
+      valor: '-134.26'
+      pagina: 6
+      impreso: 134,26
+    flujo_financiacion:
+      valor: '742872000000.00'
+      pagina: 9
+      impreso: '742.872'
+- empresa: TELECOM
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 2b5fc06cb717f2f02731a3dfb6ab3b54f9bf2b6af11b3d8bfa2790c0d05cd6ff
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '16622552000000.00'
+      pagina: 7
+      impreso: 16.622.552
+    activo_corriente:
+      valor: '1833812000000.00'
+      pagina: 7
+      impreso: 1.833.812
+    pasivo_total:
+      valor: '9639244000000.00'
+      pagina: 7
+      impreso: 9.639.244
+    pasivo_corriente:
+      valor: '3838300000000.00'
+      pagina: 7
+      impreso: 3.838.300
+    patrimonio_neto:
+      valor: '6983308000000.00'
+      pagina: 7
+      impreso: 6.983.308
+    caja_y_equivalentes:
+      valor: '469050000000.00'
+      pagina: 7
+      impreso: '469.050'
+    ingresos:
+      valor: '8328814000000.00'
+      pagina: 8
+      impreso: 8.328.814
+    resultado_operativo:
+      valor: '450047000000.00'
+      pagina: 8
+      impreso: '450.047'
+    resultado_antes_de_impuestos:
+      valor: '-191736000000.00'
+      pagina: 8
+      impreso: '191.736'
+    impuesto_a_las_ganancias:
+      valor: '46432000000.00'
+      pagina: 8
+      impreso: '46.432'
+    resultado_neto:
+      valor: '-145304000000.00'
+      pagina: 8
+      impreso: '145.304'
+    ganancia_por_accion_basica:
+      valor: '-78.94'
+      pagina: 8
+      impreso: 78,94
+    ganancia_por_accion_diluida:
+      valor: '-78.94'
+      pagina: 8
+      impreso: 78,94
+    flujo_inversion:
+      valor: '-3011630000000.00'
+      pagina: 11
+      impreso: 3.011.630
+- empresa: TELECOM
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 40748d53388ad1d6b64a66398472fe4429e6d5f15fa327c6ba10ba2321af7ba1
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_corriente:
+      valor: '2175050000000.00'
+      pagina: 6
+      impreso: 2.175.050
+    pasivo_total:
+      valor: '10056632000000.00'
+      pagina: 6
+      impreso: 10.056.632
+    pasivo_corriente:
+      valor: '3743164000000.00'
+      pagina: 6
+      impreso: 3.743.164
+    patrimonio_neto:
+      valor: '8218598000000.00'
+      pagina: 6
+      impreso: 8.218.598
+    caja_y_equivalentes:
+      valor: '675480000000.00'
+      pagina: 6
+      impreso: '675.480'
+    ingresos:
+      valor: '2357686000000.00'
+      pagina: 7
+      impreso: 2.357.686
+    resultado_operativo:
+      valor: '295758000000.00'
+      pagina: 7
+      impreso: '295.758'
+    resultado_antes_de_impuestos:
+      valor: '963641000000.00'
+      pagina: 7
+      impreso: '963.641'
+    impuesto_a_las_ganancias:
+      valor: '-320657000000.00'
+      pagina: 7
+      impreso: '320.657'
+    resultado_neto:
+      valor: '642984000000.00'
+      pagina: 7
+      impreso: '642.984'
+    ganancia_por_accion_basica:
+      valor: '295.62'
+      pagina: 7
+      impreso: 295,62
+    ganancia_por_accion_diluida:
+      valor: '295.62'
+      pagina: 7
+      impreso: 295,62
+    flujo_inversion:
+      valor: '-582769000000.00'
+      pagina: 10
+      impreso: '582.769'
+    flujo_financiacion:
+      valor: '64845000000.00'
+      pagina: 10
+      impreso: '64.845'
+- empresa: TELECOM
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 50bcb2f52f95bae80ad8e7ecfd9e15bcd883953042857a83c77860b0cc8e40bb
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '19258520000000.00'
+      pagina: 6
+      impreso: 19.258.520
+    pasivo_total:
+      valor: '10332078000000.00'
+      pagina: 6
+      impreso: 10.332.078
+    pasivo_corriente:
+      valor: '3631561000000.00'
+      pagina: 6
+      impreso: 3.631.561
+    patrimonio_neto:
+      valor: '8926442000000.00'
+      pagina: 6
+      impreso: 8.926.442
+    caja_y_equivalentes:
+      valor: '401241000000.00'
+      pagina: 6
+      impreso: '401.241'
+    ingresos:
+      valor: '5075511000000.00'
+      pagina: 7
+      impreso: 5.075.511
+    resultado_operativo:
+      valor: '674203000000.00'
+      pagina: 7
+      impreso: '674.203'
+    resultado_antes_de_impuestos:
+      valor: '1321796000000.00'
+      pagina: 7
+      impreso: 1.321.796
+    impuesto_a_las_ganancias:
+      valor: '-452758000000.00'
+      pagina: 7
+      impreso: '452.758'
+    resultado_neto:
+      valor: '869038000000.00'
+      pagina: 7
+      impreso: '869.038'
+    ganancia_por_accion_basica:
+      valor: '396.48'
+      pagina: 7
+      impreso: 396,48
+    ganancia_por_accion_diluida:
+      valor: '396.48'
+      pagina: 7
+      impreso: 396,48
+    flujo_inversion:
+      valor: '-1348527000000.00'
+      pagina: 10
+      impreso: 1.348.527
+    flujo_financiacion:
+      valor: '-417154000000.00'
+      pagina: 10
+      impreso: '417.154'
+- empresa: TGS
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: dec3437f8e06ee0f54fe596af249d4afaeb803fc67cb268f7b0d2efecd75fa3b
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '4104978778000.00'
+      pagina: 9
+      impreso: 4.104.978.778
+    activo_corriente:
+      valor: '1188561557000.00'
+      pagina: 9
+      impreso: 1.188.561.557
+    pasivo_total:
+      valor: '1320163647000.00'
+      pagina: 9
+      impreso: 1.320.163.647
+    pasivo_corriente:
+      valor: '319229748000.00'
+      pagina: 9
+      impreso: 319.229.748
+    patrimonio_neto:
+      valor: '2784815131000.00'
+      pagina: 9
+      impreso: 2.784.815.131
+    caja_y_equivalentes:
+      valor: '73030151000.00'
+      pagina: 9
+      impreso: 73.030.151
+    ingresos:
+      valor: '1156194101000.00'
+      pagina: 13
+      impreso: 1.156.194.101
+    resultado_bruto:
+      valor: '624270955000.00'
+      pagina: 13
+      impreso: 624.270.955
+    resultado_antes_de_impuestos:
+      valor: '411985890000.00'
+      pagina: 9
+      impreso: 411.985.890
+    impuesto_a_las_ganancias:
+      valor: '-136758987000.00'
+      pagina: 9
+      impreso: 136.758.987
+    resultado_neto:
+      valor: '275226903000.00'
+      pagina: 9
+      impreso: 275.226.903
+    depreciaciones_y_amortizaciones:
+      valor: '-3380036000.00'
+      pagina: 30
+      impreso: 3.380.036
+    ganancia_por_accion_basica:
+      valor: '365.62'
+      pagina: 13
+      impreso: 365,62
+    ganancia_por_accion_diluida:
+      valor: '365.62'
+      pagina: 13
+      impreso: 365,62
+    flujo_inversion:
+      valor: '-210495633000.00'
+      pagina: 9
+      impreso: 210.495.633
+    flujo_financiacion:
+      valor: '-186811900000.00'
+      pagina: 9
+      impreso: 186.811.900
+- empresa: TGS
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: b0c4dcdea2e23a807f4843a9653a0b7b0c7b932ca5bfc0e70e86261e1311b0c8
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '5414210081000.00'
+      pagina: 7
+      impreso: 5.414.210.081
+    activo_corriente:
+      valor: '2236945424000.00'
+      pagina: 7
+      impreso: 2.236.945.424
+    pasivo_total:
+      valor: '2286344609000.00'
+      pagina: 7
+      impreso: 2.286.344.609
+    pasivo_corriente:
+      valor: '447233885000.00'
+      pagina: 7
+      impreso: 447.233.885
+    patrimonio_neto:
+      valor: '3127865472000.00'
+      pagina: 7
+      impreso: 3.127.865.472
+    caja_y_equivalentes:
+      valor: '804106528000.00'
+      pagina: 7
+      impreso: 804.106.528
+    ingresos:
+      valor: '1720626082000.00'
+      pagina: 7
+      impreso: 1.720.626.082
+    resultado_bruto:
+      valor: '933238172000.00'
+      pagina: 87
+      impreso: 933.238.172
+    resultado_antes_de_impuestos:
+      valor: '644043098000.00'
+      pagina: 7
+      impreso: 644.043.098
+    impuesto_a_las_ganancias:
+      valor: '-223182952000.00'
+      pagina: 79
+      impreso: 223.182.952
+    resultado_neto:
+      valor: '420860146000.00'
+      pagina: 7
+      impreso: 420.860.146
+    depreciaciones_y_amortizaciones:
+      valor: '-4861171000.00'
+      pagina: 128
+      impreso: 4.861.171
+    ganancia_por_accion_basica:
+      valor: '559.09'
+      pagina: 87
+      impreso: 559,09
+    ganancia_por_accion_diluida:
+      valor: '559.09'
+      pagina: 87
+      impreso: 559,09
+    flujo_inversion:
+      valor: '-454494078000.00'
+      pagina: 7
+      impreso: 454.494.078
+    flujo_financiacion:
+      valor: '654693903000.00'
+      pagina: 7
+      impreso: 654.693.903
+- empresa: TGS
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: a83f6e9b8bc083b2d6552b3b9616d209a5f84012e2843640d0b9fe833f7894fc
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '5849562941000.00'
+      pagina: 7
+      impreso: 5.849.562.941
+    activo_corriente:
+      valor: '2234273554000.00'
+      pagina: 7
+      impreso: 2.234.273.554
+    pasivo_total:
+      valor: '2266374159000.00'
+      pagina: 7
+      impreso: 2.266.374.159
+    pasivo_corriente:
+      valor: '437014049000.00'
+      pagina: 7
+      impreso: 437.014.049
+    patrimonio_neto:
+      valor: '3583188782000.00'
+      pagina: 7
+      impreso: 3.583.188.782
+    caja_y_equivalentes:
+      valor: '363346014000.00'
+      pagina: 8
+      impreso: 363.346.014
+    ingresos:
+      valor: '484201065000.00'
+      pagina: 11
+      impreso: 484.201.065
+    resultado_bruto:
+      valor: '282034355000.00'
+      pagina: 11
+      impreso: 282.034.355
+    resultado_antes_de_impuestos:
+      valor: '261714364000.00'
+      pagina: 7
+      impreso: 261.714.364
+    impuesto_a_las_ganancias:
+      valor: '-101733201000.00'
+      pagina: 7
+      impreso: 101.733.201
+    resultado_neto:
+      valor: '159981163000.00'
+      pagina: 7
+      impreso: 159.981.163
+    depreciaciones_y_amortizaciones:
+      valor: '-1043958000.00'
+      pagina: 27
+      impreso: 1.043.958
+    ganancia_por_accion_basica:
+      valor: '212.53'
+      pagina: 11
+      impreso: 212,53
+    ganancia_por_accion_diluida:
+      valor: '212.53'
+      pagina: 11
+      impreso: 212,53
+    flujo_inversion:
+      valor: '-605616206000.00'
+      pagina: 8
+      impreso: 605.616.206
+    flujo_financiacion:
+      valor: '-15079852000.00'
+      pagina: 8
+      impreso: 15.079.852
+- empresa: TGS
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: ad5deaaac0462d32a56acbdfb230cfb9e98082de57efa31ce9d11566dc4685ff
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '6667147415000.00'
+      pagina: 9
+      impreso: 6.667.147.415
+    activo_corriente:
+      valor: '2643482927000.00'
+      pagina: 9
+      impreso: 2.643.482.927
+    pasivo_total:
+      valor: '2700412995000.00'
+      pagina: 9
+      impreso: 2.700.412.995
+    pasivo_corriente:
+      valor: '719797879000.00'
+      pagina: 9
+      impreso: 719.797.879
+    patrimonio_neto:
+      valor: '3966734420000.00'
+      pagina: 9
+      impreso: 3.966.734.420
+    caja_y_equivalentes:
+      valor: '286690164000.00'
+      pagina: 10
+      impreso: 286.690.164
+    ingresos:
+      valor: '1053559704000.00'
+      pagina: 14
+      impreso: 1.053.559.704
+    resultado_bruto:
+      valor: '574867112000.00'
+      pagina: 14
+      impreso: 574.867.112
+    resultado_antes_de_impuestos:
+      valor: '477339226000.00'
+      pagina: 9
+      impreso: 477.339.226
+    impuesto_a_las_ganancias:
+      valor: '-173033332000.00'
+      pagina: 9
+      impreso: 173.033.332
+    resultado_neto:
+      valor: '304305894000.00'
+      pagina: 9
+      impreso: 304.305.894
+    depreciaciones_y_amortizaciones:
+      valor: '-2085770000.00'
+      pagina: 31
+      impreso: 2.085.770
+    ganancia_por_accion_basica:
+      valor: '404.25'
+      pagina: 14
+      impreso: 404,25
+    ganancia_por_accion_diluida:
+      valor: '404.25'
+      pagina: 14
+      impreso: 404,25
+    flujo_inversion:
+      valor: '-1148670163000.00'
+      pagina: 10
+      impreso: 1.148.670.163
+    flujo_financiacion:
+      valor: '4448728000.00'
+      pagina: 10
+      impreso: 4.448.728
+- empresa: TRANSENER
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: a02a3305872a8b9ced1cb1b0bec022c92c30b5e7e128b27d8b04337b8d39533b
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1029319785000.00'
+      pagina: 4
+      impreso: 1.029.319.785
+    activo_corriente:
+      valor: '197632057000.00'
+      pagina: 4
+      impreso: 197.632.057
+    pasivo_total:
+      valor: '280598220000.00'
+      pagina: 4
+      impreso: 280.598.220
+    pasivo_corriente:
+      valor: '148575371000.00'
+      pagina: 4
+      impreso: 148.575.371
+    patrimonio_neto:
+      valor: '748721565000.00'
+      pagina: 4
+      impreso: 748.721.565
+    caja_y_equivalentes:
+      valor: '83702516000.00'
+      pagina: 12
+      impreso: 83.702.516
+    ingresos:
+      valor: '375699601000.00'
+      pagina: 11
+      impreso: 375.699.601
+    resultado_operativo:
+      valor: '186235362000.00'
+      pagina: 4
+      impreso: 186.235.362
+    resultado_antes_de_impuestos:
+      valor: '193655216000.00'
+      pagina: 11
+      impreso: 193.655.216
+    impuesto_a_las_ganancias:
+      valor: '-66298675000.00'
+      pagina: 4
+      impreso: 66.298.675
+    resultado_neto:
+      valor: '127356541000.00'
+      pagina: 4
+      impreso: 127.356.541
+    depreciaciones_y_amortizaciones:
+      valor: '-33351942000.00'
+      pagina: 14
+      impreso: 33.351.942
+    flujo_inversion:
+      valor: '-55456796000.00'
+      pagina: 15
+      impreso: 55.456.796
+    flujo_financiacion:
+      valor: '-131596985000.00'
+      pagina: 15
+      impreso: 131.596.985
+- empresa: TRANSENER
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: fecce6e7e61ca622438ac4e40f7a0ece484a57d61d914a52c49741e03d244ae3
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1205774523000.00'
+      pagina: 4
+      impreso: 1.205.774.523
+    activo_corriente:
+      valor: '257832074000.00'
+      pagina: 4
+      impreso: 257.832.074
+    pasivo_total:
+      valor: '341251951000.00'
+      pagina: 4
+      impreso: 341.251.951
+    pasivo_corriente:
+      valor: '198646467000.00'
+      pagina: 4
+      impreso: 198.646.467
+    patrimonio_neto:
+      valor: '864522572000.00'
+      pagina: 4
+      impreso: 864.522.572
+    caja_y_equivalentes:
+      valor: '74479529000.00'
+      pagina: 12
+      impreso: 74.479.529
+    ingresos:
+      valor: '573144634000.00'
+      pagina: 11
+      impreso: 573.144.634
+    resultado_operativo:
+      valor: '294191968000.00'
+      pagina: 4
+      impreso: 294.191.968
+    resultado_antes_de_impuestos:
+      valor: '299345938000.00'
+      pagina: 11
+      impreso: 299.345.938
+    impuesto_a_las_ganancias:
+      valor: '-104915176000.00'
+      pagina: 4
+      impreso: 104.915.176
+    resultado_neto:
+      valor: '194430762000.00'
+      pagina: 4
+      impreso: 194.430.762
+    depreciaciones_y_amortizaciones:
+      valor: '-47163252000.00'
+      pagina: 14
+      impreso: 47.163.252
+    ganancia_por_accion_basica:
+      valor: '437.24'
+      pagina: 11
+      impreso: 437,24
+    ganancia_por_accion_diluida:
+      valor: '437.24'
+      pagina: 11
+      impreso: 437,24
+    flujo_inversion:
+      valor: '-166107474000.00'
+      pagina: 15
+      impreso: 166.107.474
+    flujo_financiacion:
+      valor: '-145582135000.00'
+      pagina: 15
+      impreso: 145.582.135
+- empresa: TRANSENER
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 7d8d5fd4b18f94eff6350b671492f2f4f356996a3250f30ca6ed618d7b2abed1
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1368771777000.00'
+      pagina: 4
+      impreso: 1.368.771.777
+    activo_corriente:
+      valor: '313687484000.00'
+      pagina: 4
+      impreso: 313.687.484
+    pasivo_total:
+      valor: '358693785000.00'
+      pagina: 4
+      impreso: 358.693.785
+    pasivo_corriente:
+      valor: '205016676000.00'
+      pagina: 4
+      impreso: 205.016.676
+    patrimonio_neto:
+      valor: '1010077992000.00'
+      pagina: 4
+      impreso: 1.010.077.992
+    caja_y_equivalentes:
+      valor: '135366174000.00'
+      pagina: 11
+      impreso: 135.366.174
+    ingresos:
+      valor: '181425830000.00'
+      pagina: 10
+      impreso: 181.425.830
+    resultado_operativo:
+      valor: '104508056000.00'
+      pagina: 4
+      impreso: 104.508.056
+    resultado_antes_de_impuestos:
+      valor: '95799013000.00'
+      pagina: 10
+      impreso: 95.799.013
+    impuesto_a_las_ganancias:
+      valor: '-31874326000.00'
+      pagina: 4
+      impreso: 31.874.326
+    resultado_neto:
+      valor: '63924687000.00'
+      pagina: 4
+      impreso: 63.924.687
+    depreciaciones_y_amortizaciones:
+      valor: '-14404363000.00'
+      pagina: 13
+      impreso: 14.404.363
+    ganancia_por_accion_basica:
+      valor: '143.76'
+      pagina: 10
+      impreso: 143,76
+    ganancia_por_accion_diluida:
+      valor: '143.76'
+      pagina: 10
+      impreso: 143,76
+    flujo_inversion:
+      valor: '-20504394000.00'
+      pagina: 14
+      impreso: 20.504.394
+    flujo_financiacion:
+      valor: '-233254000.00'
+      pagina: 14
+      impreso: '233.254'
+- empresa: TRANSENER
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: e16dd53663ce6f97d982ca4a1d0a711bde5016712571d74b07a87372c333b434
+  moneda: ARS
+  unidad: miles
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '1493086764000.00'
+      pagina: 4
+      impreso: 1.493.086.764
+    activo_corriente:
+      valor: '353883310000.00'
+      pagina: 4
+      impreso: 353.883.310
+    pasivo_total:
+      valor: '340590608000.00'
+      pagina: 4
+      impreso: 340.590.608
+    pasivo_corriente:
+      valor: '179275283000.00'
+      pagina: 4
+      impreso: 179.275.283
+    patrimonio_neto:
+      valor: '1152496156000.00'
+      pagina: 4
+      impreso: 1.152.496.156
+    caja_y_equivalentes:
+      valor: '165847639000.00'
+      pagina: 11
+      impreso: 165.847.639
+    ingresos:
+      valor: '389193205000.00'
+      pagina: 10
+      impreso: 389.193.205
+    resultado_operativo:
+      valor: '220582757000.00'
+      pagina: 4
+      impreso: 220.582.757
+    resultado_antes_de_impuestos:
+      valor: '211839480000.00'
+      pagina: 10
+      impreso: 211.839.480
+    impuesto_a_las_ganancias:
+      valor: '-71615801000.00'
+      pagina: 4
+      impreso: 71.615.801
+    resultado_neto:
+      valor: '140223679000.00'
+      pagina: 4
+      impreso: 140.223.679
+    depreciaciones_y_amortizaciones:
+      valor: '-30046000000.00'
+      pagina: 13
+      impreso: 30.046.000
+    ganancia_por_accion_basica:
+      valor: '315.34'
+      pagina: 10
+      impreso: 315,34
+    ganancia_por_accion_diluida:
+      valor: '315.34'
+      pagina: 10
+      impreso: 315,34
+    flujo_inversion:
+      valor: '-44946077000.00'
+      pagina: 14
+      impreso: 44.946.077
+    flujo_financiacion:
+      valor: '-514248000.00'
+      pagina: 14
+      impreso: '514.248'
+- empresa: YPF
+  fecha_cierre: '2025-09-30'
+  tipo_balance: consolidado
+  documento_sha256: 8748ce52df75285796f345d05e4086d53ff8abc9f6e01de809a2f6c955864fbe
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '40671736000000.00'
+      pagina: 8
+      impreso: 40.671.736
+    activo_corriente:
+      valor: '7704889000000.00'
+      pagina: 8
+      impreso: 7.704.889
+    pasivo_total:
+      valor: '24669392000000.00'
+      pagina: 8
+      impreso: 24.669.392
+    pasivo_corriente:
+      valor: '10316315000000.00'
+      pagina: 8
+      impreso: 10.316.315
+    patrimonio_neto:
+      valor: '16002344000000.00'
+      pagina: 8
+      impreso: 16.002.344
+    caja_y_equivalentes:
+      valor: '1099247000000.00'
+      pagina: 8
+      impreso: 1.099.247
+    ingresos:
+      valor: '16621228000000.00'
+      pagina: 9
+      impreso: 16.621.228
+    resultado_bruto:
+      valor: '4498854000000.00'
+      pagina: 9
+      impreso: 4.498.854
+    resultado_operativo:
+      valor: '1397526000000.00'
+      pagina: 9
+      impreso: 1.397.526
+    resultado_antes_de_impuestos:
+      valor: '705734000000.00'
+      pagina: 9
+      impreso: '705.734'
+    impuesto_a_las_ganancias:
+      valor: '-887372000000.00'
+      pagina: 9
+      impreso: '887.372'
+    resultado_neto:
+      valor: '-181638000000.00'
+      pagina: 9
+      impreso: '181.638'
+    ganancia_por_accion_basica:
+      valor: '-543.72'
+      pagina: 9
+      impreso: 543,72
+    ganancia_por_accion_diluida:
+      valor: '-543.72'
+      pagina: 9
+      impreso: 543,72
+    flujo_inversion:
+      valor: '-5127504000000.00'
+      pagina: 12
+      impreso: 5.127.504
+    flujo_financiacion:
+      valor: '1049391000000.00'
+      pagina: 12
+      impreso: 1.049.391
+- empresa: YPF
+  fecha_cierre: '2025-12-31'
+  tipo_balance: consolidado
+  documento_sha256: 77489fdee95f4774f4979549468a0b9f1d1c654f012ee37eddcc447c8d4399f2
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '42703377000000.00'
+      pagina: 13
+      impreso: 42.703.377
+    activo_corriente:
+      valor: '9397310000000.00'
+      pagina: 13
+      impreso: 9.397.310
+    pasivo_total:
+      valor: '26684394000000.00'
+      pagina: 13
+      impreso: 26.684.394
+    pasivo_corriente:
+      valor: '10797726000000.00'
+      pagina: 13
+      impreso: 10.797.726
+    patrimonio_neto:
+      valor: '16018983000000.00'
+      pagina: 13
+      impreso: 16.018.983
+    caja_y_equivalentes:
+      valor: '1352703000000.00'
+      pagina: 13
+      impreso: 1.352.703
+    ingresos:
+      valor: '23240162000000.00'
+      pagina: 14
+      impreso: 23.240.162
+    resultado_bruto:
+      valor: '6391021000000.00'
+      pagina: 14
+      impreso: 6.391.021
+    resultado_operativo:
+      valor: '2279171000000.00'
+      pagina: 14
+      impreso: 2.279.171
+    resultado_antes_de_impuestos:
+      valor: '1346555000000.00'
+      pagina: 14
+      impreso: 1.346.555
+    impuesto_a_las_ganancias:
+      valor: '-2394827000000.00'
+      pagina: 14
+      impreso: 2.394.827
+    resultado_neto:
+      valor: '-1048272000000.00'
+      pagina: 14
+      impreso: 1.048.272
+    ganancia_por_accion_basica:
+      valor: '-2775.14'
+      pagina: 14
+      impreso: 2.775,14
+    ganancia_por_accion_diluida:
+      valor: '-2775.14'
+      pagina: 14
+      impreso: 2.775,14
+    flujo_inversion:
+      valor: '-7059684000000.00'
+      pagina: 17
+      impreso: 7.059.684
+    flujo_financiacion:
+      valor: '526784000000.00'
+      pagina: 17
+      impreso: '526.784'
+- empresa: YPF
+  fecha_cierre: '2026-03-31'
+  tipo_balance: consolidado
+  documento_sha256: 381f6dab09f381ef0c7642d5ae8b77dbd25d7c0b2b23156caaef87c6cdf19634
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '41817608000000.00'
+      pagina: 8
+      impreso: 41.817.608
+    activo_corriente:
+      valor: '9253625000000.00'
+      pagina: 8
+      impreso: 9.253.625
+    pasivo_total:
+      valor: '25791090000000.00'
+      pagina: 8
+      impreso: 25.791.090
+    pasivo_corriente:
+      valor: '9872530000000.00'
+      pagina: 8
+      impreso: 9.872.530
+    patrimonio_neto:
+      valor: '16026518000000.00'
+      pagina: 8
+      impreso: 16.026.518
+    caja_y_equivalentes:
+      valor: '1825751000000.00'
+      pagina: 8
+      impreso: 1.825.751
+    ingresos:
+      valor: '6956434000000.00'
+      pagina: 9
+      impreso: 6.956.434
+    resultado_bruto:
+      valor: '2478362000000.00'
+      pagina: 9
+      impreso: 2.478.362
+    resultado_operativo:
+      valor: '1241859000000.00'
+      pagina: 9
+      impreso: 1.241.859
+    resultado_antes_de_impuestos:
+      valor: '954734000000.00'
+      pagina: 9
+      impreso: '954.734'
+    impuesto_a_las_ganancias:
+      valor: '-342873000000.00'
+      pagina: 9
+      impreso: '342.873'
+    resultado_neto:
+      valor: '611861000000.00'
+      pagina: 9
+      impreso: '611.861'
+    ganancia_por_accion_basica:
+      valor: '1546.33'
+      pagina: 9
+      impreso: 1.546,33
+    ganancia_por_accion_diluida:
+      valor: '1546.33'
+      pagina: 9
+      impreso: 1.546,33
+    flujo_inversion:
+      valor: '-974397000000.00'
+      pagina: 12
+      impreso: '974.397'
+    flujo_financiacion:
+      valor: '-1135436000000.00'
+      pagina: 12
+      impreso: 1.135.436
+- empresa: YPF
+  fecha_cierre: '2026-06-30'
+  tipo_balance: consolidado
+  documento_sha256: 0aae10332a7f7e0b45980a42e9a20bd3b7a7bc953a5425cfcd7995ce096c6477
+  moneda: ARS
+  unidad: millones
+  base_medicion: homogenea
+  verificado_por: null
+  cifras:
+    activo_total:
+      valor: '47860619000000.00'
+      pagina: 8
+      impreso: 47.860.619
+    activo_corriente:
+      valor: '10798930000000.00'
+      pagina: 8
+      impreso: 10.798.930
+    pasivo_total:
+      valor: '28958566000000.00'
+      pagina: 8
+      impreso: 28.958.566
+    pasivo_corriente:
+      valor: '11561382000000.00'
+      pagina: 8
+      impreso: 11.561.382
+    patrimonio_neto:
+      valor: '18902053000000.00'
+      pagina: 8
+      impreso: 18.902.053
+    caja_y_equivalentes:
+      valor: '1947666000000.00'
+      pagina: 8
+      impreso: 1.947.666
+    ingresos:
+      valor: '16278459000000.00'
+      pagina: 9
+      impreso: 16.278.459
+    resultado_bruto:
+      valor: '6666958000000.00'
+      pagina: 9
+      impreso: 6.666.958
+    resultado_operativo:
+      valor: '3794983000000.00'
+      pagina: 9
+      impreso: 3.794.983
+    resultado_antes_de_impuestos:
+      valor: '3482017000000.00'
+      pagina: 9
+      impreso: 3.482.017
+    impuesto_a_las_ganancias:
+      valor: '-1167083000000.00'
+      pagina: 9
+      impreso: 1.167.083
+    resultado_neto:
+      valor: '2314934000000.00'
+      pagina: 9
+      impreso: 2.314.934
+    ganancia_por_accion_basica:
+      valor: '587.49'
+      pagina: 9
+      impreso: 587,49
+    ganancia_por_accion_diluida:
+      valor: '587.49'
+      pagina: 9
+      impreso: 587,49
+    flujo_inversion:
+      valor: '-4439652000000.00'
+      pagina: 12
+      impreso: 4.439.652
+    flujo_financiacion:
+      valor: '-1612996000000.00'
+      pagina: 12
+      impreso: 1.612.996

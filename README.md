@@ -46,3 +46,16 @@ docker compose -f docker/compose.yml --env-file .env run --rm api python -m bruj
 # Necesita LLM_EXTRACTION_MODEL y la clave del proveedor; --modelo prueba otro modelo.
 docker compose -f docker/compose.yml --env-file .env run --rm api python -m brujula.cli verificar-estados --empresa GGAL --limite 1
 ```
+
+## Evals
+
+Las evals no van en la imagen: se montan desde el repositorio, que también guarda el dataset y
+los resultados (docs/adr/018). Cuestan dinero (llaman al LLM) y no corren en CI.
+
+```bash
+# Precargar el dataset de referencia (no llama al LLM; nunca pisa casos ya verificados).
+docker compose -f docker/compose.yml --env-file .env run --rm -v "$PWD/evals:/app/evals" api   python -m evals.runners.extraction preparar --empresa GGAL --empresa YPF
+
+# Comparar modelos de extracción (por defecto LLM_EXTRACTION_MODEL y el de respaldo).
+docker compose -f docker/compose.yml --env-file .env run --rm -v "$PWD/evals:/app/evals" api   python -m evals.runners.extraction correr --modelo anthropic/... --modelo openai/...
+```
